@@ -1,0 +1,4 @@
+
+redis:
+  serverAddress: "xxx"
+  serverPassword: "xxx"
