@@ -69,8 +69,8 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     public OrderResponse create(OrderCreateRequest request) {
         try {
             orderValidatorChain.validate(request);
-        } catch (Exception e) {
-            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getMessage());
+        } catch (OrderException e) {
+            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
 
         Boolean preDeductResult = inventoryWrapperService.preDeduct(request);

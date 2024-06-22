@@ -12,7 +12,7 @@ import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
-import cn.hollis.nft.turbo.collection.domain.service.impl.CollectionInventoryRedisService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import cn.hollis.nft.turbo.web.util.MultiResultConvertor;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
@@ -104,13 +104,14 @@ public class CollectionController {
      * @return 结果
      */
     @GetMapping("/heldCollectionList")
-    public MultiResult<HeldCollectionVO> heldCollectionList(@NotBlank String state, int pageSize, int currentPage) {
+    public MultiResult<HeldCollectionVO> heldCollectionList(String keyword, String state, int pageSize, int currentPage) {
         String userId = (String) StpUtil.getLoginId();
         HeldCollectionPageQueryRequest heldCollectionPageQueryRequest = new HeldCollectionPageQueryRequest();
         heldCollectionPageQueryRequest.setState(state);
         heldCollectionPageQueryRequest.setUserId(userId);
         heldCollectionPageQueryRequest.setCurrentPage(currentPage);
         heldCollectionPageQueryRequest.setPageSize(pageSize);
+        heldCollectionPageQueryRequest.setKeyword(keyword);
         PageResponse<HeldCollectionVO> pageResponse = collectionFacadeService.pageQueryHeldCollection(heldCollectionPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }
@@ -122,8 +123,8 @@ public class CollectionController {
      * @return 结果
      */
     @GetMapping("/heldCollectionInfo")
-    public Result<HeldCollectionVO> heldCollectionInfo(@NotBlank String nftId) {
-        SingleResponse<HeldCollectionVO> singleResponse = collectionFacadeService.queryByNftId(nftId);
+    public Result<HeldCollectionVO> heldCollectionInfo(@NotBlank String heldCollectionId) {
+        SingleResponse<HeldCollectionVO> singleResponse = collectionFacadeService.queryHeldCollectionById(Long.valueOf(heldCollectionId));
         return Result.success(singleResponse.getData());
     }
 

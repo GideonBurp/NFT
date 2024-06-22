@@ -15,4 +15,5 @@ public class HeldCollectionPageQueryRequest extends PageRequest {
 
     private String userId;
 
+    private String keyword;
 }

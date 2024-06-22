@@ -7,7 +7,6 @@ import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
-import cn.hollis.nft.turbo.collection.domain.service.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.collection.facade.CollectionCancelSaleRequest;
 import cn.hollis.nft.turbo.collection.facade.CollectionConfirmSaleRequest;
@@ -18,15 +17,10 @@ import cn.hutool.core.lang.Assert;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -159,17 +153,6 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         collectionSaleResponse.setCollection(collection);
         collectionSaleResponse.setHeldCollection(heldCollection);
         return collectionSaleResponse;
-    }
-
-    @Override
-    public Collection queryByClassId(String classId) {
-        QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("class_id", classId);
-        List<Collection> retList = list(queryWrapper);
-        if (CollectionUtils.isEmpty(retList)) {
-            return null;
-        }
-        return retList.get(0);
     }
 
     @Override

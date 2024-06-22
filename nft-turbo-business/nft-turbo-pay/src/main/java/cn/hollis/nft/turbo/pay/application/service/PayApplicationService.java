@@ -95,6 +95,10 @@ public class PayApplicationService {
         collectionSaleRequest.setQuantity((long) tradeOrderVO.getItemCount());
         collectionSaleRequest.setBizNo(tradeOrderVO.getOrderId());
         collectionSaleRequest.setBizType(CollectionSaleBizType.PRIMARY_TRADE.name());
+        collectionSaleRequest.setName(tradeOrderVO.getGoodsName());
+        collectionSaleRequest.setCover(tradeOrderVO.getGoodsPicUrl());
+        collectionSaleRequest.setPurchasePrice(tradeOrderVO.getItemPrice());
+
         return collectionSaleRequest;
     }
 

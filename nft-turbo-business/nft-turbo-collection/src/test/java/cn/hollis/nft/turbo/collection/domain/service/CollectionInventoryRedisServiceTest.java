@@ -4,7 +4,7 @@ package cn.hollis.nft.turbo.collection.domain.service;
 import cn.hollis.nft.turbo.collection.CollectionBaseTest;
 import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
-import cn.hollis.nft.turbo.collection.domain.service.impl.CollectionInventoryRedisService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import com.alibaba.fastjson.JSON;
 import org.junit.Assert;
 import org.junit.Ignore;

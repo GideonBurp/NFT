@@ -8,7 +8,7 @@ import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionActiveRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
-import cn.hollis.nft.turbo.collection.domain.service.HeldCollectionService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;

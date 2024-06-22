@@ -1,7 +1,8 @@
-package cn.hollis.nft.turbo.collection.domain.service.impl;
+package cn.hollis.nft.turbo.collection.domain.service.impl.es;
 
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
+import cn.hollis.nft.turbo.collection.domain.service.impl.BaseCollectionService;
 import cn.hollis.nft.turbo.collection.infrastructure.es.mapper.CollectionEsMapper;
 import com.google.common.collect.ImmutableList;
 import org.dromara.easyes.core.biz.SAPageInfo;
@@ -18,6 +19,11 @@ import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
+/**
+ * 藏品服务--Elasticsearch实现
+ *
+ * @author hollis
+ */
 @Service
 @ConditionalOnProperty(name = "spring.elasticsearch.enable", havingValue = "true")
 public class CollectionEsService extends BaseCollectionService {

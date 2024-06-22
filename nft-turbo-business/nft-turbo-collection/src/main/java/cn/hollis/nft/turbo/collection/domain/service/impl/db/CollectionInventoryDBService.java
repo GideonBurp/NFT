@@ -1,4 +1,4 @@
-package cn.hollis.nft.turbo.collection.domain.service.impl;
+package cn.hollis.nft.turbo.collection.domain.service.impl.db;
 
 import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;

@@ -4,6 +4,8 @@ import cn.hollis.nft.turbo.collection.domain.constant.HeldCollectionEventType;
 import cn.hollis.nft.turbo.collection.facade.CollectionConfirmSaleRequest;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 /**
  * @author wswyb001
  * @date 2024/01/17
@@ -15,6 +17,20 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HeldCollectionCreateRequest extends BaseHeldCollectionRequest {
+    /**
+     * 藏品名称
+     */
+    private String name;
+
+    /**
+     * 藏品封面
+     */
+    private String cover;
+
+    /**
+     * 购入价格
+     */
+    private BigDecimal purchasePrice;
 
     /**
      * '藏品id'
@@ -41,11 +57,14 @@ public class HeldCollectionCreateRequest extends BaseHeldCollectionRequest {
      */
     private String bizType;
 
-    public HeldCollectionCreateRequest(CollectionConfirmSaleRequest collectionConfirmSaleRequest,String serialNo) {
+    public HeldCollectionCreateRequest(CollectionConfirmSaleRequest collectionConfirmSaleRequest, String serialNo) {
         this.collectionId = collectionConfirmSaleRequest.collectionId();
         this.userId = Long.valueOf(collectionConfirmSaleRequest.userId());
         this.bizNo = collectionConfirmSaleRequest.bizNo();
         this.bizType = collectionConfirmSaleRequest.bizType();
+        this.name = collectionConfirmSaleRequest.name();
+        this.cover = collectionConfirmSaleRequest.cover();
+        this.purchasePrice = collectionConfirmSaleRequest.purchasePrice();
         this.serialNo = serialNo;
     }
 

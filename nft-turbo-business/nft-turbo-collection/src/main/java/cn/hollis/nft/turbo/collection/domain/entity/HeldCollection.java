@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.collection.domain.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
@@ -19,6 +20,21 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HeldCollection extends BaseEntity {
+
+    /**
+     * 藏品名称
+     */
+    private String name;
+
+    /**
+     * 藏品封面
+     */
+    private String cover;
+
+    /**
+     * 购入价格
+     */
+    private BigDecimal purchasePrice;
 
     /**
      * '藏品id'
@@ -88,6 +104,9 @@ public class HeldCollection extends BaseEntity {
         this.holdTime = new Date();
         this.bizNo = request.getBizNo();
         this.bizType = request.getBizType();
+        this.name = request.getName();
+        this.cover = request.getCover();
+        this.purchasePrice = request.getPurchasePrice();
         return this;
     }
 

@@ -7,8 +7,11 @@ import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
 import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
+import cn.hollis.nft.turbo.order.domain.exception.OrderException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.*;
 
 /**
  * 用户校验器
@@ -16,20 +19,13 @@ import org.springframework.stereotype.Component;
  * @author hollis
  */
 @Component
-public class UserValidator implements OrderCreateValidator {
-
-    private OrderCreateValidator nextValidator;
+public class UserValidator extends BaseOrderCreateValidator {
 
     @Autowired
     private UserFacadeService userFacadeService;
 
     @Override
-    public void setNext(OrderCreateValidator nextValidator) {
-        this.nextValidator = nextValidator;
-    }
-
-    @Override
-    public void validate(OrderCreateRequest request) throws Exception {
+    public void doValidate(OrderCreateRequest request) throws OrderException {
         String buyerId = request.getBuyerId();
         UserQueryRequest userQueryRequest = new UserQueryRequest();
         userQueryRequest.setUserId(Long.valueOf(buyerId));
@@ -37,15 +33,15 @@ public class UserValidator implements OrderCreateValidator {
         if (userQueryResponse.getSuccess() && userQueryResponse.getData() != null) {
             UserInfo userInfo = userQueryResponse.getData();
             if (userInfo.getUserRole() != null && !userInfo.getUserRole().equals(UserRole.CUSTOMER)) {
-                throw new Exception("买家不能是平台用户");
+                throw new OrderException(BUYER_IS_PLATFORM_USER);
             }
             //判断买家状态
             if (userInfo.getState() != null && !userInfo.getState().equals(UserStateEnum.ACTIVE.name())) {
-                throw new Exception("买家状态异常");
+                throw new OrderException(BUYER_STATUS_ABNORMAL);
             }
             //判断买家状态
             if (userInfo.getState() != null && !userInfo.getCertification()) {
-                throw new Exception("买家未完成实名认证");
+                throw new OrderException(BUYER_NOT_AUTH);
             }
         }
     }

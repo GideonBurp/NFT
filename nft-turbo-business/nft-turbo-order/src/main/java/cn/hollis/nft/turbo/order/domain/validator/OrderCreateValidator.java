@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.order.domain.validator;
 
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
+import cn.hollis.nft.turbo.order.domain.exception.OrderException;
 
 /**
  * 订单校验
@@ -13,7 +14,14 @@ public interface OrderCreateValidator {
      *
      * @param nextValidator
      */
-    void setNext(OrderCreateValidator nextValidator);
+    public void setNext(OrderCreateValidator nextValidator);
+
+    /**
+     * 返回下一个校验器
+     *
+     * @return
+     */
+    public OrderCreateValidator getNext();
 
     /**
      * 校验
@@ -21,5 +29,5 @@ public interface OrderCreateValidator {
      * @param request
      * @throws Exception
      */
-    void validate(OrderCreateRequest request) throws Exception;
+    public void validate(OrderCreateRequest request) throws OrderException;
 }

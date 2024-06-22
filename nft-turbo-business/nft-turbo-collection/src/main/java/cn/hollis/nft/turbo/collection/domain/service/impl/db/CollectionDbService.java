@@ -1,7 +1,8 @@
-package cn.hollis.nft.turbo.collection.domain.service.impl;
+package cn.hollis.nft.turbo.collection.domain.service.impl.db;
 
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
+import cn.hollis.nft.turbo.collection.domain.service.impl.BaseCollectionService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

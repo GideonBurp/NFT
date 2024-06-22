@@ -1,7 +1,6 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
 import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
@@ -47,14 +46,6 @@ public interface CollectionService extends IService<Collection> {
      * @return
      */
     public CollectionConfirmSaleResponse confirmSale(CollectionConfirmSaleRequest request);
-
-    /**
-     * 查询
-     *
-     * @param classId
-     * @return
-     */
-    public Collection queryByClassId(String classId);
 
     /**
      * 查询

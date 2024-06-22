@@ -115,12 +115,6 @@
 
             <dependency>
                 <groupId>cn.hollis</groupId>
-                <artifactId>nft-turbo-sharding</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>cn.hollis</groupId>
                 <artifactId>nft-turbo-limiter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -256,6 +250,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
+                    <source>21</source>
+                    <target>21</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -301,7 +297,7 @@
     </build>
 
     <repositories>
-        <repository> 
+        <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>https://repo.spring.io/milestone</url>

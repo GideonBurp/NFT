@@ -1,9 +1,9 @@
-package cn.hollis.nft.turbo.collection.domain.service;
-
-import java.util.List;
+package cn.hollis.nft.turbo.collection.domain.service.impl;
 
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionDTO;
+import cn.hollis.nft.turbo.api.collection.request.HeldCollectionPageQueryRequest;
+import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.constant.HeldCollectionEventType;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.HeldCollectionConvertor;
@@ -15,6 +15,9 @@ import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.HeldCollectionMapper;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import com.alibaba.fastjson.JSON;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,14 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_QUERY_FAIL;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_SAVE_FAILED;
 
-/**
- * 持有藏品服务
- *
- * @author hollis
- */
 @Service
 public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, HeldCollection> {
 
@@ -105,6 +106,12 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return heldCollection;
     }
 
+    @Cached(name = ":held_collection:cache:id:", expire = 60, localExpire = 10, timeUnit = TimeUnit.MINUTES, cacheType = CacheType.BOTH, key = "#heldCollectionId", cacheNullValue = true)
+    @CacheRefresh(refresh = 50, timeUnit = TimeUnit.MINUTES)
+    public HeldCollection queryById(Long heldCollectionId) {
+        return getById(heldCollectionId);
+    }
+
     public HeldCollection queryByCollectionIdAndSerialNo(Long collectionId, String serialNo) {
         QueryWrapper<HeldCollection> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("collection_id", collectionId);
@@ -127,18 +134,21 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return retList.get(0);
     }
 
-    public Page<HeldCollection> pageQueryByState(String userId, String state, int currentPage, int pageSize) {
-        Page<HeldCollection> page = new Page<>(currentPage, pageSize);
+    public PageResponse<HeldCollection> pageQueryByState(HeldCollectionPageQueryRequest request) {
+        Page<HeldCollection> page = new Page<>(request.getCurrentPage(), request.getPageSize());
         QueryWrapper<HeldCollection> wrapper = new QueryWrapper<>();
-        wrapper.eq("userId", userId);
+        wrapper.eq("user_id", request.getUserId());
+        wrapper.like("name", request.getKeyword());
 
-        if (state != null) {
-            wrapper.eq("state", state);
+        if (request.getState() != null) {
+            wrapper.eq("state", request.getState());
         }
         wrapper.orderBy(true, true, "gmt_create");
 
-        return this.page(page, wrapper);
+        Page<HeldCollection> collectionPage = this.page(page, wrapper);
+        return PageResponse.of(collectionPage.getRecords(), (int) collectionPage.getTotal(), request.getPageSize());
     }
+
 
     private boolean sendMsg(HeldCollection heldCollection, HeldCollectionEventType eventType) {
         HeldCollectionDTO heldCollectionDTO = HeldCollectionConvertor.INSTANCE.mapToDto(heldCollection);

@@ -1,10 +1,8 @@
 package cn.hollis.nft.turbo.collection.facade;
 
 import cn.hollis.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
-import cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum;
 import cn.hollis.nft.turbo.api.chain.request.ChainProcessRequest;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
-import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.api.collection.model.CollectionInventoryVO;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO;
@@ -30,12 +28,11 @@ import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionTransferReque
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
-import cn.hollis.nft.turbo.collection.domain.service.HeldCollectionService;
-import cn.hollis.nft.turbo.collection.domain.service.impl.CollectionInventoryRedisService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
@@ -99,7 +96,8 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
         userQueryRequest.setUserId(Long.valueOf(request.getUserId()));
         CompletableFuture<UserQueryResponse<UserInfo>> queryUserFuture = CompletableFuture.supplyAsync(() -> userFacadeService.query(userQueryRequest));
 
-        CollectionConfirmSaleRequest confirmSaleRequest = new CollectionConfirmSaleRequest(request.getIdentifier(), request.getCollectionId(), request.getQuantity(), request.getBizNo(), request.getBizType(),request.getUserId());
+        CollectionConfirmSaleRequest confirmSaleRequest = new CollectionConfirmSaleRequest(request.getIdentifier(), request.getCollectionId(), request.getQuantity(),
+                request.getBizNo(), request.getBizType(),request.getUserId(),request.getName(),request.getCover(),request.getPurchasePrice());
         CollectionConfirmSaleResponse confirmSaleResponse = collectionService.confirmSale(confirmSaleRequest);
         CollectionSaleResponse response = new CollectionSaleResponse();
 
@@ -317,13 +315,13 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
 
     @Override
     public PageResponse<HeldCollectionVO> pageQueryHeldCollection(HeldCollectionPageQueryRequest request) {
-        Page<HeldCollection> colletionPage = heldCollectionService.pageQueryByState(request.getUserId(), request.getState(), request.getCurrentPage(), request.getPageSize());
-        return PageResponse.of(HeldCollectionConvertor.INSTANCE.mapToVo(colletionPage.getRecords()), (int) colletionPage.getTotal(), request.getPageSize());
+        PageResponse<HeldCollection> colletionPage = heldCollectionService.pageQueryByState(request);
+        return PageResponse.of(HeldCollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), (int) colletionPage.getTotal(), request.getPageSize());
     }
 
     @Override
-    public SingleResponse<HeldCollectionVO> queryByNftId(String nftId) {
-        HeldCollection transferCollection = heldCollectionService.queryByNftIdAndState(nftId, HeldCollectionState.ACTIVED.name());
+    public SingleResponse<HeldCollectionVO> queryHeldCollectionById(Long heldCollectionId) {
+        HeldCollection transferCollection = heldCollectionService.queryById(heldCollectionId);
         return SingleResponse.of(HeldCollectionConvertor.INSTANCE.mapToVo(transferCollection));
     }
 }

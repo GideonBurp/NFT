@@ -1,15 +1,16 @@
 # 常用地址
 
-🔥项目交流群：https://gitcode.com/org/NFTurbo/discussion/1
+🔥项目交流群：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673c2f45e11940001c785cc
 
-🔥代码地址：https://gitcode.com/NFTurbo/
+🔥代码地址：https://codeup.aliyun.com/66263f57d833774c93cc0418/NFTurbo
 
 🔥课程学习地址（视频+文档）：https://aoybo.xet.tech/s/2prw1D
 
-🔥学习讨论地址：https://gitcode.com/organization/NFTurbo/article、https://gitcode.com/org/NFTurbo/discussion
+🔥学习讨论地址：https://wx.zsxq.com/dweb2/index/group/88888288882252
 
-🔥阿里云服务器优惠地址：https://gitcode.com/organization/NFTurbo/666d57efb412333b0f9fdba5.html
+🔥阿里云服务器优惠地址：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/667054050f232c0001a545fb
 
+🔥常见问题：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/folders/6673f1c82d397600011bd921
 
 
 # NFTurbo (拖把数藏)

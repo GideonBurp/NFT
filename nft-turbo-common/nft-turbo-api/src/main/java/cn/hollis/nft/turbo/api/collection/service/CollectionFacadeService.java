@@ -114,11 +114,11 @@ public interface CollectionFacadeService {
     public PageResponse<HeldCollectionVO> pageQueryHeldCollection(HeldCollectionPageQueryRequest request);
 
     /**
-     * 根据nftId查询持有藏品
+     * 根据id查询持有藏品
      *
-     * @param nftId
+     * @param heldCollectionId
      * @return
      */
-    public SingleResponse<HeldCollectionVO> queryByNftId(String nftId);
+    public SingleResponse<HeldCollectionVO> queryHeldCollectionById(Long heldCollectionId);
 
 }

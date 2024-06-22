@@ -19,7 +19,7 @@ CREATE TABLE `chain_operate_info` (
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COMMENT='链操作'
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb3 COMMENT='链操作'
 ;
 
 /******************************************/
@@ -48,7 +48,7 @@ CREATE TABLE `collection` (
   `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
   `version` int DEFAULT NULL COMMENT '修改版本',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品表'
+) ENGINE=InnoDB AUTO_INCREMENT=10023 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品表'
 ;
 
 /******************************************/
@@ -77,7 +77,7 @@ CREATE TABLE `collection_stream` (
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表流水'
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表流水'
 ;
 
 /******************************************/
@@ -89,19 +89,25 @@ CREATE TABLE `held_collection` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
   `collection_id` bigint unsigned DEFAULT NULL COMMENT '藏品id',
-  `serial_no` varchar(256) DEFAULT NULL COMMENT '藏品编号',
-  `nft_id` varchar(256) DEFAULT NULL COMMENT 'NFT唯一编号',
-  `pre_id` varchar(128) DEFAULT NULL COMMENT '上一个持有人id',
-  `user_id` varchar(128) DEFAULT NULL COMMENT '持有人id',
-  `state` varchar(128) DEFAULT NULL COMMENT '状态',
-  `tx_hash` varchar(256) DEFAULT NULL COMMENT '交易hash',
+  `name` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品名称',
+  `cover` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品封面地址',
+  `purchase_price` decimal(18,6) DEFAULT NULL COMMENT '购入价格',
+  `serial_no` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品编号',
+  `nft_id` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'NFT唯一编号',
+  `pre_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '上一个持有人id',
+  `user_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '持有人id',
+  `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
+  `tx_hash` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '交易hash',
   `hold_time` datetime DEFAULT NULL COMMENT '藏品持有时间',
   `sync_chain_time` datetime DEFAULT NULL COMMENT '藏品同步时间',
   `delete_time` datetime DEFAULT NULL COMMENT '藏品销毁时间',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品持有表'
+  `biz_no` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '业务单据号',
+  `biz_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT ' 业务类型',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_state` (`user_id`,`state`,`gmt_create`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品持有表'
 ;
 
 /******************************************/
@@ -123,7 +129,7 @@ CREATE TABLE `notice` (
   `retry_times` int DEFAULT NULL COMMENT '重试次数',
   `extend_info` varchar(1024) DEFAULT NULL COMMENT '扩展信息',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='通知表'
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='通知表'
 ;
 
 /******************************************/
@@ -157,7 +163,7 @@ CREATE TABLE `pay_order` (
   PRIMARY KEY (`id`),
   KEY `idx_biz` (`biz_no`,`biz_type`) USING BTREE,
   KEY `idx_pay_order` (`pay_order_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 ;
 
 /******************************************/
@@ -538,7 +544,7 @@ CREATE TABLE `user_operate_stream` (
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COMMENT='用户操作流水表'
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb3 COMMENT='用户操作流水表'
 ;
 
 /******************************************/
@@ -566,5 +572,5 @@ CREATE TABLE `users` (
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息表'
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息表'
 ;

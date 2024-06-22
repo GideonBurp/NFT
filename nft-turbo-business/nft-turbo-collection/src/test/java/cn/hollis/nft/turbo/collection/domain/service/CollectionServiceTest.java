@@ -1,12 +1,7 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
 import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
-import cn.hollis.nft.turbo.api.user.constant.UserStateEnum;
 import cn.hollis.nft.turbo.collection.CollectionBaseTest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
@@ -15,7 +10,9 @@ import cn.hollis.nft.turbo.collection.facade.CollectionTrySaleRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class CollectionServiceTest extends CollectionBaseTest {
 
@@ -35,7 +32,7 @@ public class CollectionServiceTest extends CollectionBaseTest {
         request.setSaleTime(new Date());
         Collection collection = collectionService.create(request);
         Assert.assertTrue(collection.getId() != null);
-        var queRes = collectionService.queryByClassId("classId");
+        var queRes = collectionService.queryById(collection.getId());
         Assert.assertTrue(queRes.getId() != null);
 
     }
@@ -53,15 +50,14 @@ public class CollectionServiceTest extends CollectionBaseTest {
         request.setSaleTime(new Date());
         Collection collection = collectionService.create(request);
         Assert.assertTrue(collection.getId() != null);
-        CollectionTrySaleRequest collectionTrySaleRequest = new CollectionTrySaleRequest("test123",collection.getId(),1l);
-        boolean tryRes=collectionService.trySale(collectionTrySaleRequest);
+        CollectionTrySaleRequest collectionTrySaleRequest = new CollectionTrySaleRequest("test123", collection.getId(), 1l);
+        boolean tryRes = collectionService.trySale(collectionTrySaleRequest);
         Assert.assertTrue(tryRes);
-        collection=collectionService.queryByClassId("classId1");
-        Assert.assertTrue(collection.getSaleableInventory()==99L);
-        CollectionConfirmSaleRequest collectionSaleConfirm=new CollectionConfirmSaleRequest("676776",collection.getId(),1l,"23123", CollectionSaleBizType.PRIMARY_TRADE.name(), "321321");
+        var queRes = collectionService.queryById(collection.getId());
+        Assert.assertTrue(queRes.getSaleableInventory() == 99L);
+        CollectionConfirmSaleRequest collectionSaleConfirm = new CollectionConfirmSaleRequest("676776", collection.getId(), 1l, "23123", CollectionSaleBizType.PRIMARY_TRADE.name(), "321321", "name", "cover", BigDecimal.ONE);
         //TODO 返回藏品信息保存失败
-        CollectionConfirmSaleResponse confirmRes=collectionService.confirmSale(collectionSaleConfirm);
-
+        CollectionConfirmSaleResponse confirmRes = collectionService.confirmSale(collectionSaleConfirm);
 
     }
 }

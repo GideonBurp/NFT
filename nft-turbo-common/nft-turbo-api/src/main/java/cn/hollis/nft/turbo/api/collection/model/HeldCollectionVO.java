@@ -1,19 +1,20 @@
 package cn.hollis.nft.turbo.api.collection.model;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * <p>
  * 藏品信息
  * </p>
  *
- * @author wswyb001
- * @since 2024-01-19
+ * @author Hollis
+ * @since 2024-6-19
  */
 @Getter
 @Setter
@@ -21,6 +22,26 @@ import lombok.ToString;
 public class HeldCollectionVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * id
+     */
+    private Long id;
+
+    /**
+     * 藏品名称
+     */
+    private String name;
+
+    /**
+     * 藏品封面
+     */
+    private String cover;
+
+    /**
+     * 购入价格
+     */
+    private BigDecimal purchasePrice;
 
     /**
      * '藏品id'
@@ -81,7 +102,5 @@ public class HeldCollectionVO implements Serializable {
      * 业务类型
      */
     private String bizType;
-
-
 
 }
