@@ -1,16 +1,16 @@
 # 常用地址
 
-🔥项目交流群：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673c2f45e11940001c785cc
+🔥项目交流群：[https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673c2f45e11940001c785cc](https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673c2f45e11940001c785cc)
 
-🔥代码地址：https://codeup.aliyun.com/66263f57d833774c93cc0418/NFTurbo
+🔥代码地址：[https://codeup.aliyun.com/66263f57d833774c93cc0418/NFTurbo](https://codeup.aliyun.com/66263f57d833774c93cc0418/NFTurbo)
 
-🔥课程学习地址（视频+文档）：https://aoybo.xet.tech/s/2prw1D
+🔥课程学习地址（视频+文档）：[https://aoybo.xet.tech/s/2prw1D](https://aoybo.xet.tech/s/2prw1D)
 
-🔥学习讨论地址：https://wx.zsxq.com/dweb2/index/group/88888288882252
+🔥学习讨论地址：[https://wx.zsxq.com/dweb2/index/group/88888288882252](https://wx.zsxq.com/dweb2/index/group/88888288882252)
 
-🔥阿里云服务器优惠地址：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/667054050f232c0001a545fb
+🔥阿里云服务器优惠地址：[https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/667054050f232c0001a545fb](https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/667054050f232c0001a545fb)
 
-🔥常见问题：https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/folders/6673f1c82d397600011bd921
+🔥常见问题：[https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/folders/6673f1c82d397600011bd921](https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/folders/6673f1c82d397600011bd921)
 
 
 # NFTurbo (拖把数藏)
@@ -65,8 +65,8 @@ dont say so much，懂的自然懂！
 
 # 项目特点
 
-|  |  |  |
-|--|--|--|
+|  |  |
+|--|--|
 | 特点 |  理由 |
 |**高并发&大流量**|数藏项目是集电商+区块链于一身的项目，因为数藏本身具有收藏和增值的属性，所以天然存在秒杀场景，并且业务量也通常都是比较大的。所以存在高并发、大流量的特性。|
 |**微服务**|数藏项目涉及到很多功能模块、比如认证、登录、用户管理、藏品管理、下单、支付、藏品管理、上链等等，天然适合做微服务部署。|
