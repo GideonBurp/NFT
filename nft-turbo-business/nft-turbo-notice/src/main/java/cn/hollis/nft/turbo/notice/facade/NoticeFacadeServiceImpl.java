@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static cn.hollis.nft.turbo.api.notice.constant.NoticeConstant.CAPTCHA_KEY_PREFIX;
 import static cn.hollis.nft.turbo.base.exception.BizErrorCode.SEND_NOTICE_DUPLICATED;
 
 /**
@@ -38,8 +39,6 @@ public class NoticeFacadeServiceImpl implements NoticeFacadeService {
 
     @Autowired
     private SmsService smsService;
-
-    private static final String CAPTCHA_KEY_PREFIX = "nft:turbo:captcha:";
 
     /**
      * 生成并发送短信验证码

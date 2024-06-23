@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import static cn.hollis.nft.turbo.api.notice.constant.NoticeConstant.CAPTCHA_KEY_PREFIX;
 import static cn.hollis.nft.turbo.auth.exception.AuthErrorCode.VERIFICATION_CODE_WRONG;
 
 /**
@@ -68,7 +69,7 @@ public class AuthController {
     public Result<Boolean> register(@Valid @RequestBody RegisterParam registerParam) {
 
         //验证码校验
-        String cachedCode = redisTemplate.opsForValue().get(registerParam.getTelephone());
+        String cachedCode = redisTemplate.opsForValue().get(CAPTCHA_KEY_PREFIX + registerParam.getTelephone());
         if (!StringUtils.equalsIgnoreCase(cachedCode, registerParam.getCaptcha())) {
             throw new AuthException(VERIFICATION_CODE_WRONG);
         }
@@ -95,7 +96,7 @@ public class AuthController {
         //fixme 为了方便，暂时直接跳过
         if (!ROOT_CAPTCHA.equals(loginParam.getCaptcha())) {
             //验证码校验
-            String cachedCode = redisTemplate.opsForValue().get(loginParam.getTelephone());
+            String cachedCode = redisTemplate.opsForValue().get(CAPTCHA_KEY_PREFIX + loginParam.getTelephone());
             if (!StringUtils.equalsIgnoreCase(cachedCode, loginParam.getCaptcha())) {
                 throw new AuthException(VERIFICATION_CODE_WRONG);
             }
