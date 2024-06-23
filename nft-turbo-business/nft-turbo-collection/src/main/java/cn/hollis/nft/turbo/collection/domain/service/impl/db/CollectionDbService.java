@@ -30,6 +30,6 @@ public class CollectionDbService extends BaseCollectionService {
 
         Page<Collection> collectionPage = this.page(page, wrapper);
 
-        return PageResponse.of(collectionPage.getRecords(), (int) collectionPage.getTotal(), pageSize);
+        return PageResponse.of(collectionPage.getRecords(), (int) collectionPage.getTotal(), pageSize, currentPage);
     }
 }

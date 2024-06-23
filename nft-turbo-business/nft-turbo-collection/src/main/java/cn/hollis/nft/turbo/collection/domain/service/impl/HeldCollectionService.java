@@ -146,7 +146,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         wrapper.orderBy(true, true, "gmt_create");
 
         Page<HeldCollection> collectionPage = this.page(page, wrapper);
-        return PageResponse.of(collectionPage.getRecords(), (int) collectionPage.getTotal(), request.getPageSize());
+        return PageResponse.of(collectionPage.getRecords(), (int) collectionPage.getTotal(), request.getPageSize(), request.getCurrentPage());
     }
 
 

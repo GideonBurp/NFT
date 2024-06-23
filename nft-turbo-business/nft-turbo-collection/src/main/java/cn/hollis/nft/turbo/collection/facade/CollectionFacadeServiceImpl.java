@@ -310,13 +310,13 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     @Override
     public PageResponse<CollectionVO> pageQuery(CollectionPageQueryRequest request) {
         PageResponse<Collection> colletionPage = collectionService.pageQueryByState(request.getKeyword(), request.getState(), request.getCurrentPage(), request.getPageSize());
-        return PageResponse.of(CollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), colletionPage.getTotal(), colletionPage.getPageSize());
+        return PageResponse.of(CollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), colletionPage.getTotal(), colletionPage.getPageSize(), request.getCurrentPage());
     }
 
     @Override
     public PageResponse<HeldCollectionVO> pageQueryHeldCollection(HeldCollectionPageQueryRequest request) {
         PageResponse<HeldCollection> colletionPage = heldCollectionService.pageQueryByState(request);
-        return PageResponse.of(HeldCollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), (int) colletionPage.getTotal(), request.getPageSize());
+        return PageResponse.of(HeldCollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), colletionPage.getTotal(), request.getPageSize(), request.getCurrentPage());
     }
 
     @Override

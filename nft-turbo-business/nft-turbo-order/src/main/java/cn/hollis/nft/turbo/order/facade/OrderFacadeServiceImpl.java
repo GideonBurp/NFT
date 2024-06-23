@@ -157,7 +157,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         Page<TradeOrder> tradeOrderPage = orderReadService.pageQueryByState(request.getBuyerId(), request.getState(), request.getCurrentPage(), request.getPageSize());
         List<TradeOrderVO> tradeOrderVos = TradeOrderConvertor.INSTANCE.mapToVo(tradeOrderPage.getRecords());
         tradeOrderVos.forEach(tradeOrderVO -> tradeOrderVO.setSellerName(getSellerName(tradeOrderVO)));
-        return PageResponse.of(tradeOrderVos, (int) tradeOrderPage.getTotal(), request.getPageSize());
+        return PageResponse.of(tradeOrderVos, (int) tradeOrderPage.getTotal(), request.getPageSize(), request.getCurrentPage());
     }
 
     private String getSellerName(TradeOrderVO tradeOrderVO) {

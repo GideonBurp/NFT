@@ -32,13 +32,14 @@ public class PageResponse<T> extends MultiResponse<T> {
      */
     private int total;
 
-    public static <T> PageResponse<T> of(List<T> datas, int total, int pageSize) {
-        PageResponse<T> multiResponse = new PageResponse<>();
-        multiResponse.setSuccess(true);
-        multiResponse.setDatas(datas);
-        multiResponse.setTotal(total);
-        multiResponse.setPageSize(pageSize);
-        multiResponse.setTotalPage((pageSize + total - 1) / pageSize);
-        return multiResponse;
+    public static <T> PageResponse<T> of(List<T> datas, int total, int pageSize,int currentPage) {
+        PageResponse<T> pageResponse = new PageResponse<>();
+        pageResponse.setSuccess(true);
+        pageResponse.setDatas(datas);
+        pageResponse.setTotal(total);
+        pageResponse.setPageSize(pageSize);
+        pageResponse.setCurrentPage(currentPage);
+        pageResponse.setTotalPage((pageSize + total - 1) / pageSize);
+        return pageResponse;
     }
 }

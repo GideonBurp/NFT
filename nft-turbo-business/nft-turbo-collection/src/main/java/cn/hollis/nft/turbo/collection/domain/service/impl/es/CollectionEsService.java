@@ -43,10 +43,10 @@ public class CollectionEsService extends BaseCollectionService {
             criteria = new Criteria("state").is(state).and(new Criteria("deleted").is("0"));
         }
         PageRequest pageRequest = PageRequest.of(currentPage - 1, pageSize);
-        Query query = new CriteriaQuery(criteria).setPageable(pageRequest).addSort(Sort.by(Sort.Order.asc("collection_id")));
+        Query query = new CriteriaQuery(criteria).setPageable(pageRequest).addSort(Sort.by(Sort.Order.asc("create_time")));
         SearchHits<Collection> searchHits = elasticsearchOperations.search(query, Collection.class);
 
-        return PageResponse.of(searchHits.getSearchHits().stream().map(SearchHit::getContent).toList(), (int) searchHits.getTotalHits(), pageSize);
+        return PageResponse.of(searchHits.getSearchHits().stream().map(SearchHit::getContent).toList(), (int) searchHits.getTotalHits(), pageSize, currentPage);
     }
 
     public SAPageInfo<Collection> deepPageQueryByState(String name, String state, int pageSize, Long lastId) {
@@ -55,7 +55,7 @@ public class CollectionEsService extends BaseCollectionService {
                 .and(wrapper -> wrapper
                         .match(collection -> collection.getState().name(), state)
                         .match(Collection::getDeleted, "0"))
-                .orderByAsc("collection_id");
+                .orderByAsc("create_time");
 
         SAPageInfo<Collection> saPageInfo;
         if (lastId == null) {
