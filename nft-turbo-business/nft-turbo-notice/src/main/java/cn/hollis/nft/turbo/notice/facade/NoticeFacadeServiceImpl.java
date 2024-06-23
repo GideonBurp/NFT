@@ -15,7 +15,6 @@ import com.alibaba.fastjson.JSON;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +39,8 @@ public class NoticeFacadeServiceImpl implements NoticeFacadeService {
     @Autowired
     private SmsService smsService;
 
+    private static final String CAPTCHA_KEY_PREFIX = "nft:turbo:captcha:";
+
     /**
      * 生成并发送短信验证码
      *
@@ -59,7 +60,7 @@ public class NoticeFacadeServiceImpl implements NoticeFacadeService {
         String captcha = RandomUtil.randomNumbers(4);
 
         // 验证码存入Redis
-        redisTemplate.opsForValue().set(telephone, captcha, 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(CAPTCHA_KEY_PREFIX + telephone, captcha, 5, TimeUnit.MINUTES);
 
         Notice notice = noticeService.saveCaptcha(telephone, captcha);
 

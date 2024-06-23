@@ -25,6 +25,28 @@ public class SlidingWindowRateLimiterTest {
 
     @Test
     @Ignore
+    public void tryAcquire1() {
+        Boolean result = slidingWindowRateLimiter.tryAcquire("testLock997", 3, 10);
+        Assert.assertTrue(result);
+        result = slidingWindowRateLimiter.tryAcquire("testLock997", 3, 10);
+        Assert.assertTrue(result);
+        result = slidingWindowRateLimiter.tryAcquire("testLock997", 3, 10);
+        Assert.assertTrue(result);
+        result = slidingWindowRateLimiter.tryAcquire("testLock997", 3, 10);
+        Assert.assertFalse(result);
+
+        try {
+            Thread.currentThread().sleep(10000);
+        }catch (Exception e){
+
+        }
+        result = slidingWindowRateLimiter.tryAcquire("testLock997", 3, 10);
+        Assert.assertTrue(result);
+
+    }
+
+    @Test
+    @Ignore
     public void tryAcquire() {
         Boolean result = slidingWindowRateLimiter.tryAcquire("testLock", 1, 5);
         Assert.assertTrue(result);

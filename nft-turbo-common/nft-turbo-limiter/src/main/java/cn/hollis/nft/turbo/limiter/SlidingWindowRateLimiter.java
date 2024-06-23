@@ -14,13 +14,15 @@ public class SlidingWindowRateLimiter implements RateLimiter {
 
     private RedissonClient redissonClient;
 
+    private static final String LIMIT_KEY_PREFIX = "nft:turbo:limit:";
+
     public SlidingWindowRateLimiter(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
     @Override
     public Boolean tryAcquire(String key, int limit, int windowSize) {
-        RRateLimiter rRateLimiter = redissonClient.getRateLimiter(key);
+        RRateLimiter rRateLimiter = redissonClient.getRateLimiter(LIMIT_KEY_PREFIX + key);
 
         if (!rRateLimiter.isExists()) {
             rRateLimiter.trySetRate(RateType.OVERALL, limit, windowSize, RateIntervalUnit.SECONDS);
