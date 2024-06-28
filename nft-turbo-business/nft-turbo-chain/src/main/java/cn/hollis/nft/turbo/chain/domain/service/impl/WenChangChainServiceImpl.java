@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.APP_NAME_UPPER;
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.chain.infrastructure.utils.WenChangChainUtils.configureHeaders;
 
 /**
@@ -46,7 +48,7 @@ public class WenChangChainServiceImpl extends AbstractChainService {
         chainProcessRequest.setBizId(chainProcessRequest.getUserId());
         chainProcessRequest.setBizType(ChainOperateBizTypeEnum.USER.name());
         WenChangCreateBody body = new WenChangCreateBody();
-        body.setName(chainProcessRequest.getUserId());
+        body.setName(APP_NAME_UPPER + SEPARATOR + ChainOperateBizTypeEnum.USER + SEPARATOR + chainProcessRequest.getUserId());
         body.setOperationId(chainProcessRequest.getIdentifier());
         String path = "/v3/account";
 

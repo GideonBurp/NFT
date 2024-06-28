@@ -31,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.UUID;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.APP_NAME_UPPER;
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.user.infrastructure.exception.UserErrorCode.*;
 
 /**
@@ -139,7 +141,8 @@ public class UserController {
         if (authResult.getSuccess()) {
             ChainProcessRequest chainCreateRequest = new ChainProcessRequest();
             chainCreateRequest.setUserId(userId);
-            chainCreateRequest.setIdentifier(UUID.randomUUID().toString());
+            String identifier = APP_NAME_UPPER + SEPARATOR + authResult.getUser().getUserRole() + SEPARATOR + authResult.getUser().getUserId();
+            chainCreateRequest.setIdentifier(identifier);
             ChainProcessResponse<ChainCreateData> chainProcessResponse = chainFacadeService.createAddr(
                     chainCreateRequest);
             if (chainProcessResponse.getSuccess()) {

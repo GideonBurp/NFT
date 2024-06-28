@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum.COLLECTION_DESTROY;
 import static cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum.COLLECTION_MINT;
 import static java.util.Objects.requireNonNull;
 
@@ -94,7 +95,7 @@ public abstract class AbstractChainService implements ChainService {
                 throw new SystemException(RepoErrorCode.UPDATE_FAILED);
             }
 
-            ChainProcessResponse response = buildResult(result, chainProcessRequest);
+            ChainProcessResponse response = buildResult(result, chainProcessRequest, chainOperateTypeEnum);
             if (response.getSuccess() && chainOperateTypeEnum != ChainOperateTypeEnum.USER_CREATE) {
                 //延迟5秒钟之后查询状态并发送 MQ 消息通知上游
                 scheduler.schedule(() -> {
@@ -155,7 +156,7 @@ public abstract class AbstractChainService implements ChainService {
             ChainRequest chainRequest = new ChainRequest();
 
             var operateInfoId = chainOperateInfoService.insertInfo(chainType(),
-                    chainProcessRequest.getBizId(), chainProcessRequest.getBizType(), ChainOperateTypeEnum.COLLECTION_DESTROY.name(),
+                    chainProcessRequest.getBizId(), chainProcessRequest.getBizType(), COLLECTION_DESTROY.name(),
                     JSON.toJSONString(chainProcessRequest), chainProcessRequest.getIdentifier());
             //核心逻辑执行
             consumer.accept(chainRequest);
@@ -170,7 +171,7 @@ public abstract class AbstractChainService implements ChainService {
                 throw new SystemException(RepoErrorCode.UPDATE_FAILED);
             }
 
-            return buildResult(result, chainProcessRequest);
+            return buildResult(result, chainProcessRequest, COLLECTION_DESTROY);
         });
     }
 
@@ -179,12 +180,13 @@ public abstract class AbstractChainService implements ChainService {
      *
      * @param result
      * @param chainProcessRequest
+     * @param chainOperateTypeEnum
      * @return
      */
-    private ChainProcessResponse buildResult(ChainResponse result, ChainProcessRequest chainProcessRequest) {
+    private ChainProcessResponse buildResult(ChainResponse result, ChainProcessRequest chainProcessRequest, ChainOperateTypeEnum chainOperateTypeEnum) {
 
         if (result.getSuccess()) {
-            if (StringUtils.equals(chainProcessRequest.getBizType(), ChainOperateTypeEnum.USER_CREATE.name())) {
+            if (chainOperateTypeEnum == ChainOperateTypeEnum.USER_CREATE) {
                 JSONObject dataJsonObject = result.getData();
                 String blockChainAddr = (String) dataJsonObject.get("native_address");
                 String blockChainName = chainProcessRequest.getUserId();
