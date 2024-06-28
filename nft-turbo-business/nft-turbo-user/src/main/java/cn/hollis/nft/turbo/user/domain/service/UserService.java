@@ -11,6 +11,7 @@ import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hollis.nft.turbo.user.domain.entity.User;
+import cn.hollis.nft.turbo.user.domain.entity.convertor.UserConvertor;
 import cn.hollis.nft.turbo.user.infrastructure.exception.UserErrorCode;
 import cn.hollis.nft.turbo.user.infrastructure.exception.UserException;
 import cn.hollis.nft.turbo.user.infrastructure.mapper.UserMapper;
@@ -19,12 +20,10 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.CacheManager;
-import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.alicp.jetcache.template.QuickConfig;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
@@ -106,7 +105,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         idUserCache.put(user.getId().toString(), user);
 
         //加入流水
-        long streamResult = userOperateStreamService.insertStream(user.getId(), UserOperateTypeEnum.REGISTER);
+        long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.REGISTER);
         Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
@@ -143,20 +142,28 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param userAuthRequest
      * @return
      */
-    @CacheInvalidate(name = ":user:cache:id:", key = "#userAuthRequest.userId")
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userAuthRequest.getUserId());
         Assert.notNull(user, () -> new UserException(USER_NOT_EXIST));
+
+        if (user.getState() == UserStateEnum.AUTH || user.getState() == UserStateEnum.ACTIVE) {
+            userOperatorResponse.setSuccess(true);
+            return userOperatorResponse;
+        }
+
         Assert.isTrue(user.getState() == UserStateEnum.INIT, () -> new UserException(USER_STATUS_IS_NOT_INIT));
         Assert.isTrue(authService.checkAuth(userAuthRequest.getRealName(), userAuthRequest.getIdCard()), () -> new UserException(USER_AUTH_FAIL));
         user.auth(userAuthRequest.getRealName(), userAuthRequest.getIdCard());
         boolean result = updateById(user);
         if (result) {
+            telUserCache.remove(user.getTelephone());
+            idUserCache.remove(user.getId().toString());
             //加入流水
-            long streamResult = userOperateStreamService.insertStream(user.getId(), UserOperateTypeEnum.AUTH);
+            long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.AUTH);
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
             userOperatorResponse.setSuccess(true);
+            userOperatorResponse.setUser(UserConvertor.INSTANCE.mapToVo(user));
         } else {
             userOperatorResponse.setSuccess(false);
             userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getCode());
@@ -180,7 +187,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         boolean result = updateById(user);
         if (result) {
             //加入流水
-            long streamResult = userOperateStreamService.insertStream(user.getId(), UserOperateTypeEnum.ACTIVE);
+            long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.ACTIVE);
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
             telUserCache.remove(user.getTelephone());
             idUserCache.remove(user.getId().toString());
@@ -218,7 +225,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         boolean updateResult = updateById(user);
         Assert.isTrue(updateResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
         //加入流水
-        long result = userOperateStreamService.insertStream(userId, UserOperateTypeEnum.FREEZE);
+        long result = userOperateStreamService.insertStream(user, UserOperateTypeEnum.FREEZE);
         Assert.notNull(result, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
         //第二次删除缓存
@@ -253,7 +260,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         boolean updateResult = updateById(user);
         Assert.isTrue(updateResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
         //加入流水
-        long result = userOperateStreamService.insertStream(userId, UserOperateTypeEnum.UNFREEZE);
+        long result = userOperateStreamService.insertStream(user, UserOperateTypeEnum.UNFREEZE);
         Assert.notNull(result, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
         //第二次删除缓存
@@ -328,7 +335,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         }
         if (updateById(user)) {
             //加入流水
-            long streamResult = userOperateStreamService.insertStream(user.getId(), UserOperateTypeEnum.MODIFY);
+            long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.MODIFY);
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
             addNickName(userModifyRequest.getNickName());
             userOperatorResponse.setSuccess(true);

@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.user.domain.service;
 
 import cn.hollis.nft.turbo.api.user.constant.UserOperateTypeEnum;
+import cn.hollis.nft.turbo.user.domain.entity.User;
 import cn.hollis.nft.turbo.user.domain.entity.UserOperateStream;
 import cn.hollis.nft.turbo.user.infrastructure.mapper.UserOperateStreamMapper;
 import com.alibaba.fastjson2.JSON;
@@ -20,12 +21,12 @@ import java.util.Date;
 @Service
 public class UserOperateStreamService extends ServiceImpl<UserOperateStreamMapper, UserOperateStream> {
 
-    public Long insertStream(Long userId, UserOperateTypeEnum type) {
+    public Long insertStream(User user, UserOperateTypeEnum type) {
         UserOperateStream stream = new UserOperateStream();
-        stream.setUserId(String.valueOf(userId));
+        stream.setUserId(String.valueOf(user.getId()));
         stream.setOperateTime(new Date());
         stream.setType(type.name());
-        stream.setParam(JSON.toJSONString(stream));
+        stream.setParam(JSON.toJSONString(user));
         boolean result = save(stream);
         if (result) {
             return stream.getId();
