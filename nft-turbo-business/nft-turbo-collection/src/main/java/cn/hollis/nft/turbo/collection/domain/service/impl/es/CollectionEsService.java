@@ -5,6 +5,7 @@ import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.service.impl.BaseCollectionService;
 import cn.hollis.nft.turbo.collection.infrastructure.es.mapper.CollectionEsMapper;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 import org.dromara.easyes.core.biz.SAPageInfo;
 import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class CollectionEsService extends BaseCollectionService {
     @Override
     public PageResponse<Collection> pageQueryByState(String name, String state, int currentPage, int pageSize) {
         Criteria criteria = null;
-        if (name != null) {
+        if (StringUtils.isNotBlank(name)) {
             criteria = new Criteria("name").is(name).and(new Criteria("state").is(state), new Criteria("deleted").is("0"));
         } else {
             criteria = new Criteria("state").is(state).and(new Criteria("deleted").is("0"));

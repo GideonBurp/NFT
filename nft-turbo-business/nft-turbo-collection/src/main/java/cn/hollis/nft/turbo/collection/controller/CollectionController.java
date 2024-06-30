@@ -75,10 +75,10 @@ public class CollectionController {
      * @return 结果
      */
     @GetMapping("/collectionList")
-    public MultiResult<CollectionVO> collectionList(@NotBlank String state, String keyWord, int pageSize, int currentPage) {
+    public MultiResult<CollectionVO> collectionList(@NotBlank String state, String keyword, int pageSize, int currentPage) {
         CollectionPageQueryRequest collectionPageQueryRequest = new CollectionPageQueryRequest();
         collectionPageQueryRequest.setState(state);
-        collectionPageQueryRequest.setKeyword(keyWord);
+        collectionPageQueryRequest.setKeyword(keyword);
         collectionPageQueryRequest.setCurrentPage(currentPage);
         collectionPageQueryRequest.setPageSize(pageSize);
         PageResponse<CollectionVO> pageResponse = collectionFacadeService.pageQuery(collectionPageQueryRequest);

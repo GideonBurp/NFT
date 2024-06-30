@@ -3,6 +3,7 @@ package cn.hollis.nft.turbo.collection.domain.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
@@ -64,7 +65,7 @@ public class HeldCollection extends BaseEntity {
     /**
      * '状态'
      */
-    private String state;
+    private HeldCollectionState state;
 
     /**
      * '交易hash'
@@ -89,7 +90,7 @@ public class HeldCollection extends BaseEntity {
     /**
      * '业务类型'
      */
-    private String bizType;
+    private CollectionSaleBizType bizType;
 
     /**
      * '业务编号'
@@ -100,10 +101,10 @@ public class HeldCollection extends BaseEntity {
         this.collectionId = request.getCollectionId();
         this.serialNo = request.getSerialNo();
         this.userId = request.getUserId().toString();
-        this.state = HeldCollectionState.INIT.name();
+        this.state = HeldCollectionState.INIT;
         this.holdTime = new Date();
         this.bizNo = request.getBizNo();
-        this.bizType = request.getBizType();
+        this.bizType = CollectionSaleBizType.valueOf(request.getBizType());
         this.name = request.getName();
         this.cover = request.getCover();
         this.purchasePrice = request.getPurchasePrice();
@@ -114,12 +115,12 @@ public class HeldCollection extends BaseEntity {
         this.txHash = txHash;
         this.nftId = nftId;
         this.syncChainTime = new Date();
-        this.state = HeldCollectionState.ACTIVED.name();
+        this.state = HeldCollectionState.ACTIVED;
         return this;
     }
 
     public HeldCollection inActived() {
-        this.state = HeldCollectionState.INACTIVED.name();
+        this.state = HeldCollectionState.INACTIVED;
         return this;
     }
 
@@ -129,13 +130,13 @@ public class HeldCollection extends BaseEntity {
         this.preId = preId;
         this.userId = userId;
         this.nftId = nftId;
-        this.state = HeldCollectionState.INIT.name();
+        this.state = HeldCollectionState.INIT;
         this.holdTime = new Date();
         return this;
     }
 
     public HeldCollection destroy() {
-        this.state = HeldCollectionState.DESTROYED.name();
+        this.state = HeldCollectionState.DESTROYED;
         this.deleteTime = new Date();
         return this;
     }
