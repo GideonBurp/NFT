@@ -18,9 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class UserCacheDelayDeleteService {
 
     @Scheduled(fixedDelay = 2, timeUnit = TimeUnit.SECONDS)
-    public void delayedCacheDelete(Cache telUserCache, Cache idUserCache, User user) {
-        boolean telDeleteResult = telUserCache.remove(user.getTelephone());
-        log.info("telUserCache removed, key = {} , result  = {}", user.getTelephone(), telDeleteResult);
+    public void delayedCacheDelete(Cache idUserCache, User user) {
         boolean idDeleteResult = idUserCache.remove(user.getId().toString());
         log.info("idUserCache removed, key = {} , result  = {}", user.getId(), idDeleteResult);
     }

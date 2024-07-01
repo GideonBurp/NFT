@@ -20,6 +20,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.CacheManager;
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -67,8 +68,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     @Autowired
     private CacheManager cacheManager;
 
-    private Cache<String, User> telUserCache;
-
     private Cache<String, User> idUserCache;
 
     @Autowired
@@ -76,16 +75,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     @PostConstruct
     public void init() {
-        QuickConfig telQc = QuickConfig.newBuilder(":user:cache:tel:")
-                .cacheType(CacheType.BOTH)
-                .expire(Duration.ofMinutes(3000))
-                .syncLocal(true)
-                .build();
-        telUserCache = cacheManager.getOrCreateCache(telQc);
-
         QuickConfig idQc = QuickConfig.newBuilder(":user:cache:id:")
                 .cacheType(CacheType.BOTH)
-                .expire(Duration.ofMinutes(3000))
+                .expire(Duration.ofHours(2))
                 .syncLocal(true)
                 .build();
         idUserCache = cacheManager.getOrCreateCache(idQc);
@@ -101,7 +93,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         User user = register(telephone, defaultNickName, telephone);
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
-        telUserCache.put(telephone, user);
         idUserCache.put(user.getId().toString(), user);
 
         //加入流水
@@ -142,6 +133,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param userAuthRequest
      * @return
      */
+    @CacheInvalidate(name = ":user:cache:id:", key = "#userAuthRequest.userId")
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userAuthRequest.getUserId());
@@ -157,8 +149,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         user.auth(userAuthRequest.getRealName(), userAuthRequest.getIdCard());
         boolean result = updateById(user);
         if (result) {
-            telUserCache.remove(user.getTelephone());
-            idUserCache.remove(user.getId().toString());
             //加入流水
             long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.AUTH);
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
@@ -178,6 +168,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param userActiveRequest
      * @return
      */
+    @CacheInvalidate(name = ":user:cache:id:", key = "#userActiveRequest.userId")
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userActiveRequest.getUserId());
@@ -189,8 +180,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
             //加入流水
             long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.ACTIVE);
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
-            telUserCache.remove(user.getTelephone());
-            idUserCache.remove(user.getId().toString());
             userOperatorResponse.setSuccess(true);
         } else {
             userOperatorResponse.setSuccess(false);
@@ -214,7 +203,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         Assert.isTrue(user.getState() == UserStateEnum.ACTIVE, () -> new UserException(USER_STATUS_IS_NOT_ACTIVE));
 
         //第一次删除缓存
-        telUserCache.remove(user.getTelephone());
         idUserCache.remove(user.getId().toString());
 
         if (user.getState() == UserStateEnum.FROZEN) {
@@ -229,7 +217,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         Assert.notNull(result, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
         //第二次删除缓存
-        userCacheDelayDeleteService.delayedCacheDelete(telUserCache, idUserCache, user);
+        userCacheDelayDeleteService.delayedCacheDelete(idUserCache, user);
 
         userOperatorResponse.setSuccess(true);
         return userOperatorResponse;
@@ -248,7 +236,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         Assert.notNull(user, () -> new UserException(USER_NOT_EXIST));
 
         //第一次删除缓存
-        telUserCache.remove(user.getTelephone());
         idUserCache.remove(user.getId().toString());
 
         if (user.getState() == UserStateEnum.ACTIVE) {
@@ -264,7 +251,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         Assert.notNull(result, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
         //第二次删除缓存
-        userCacheDelayDeleteService.delayedCacheDelete(telUserCache, idUserCache, user);
+        userCacheDelayDeleteService.delayedCacheDelete(idUserCache, user);
 
         userOperatorResponse.setSuccess(true);
         return userOperatorResponse;
@@ -276,8 +263,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param telephone
      * @return
      */
-    @Cached(name = ":user:cache:tel:", expire = 3000, cacheType = CacheType.BOTH, key = "#telephone", cacheNullValue = true)
-    @CacheRefresh(refresh = 60, timeUnit = TimeUnit.MINUTES)
     public User findByTelephone(String telephone) {
         return userMapper.findByTelephone(telephone);
     }
@@ -288,7 +273,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param userId
      * @return
      */
-    @Cached(name = ":user:cache:id:", expire = 3000, cacheType = CacheType.BOTH, key = "#userId", cacheNullValue = true)
+    @Cached(name = ":user:cache:id:", cacheType = CacheType.BOTH, key = "#userId", cacheNullValue = true)
     @CacheRefresh(refresh = 60, timeUnit = TimeUnit.MINUTES)
     public User findById(Long userId) {
         return userMapper.findById(userId);
@@ -319,6 +304,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param userModifyRequest
      * @return
      */
+    @CacheInvalidate(name = ":user:cache:id:", key = "#userModifyRequest.userId")
     public UserOperatorResponse modify(UserModifyRequest userModifyRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userModifyRequest.getUserId());
@@ -339,10 +325,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
             Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
             addNickName(userModifyRequest.getNickName());
             userOperatorResponse.setSuccess(true);
-
-            //删除缓存
-            telUserCache.remove(user.getTelephone());
-            idUserCache.remove(user.getId().toString());
 
             return userOperatorResponse;
         }
