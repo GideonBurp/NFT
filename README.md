@@ -1,5 +1,7 @@
 # 常用地址
 
+🔥🔥🔥项目介绍及购买地址：http://nfturbo.wiki/
+
 🔥项目交流群：[https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673c2f45e11940001c785cc](https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/6673c2f45e11940001c785cc)
 
 🔥代码地址：[https://codeup.aliyun.com/66263f57d833774c93cc0418/NFTurbo](https://codeup.aliyun.com/66263f57d833774c93cc0418/NFTurbo)
