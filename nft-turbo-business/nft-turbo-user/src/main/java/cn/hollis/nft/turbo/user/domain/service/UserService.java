@@ -7,6 +7,7 @@ import cn.hollis.nft.turbo.api.user.request.UserAuthRequest;
 import cn.hollis.nft.turbo.api.user.request.UserModifyRequest;
 import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
 import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
+import cn.hollis.nft.turbo.api.user.response.data.InviteRankInfo;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.lock.DistributeLock;
@@ -25,11 +26,15 @@ import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.alicp.jetcache.template.QuickConfig;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.protocol.ScoredEntry;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +42,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.user.infrastructure.exception.UserErrorCode.*;
@@ -65,6 +73,8 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     private RBloomFilter<String> bloomFilter;
 
+    private RScoredSortedSet<String> inviteRank;
+
     @Autowired
     private CacheManager cacheManager;
 
@@ -84,16 +94,30 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
-    public UserOperatorResponse register(String telephone) {
+    public UserOperatorResponse register(String telephone, String inviteCode) {
         //前缀 + 6位随机数 + 手机号后四位
         String defaultNickName;
+        String randomString;
         do {
-            defaultNickName = DEFAULT_NICK_NAME_PREFIX + RandomUtil.randomString(6) + telephone.substring(7, 11);
+            randomString = RandomUtil.randomString(6);
+            defaultNickName = DEFAULT_NICK_NAME_PREFIX + randomString + telephone.substring(7, 11);
         } while (nickNameExist(defaultNickName));
 
-        User user = register(telephone, defaultNickName, telephone);
+        String inviterId = null;
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("invite_code", inviteCode);
+        User inviter = this.getOne(wrapper);
+
+        if (inviter != null) {
+            inviterId = inviter.getId().toString();
+        }
+
+        User user = register(telephone, defaultNickName, telephone, randomString, inviterId);
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
-        idUserCache.put(user.getId().toString(), user);
+
+        addNickName(defaultNickName);
+        updateInviteRank(inviterId);
+        updateUserCache(user.getId().toString(), user);
 
         //加入流水
         long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.REGISTER);
@@ -113,15 +137,14 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @param password
      * @return
      */
-    private User register(String telephone, String nickName, String password) {
+    private User register(String telephone, String nickName, String password, String inviteCode, String inviterId) {
         if (userMapper.findByTelephone(telephone) != null) {
             throw new UserException(DUPLICATE_TELEPHONE_NUMBER);
         }
 
         User user = new User();
-        user.register(telephone, nickName, password);
+        user.register(telephone, nickName, password, inviteCode, inviterId);
         if (save(user)) {
-            addNickName(nickName);
             return userMapper.findByTelephone(telephone);
         }
         return null;
@@ -335,6 +358,38 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
+    public Integer getInviteRank(String userId) {
+        Integer rank = inviteRank.revRank(userId);
+        if (rank != null) {
+            return rank + 1;
+        }
+        return null;
+    }
+
+    public List<InviteRankInfo> getTopN(Integer topN) {
+        Collection<ScoredEntry<String>> rankInfos = inviteRank.entryRangeReversed(0, topN - 1);
+
+        List<InviteRankInfo> inviteRankInfos = new ArrayList<>();
+
+        if (rankInfos != null) {
+            for (ScoredEntry<String> rankInfo : rankInfos) {
+                InviteRankInfo inviteRankInfo = new InviteRankInfo();
+                String userId = rankInfo.getValue();
+                if (StringUtils.isNotBlank(userId)) {
+                    User user = findById(Long.valueOf(userId));
+                    if (user != null) {
+                        inviteRankInfo.setNickName(user.getNickName());
+                        inviteRankInfo.setInviteCode(user.getInviteCode());
+                        inviteRankInfo.setInviteCount(rankInfo.getScore().intValue() / 100);
+                        inviteRankInfos.add(inviteRankInfo);
+                    }
+                }
+            }
+        }
+
+        return inviteRankInfos;
+    }
+
     public boolean nickNameExist(String nickName) {
         //如果布隆过滤器中存在，再进行数据库二次判断
         if (this.bloomFilter != null && this.bloomFilter.contains(nickName)) {
@@ -348,6 +403,24 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return this.bloomFilter != null && this.bloomFilter.add(nickName);
     }
 
+    private void updateInviteRank(String inviterId) {
+        RLock rLock = redissonClient.getLock(inviterId);
+        rLock.lock();
+        try {
+            Double score = inviteRank.getScore(inviterId);
+            if (score == null) {
+                score = 0.0;
+            }
+            inviteRank.add(score + 100.0, inviterId);
+        } finally {
+            rLock.unlock();
+        }
+    }
+
+    private void updateUserCache(String userId, User user) {
+        idUserCache.put(userId, user);
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         this.bloomFilter = redissonClient.getBloomFilter("nickName");
@@ -355,5 +428,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
             this.bloomFilter.tryInit(100000L, 0.01);
         }
 
+        this.inviteRank = redissonClient.getScoredSortedSet("inviteRank");
     }
 }
