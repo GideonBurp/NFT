@@ -77,6 +77,7 @@ public class AuthController {
         //注册
         UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
         userRegisterRequest.setTelephone(registerParam.getTelephone());
+        userRegisterRequest.setInviteCode(registerParam.getInviteCode());
 
         UserOperatorResponse registerResult = userFacadeService.register(userRegisterRequest);
         if(registerResult.getSuccess()){
@@ -112,6 +113,7 @@ public class AuthController {
             //需要注册
             UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
             userRegisterRequest.setTelephone(loginParam.getTelephone());
+            userRegisterRequest.setInviteCode(loginParam.getInviteCode());
 
             UserOperatorResponse response = userFacadeService.register(userRegisterRequest);
             if (response.getSuccess()) {

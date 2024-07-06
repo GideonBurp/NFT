@@ -48,7 +48,7 @@ public class UserFacadeServiceImpl implements UserFacadeService {
     @Override
     @Facade
     public UserOperatorResponse register(UserRegisterRequest userRegisterRequest) {
-        return userService.register(userRegisterRequest.getTelephone());
+        return userService.register(userRegisterRequest.getTelephone(),userRegisterRequest.getInviteCode());
     }
 
     @Override

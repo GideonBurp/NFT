@@ -39,7 +39,7 @@ public class UserServiceTest extends UserBaseTest {
 
     @Test
     public void testCache() {
-        userService.register("13444444444");
+        userService.register("13444444444","6666");
         User user = userService.findByTelephone("13444444444");
         System.out.println(JSON.toJSONString(user));
         Assert.assertNotNull(user);
@@ -54,7 +54,7 @@ public class UserServiceTest extends UserBaseTest {
 
     @Test
     public void testCache1() {
-        userService.register("13448444447");
+        userService.register("13448444447","6666");
         User user = userService.findByTelephone("13448444447");
         Assert.assertEquals(user.getState(), UserStateEnum.INIT);
 
@@ -72,7 +72,7 @@ public class UserServiceTest extends UserBaseTest {
 
     @Test
     public void testAuth() {
-        userService.register("13444444445");
+        userService.register("13444444445","6666");
         User user = userService.findByTelephone("13444444445");
         User sensitiveUser = SensitiveUtil.desCopy(user);
         Assert.assertNotNull(user);
@@ -104,7 +104,7 @@ public class UserServiceTest extends UserBaseTest {
 
     @Test
     public void testActive() {
-        userService.register("13444444446");
+        userService.register("13444444446","6666");
         User user = userService.findByTelephone("13444444446");
 
         Assert.assertNotNull(user);
@@ -134,7 +134,7 @@ public class UserServiceTest extends UserBaseTest {
 
     @Test
     public void testModify() {
-        userService.register("13844444448");
+        userService.register("13844444448","6666");
         User user = userService.findByTelephone("13844444448");
 
         Assert.assertNotNull(user);
@@ -156,7 +156,7 @@ public class UserServiceTest extends UserBaseTest {
 
     @Test
     public void testFreezeANdUnFreeze() {
-        userService.register("13447444448");
+        userService.register("13447444448","6666");
         User user = userService.findByTelephone("13447444448");
 
         Assert.assertNotNull(user);

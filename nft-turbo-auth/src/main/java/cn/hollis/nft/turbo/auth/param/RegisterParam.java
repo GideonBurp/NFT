@@ -22,4 +22,9 @@ public class RegisterParam {
      */
     @NotBlank(message = "验证码不能为空")
     private String captcha;
+
+    /**
+     * 邀请码
+     */
+    private String inviteCode;
 }
