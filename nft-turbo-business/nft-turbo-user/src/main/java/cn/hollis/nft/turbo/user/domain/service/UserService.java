@@ -26,7 +26,6 @@ import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.alicp.jetcache.template.QuickConfig;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +70,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     @Autowired
     private RedissonClient redissonClient;
 
-    private RBloomFilter<String> bloomFilter;
+    private RBloomFilter<String> nickNameBloomFilter;
+
+    private RBloomFilter<String> inviteCodeBloomFilter;
 
     private RScoredSortedSet<String> inviteRank;
 
@@ -95,21 +96,20 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
     public UserOperatorResponse register(String telephone, String inviteCode) {
-        //前缀 + 6位随机数 + 手机号后四位
         String defaultNickName;
         String randomString;
         do {
-            randomString = RandomUtil.randomString(6);
+            randomString = RandomUtil.randomString(6).toUpperCase();
+            //前缀 + 6位随机数 + 手机号后四位
             defaultNickName = DEFAULT_NICK_NAME_PREFIX + randomString + telephone.substring(7, 11);
-        } while (nickNameExist(defaultNickName));
+        } while (nickNameExist(defaultNickName) & inviteCodeExist(randomString));
 
         String inviterId = null;
-        QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("invite_code", inviteCode);
-        User inviter = this.getOne(wrapper);
-
-        if (inviter != null) {
-            inviterId = inviter.getId().toString();
+        if (StringUtils.isNotBlank(inviteCode)) {
+            User inviter = userMapper.findByInviteCode(inviteCode);
+            if (inviter != null) {
+                inviterId = inviter.getId().toString();
+            }
         }
 
         User user = register(telephone, defaultNickName, telephone, randomString, inviterId);
@@ -392,18 +392,30 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     public boolean nickNameExist(String nickName) {
         //如果布隆过滤器中存在，再进行数据库二次判断
-        if (this.bloomFilter != null && this.bloomFilter.contains(nickName)) {
+        if (this.nickNameBloomFilter != null && this.nickNameBloomFilter.contains(nickName)) {
             return userMapper.findByNickname(nickName) != null;
         }
 
         return false;
     }
 
+    public boolean inviteCodeExist(String inviteCode) {
+        //如果布隆过滤器中存在，再进行数据库二次判断
+        if (this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.contains(inviteCode)) {
+            return userMapper.findByInviteCode(inviteCode) != null;
+        }
+
+        return false;
+    }
+
     private boolean addNickName(String nickName) {
-        return this.bloomFilter != null && this.bloomFilter.add(nickName);
+        return this.nickNameBloomFilter != null && this.nickNameBloomFilter.add(nickName);
     }
 
     private void updateInviteRank(String inviterId) {
+        if (inviterId == null) {
+            return;
+        }
         RLock rLock = redissonClient.getLock(inviterId);
         rLock.lock();
         try {
@@ -423,9 +435,14 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.bloomFilter = redissonClient.getBloomFilter("nickName");
-        if (bloomFilter != null && !bloomFilter.isExists()) {
-            this.bloomFilter.tryInit(100000L, 0.01);
+        this.nickNameBloomFilter = redissonClient.getBloomFilter("nickName");
+        if (nickNameBloomFilter != null && !nickNameBloomFilter.isExists()) {
+            this.nickNameBloomFilter.tryInit(100000L, 0.01);
+        }
+
+        this.inviteCodeBloomFilter = redissonClient.getBloomFilter("inviteCode");
+        if (inviteCodeBloomFilter != null && !inviteCodeBloomFilter.isExists()) {
+            this.inviteCodeBloomFilter.tryInit(100000L, 0.01);
         }
 
         this.inviteRank = redissonClient.getScoredSortedSet("inviteRank");
