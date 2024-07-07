@@ -2,6 +2,7 @@ package cn.hollis.nft.turbo.user.infrastructure.mapper;
 
 import cn.hollis.nft.turbo.user.domain.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import jakarta.validation.constraints.NotNull;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -25,7 +26,14 @@ public interface UserMapper extends BaseMapper<User> {
      * @param nickname
      * @return
      */
-    User findByNickname(String nickname);
+    User findByNickname(@NotNull String nickname);
+
+    /**
+     * 根据邀请码查询用户
+     * @param inviteCode
+     * @return
+     */
+    User findByInviteCode(@NotNull String inviteCode);
 
     /**
      * 根据手机号查询用户
@@ -33,7 +41,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param telephone
      * @return
      */
-    User findByTelephone(String telephone);
+    User findByTelephone(@NotNull String telephone);
 
     /**
      * 根据昵称和密码查询用户
