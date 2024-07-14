@@ -13,7 +13,7 @@ import java.util.List;
  * @author Hollis
  */
 @Service
-public class CollectionInventoryDBService implements CollectionInventoryService {
+public class CollectionInventoryDbServiceImpl implements CollectionInventoryService {
 
     @Override
     public CollectionInventoryResponse init(CollectionInventoryRequest request) {
