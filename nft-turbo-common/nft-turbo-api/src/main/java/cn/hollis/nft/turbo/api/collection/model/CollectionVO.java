@@ -99,8 +99,9 @@ public class CollectionVO extends BaseGoodsVO {
         } else {
             if (ChronoUnit.MINUTES.between(now, saleTime.toInstant()) > DEFAULT_MIN_SALE_TIME) {
                 this.setState(CollectionVoState.WAIT_FOR_SALE);
+            } else {
+                this.setState(CollectionVoState.COMING_SOON);
             }
-            this.setState(CollectionVoState.COMING_SOON);
         }
     }
 
