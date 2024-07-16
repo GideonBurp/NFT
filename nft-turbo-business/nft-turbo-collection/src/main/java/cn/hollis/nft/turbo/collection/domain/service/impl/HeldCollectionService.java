@@ -32,6 +32,10 @@ import java.util.concurrent.TimeUnit;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_QUERY_FAIL;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_SAVE_FAILED;
 
+/**
+ * 持有的藏品服务
+ * @author Hollis
+ */
 @Service
 public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, HeldCollection> {
 

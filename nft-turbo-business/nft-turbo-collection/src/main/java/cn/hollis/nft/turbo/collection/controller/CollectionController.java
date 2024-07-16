@@ -49,8 +49,8 @@ public class CollectionController {
     @GetMapping("/chain")
     public Result<Boolean> chain() {
         CollectionChainRequest request = new CollectionChainRequest();
-        request.setIdentifier(String.valueOf(new Date().getTime()));
-        request.setClassId("id" + new Date().getTime());
+        request.setIdentifier(String.valueOf(System.currentTimeMillis()));
+        request.setClassId("id" + System.currentTimeMillis());
         request.setName("测试藏品");
         request.setQuantity(100L);
         request.setSaleTime(new Date());

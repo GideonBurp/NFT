@@ -28,7 +28,7 @@ public class ChainOperateInfoService extends ServiceImpl<ChainOperateInfoMapper,
         operateInfo.setOperateType(operateType);
         operateInfo.setParam(param);
         operateInfo.setOutBizId(operationId);
-        operateInfo.setState(ChainOperateStateEnum.PROCESSING.name());
+        operateInfo.setState(ChainOperateStateEnum.PROCESSING);
 
         boolean ret = save(operateInfo);
         if (ret) {
@@ -37,7 +37,7 @@ public class ChainOperateInfoService extends ServiceImpl<ChainOperateInfoMapper,
         return null;
     }
 
-    public boolean updateResult(Long id, String state, String result) {
+    public boolean updateResult(Long id, ChainOperateStateEnum state, String result) {
         ChainOperateInfo operateInfoDO = getById(id);
         operateInfoDO.setResult(result);
         operateInfoDO.setState(state);

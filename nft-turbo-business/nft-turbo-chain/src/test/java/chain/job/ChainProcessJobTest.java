@@ -55,7 +55,7 @@ public class ChainProcessJobTest extends ChainBaseTest {
         Thread.sleep(6000);
         chainProcessJob.execute();
         var res = chainOperateInfoService.queryByOutBizId(result.getData().getOperationId(), CHAIN_OPERATION.name(), result.getData().getOperationId());
-        Assert.assertTrue(StringUtils.equals(res.getState(), ChainOperateStateEnum.SUCCEED.name()));
+        Assert.assertTrue(res.getState()==ChainOperateStateEnum.SUCCEED);
     }
 
     private ChainProcessResponse<ChainOperationData> chain(ChainProcessRequest request) {

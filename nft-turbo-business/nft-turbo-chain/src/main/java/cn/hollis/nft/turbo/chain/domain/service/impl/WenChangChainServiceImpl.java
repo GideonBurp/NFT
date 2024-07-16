@@ -13,7 +13,6 @@ import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.base.exception.SystemException;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainCodeEnum;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
-import cn.hollis.nft.turbo.chain.domain.constant.ChainStateEnum;
 import cn.hollis.nft.turbo.chain.domain.constant.WenChangChainConfiguration;
 import cn.hollis.nft.turbo.chain.domain.entity.*;
 import cn.hollis.nft.turbo.chain.domain.response.ChainResponse;
@@ -60,7 +59,7 @@ public class WenChangChainServiceImpl extends AbstractChainService {
             ChainOperateInfo chainOperateInfo = chainOperateInfoService.queryByOutBizId(chainProcessRequest.getBizId(), chainProcessRequest.getBizType(),
                     chainProcessRequest.getIdentifier());
             boolean updateResult = chainOperateInfoService.updateResult(chainOperateInfo.getId(),
-                    ChainOperateStateEnum.SUCCEED.name(),
+                    ChainOperateStateEnum.SUCCEED,
                     null);
         }
         return response;
@@ -147,7 +146,7 @@ public class WenChangChainServiceImpl extends AbstractChainService {
         log.info("wen chang query result:{}", result);
 
         boolean updateResult = chainOperateInfoService.updateResult(operateInfoId,
-                ChainOperateStateEnum.SUCCEED.name(),
+                ChainOperateStateEnum.SUCCEED,
                 result.getSuccess() ? result.getData().toString() : result.getError().toString());
 
         if (!updateResult) {
@@ -169,16 +168,16 @@ public class WenChangChainServiceImpl extends AbstractChainService {
             data.setNftId(nftId);
             switch (status) {
                 case "0":
-                    data.setState(ChainStateEnum.PROCESSING.name());
+                    data.setState(ChainOperateStateEnum.PROCESSING.name());
                     break;
                 case "1":
-                    data.setState(ChainStateEnum.SUCCEED.name());
+                    data.setState(ChainOperateStateEnum.SUCCEED.name());
                     break;
                 case "2":
-                    data.setState(ChainStateEnum.FAILED.name());
+                    data.setState(ChainOperateStateEnum.FAILED.name());
                     break;
                 case "3":
-                    data.setState(ChainStateEnum.INIT.name());
+                    data.setState(ChainOperateStateEnum.INIT.name());
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + status);

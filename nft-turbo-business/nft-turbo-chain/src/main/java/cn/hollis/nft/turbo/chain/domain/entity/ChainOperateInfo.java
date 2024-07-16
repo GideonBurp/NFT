@@ -1,12 +1,13 @@
 package cn.hollis.nft.turbo.chain.domain.entity;
 
-import java.util.Date;
-
 import cn.hollis.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
 import cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum;
+import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -46,7 +47,7 @@ public class ChainOperateInfo extends BaseEntity {
     /**
      * 状态
      */
-    private String state;
+    private ChainOperateStateEnum state;
 
     /**
      * 操作时间

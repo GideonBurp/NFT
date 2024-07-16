@@ -15,7 +15,6 @@ import cn.hollis.nft.turbo.base.exception.SystemException;
 import cn.hollis.nft.turbo.base.utils.BeanValidator;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainCodeEnum;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
-import cn.hollis.nft.turbo.chain.domain.constant.ChainStateEnum;
 import cn.hollis.nft.turbo.chain.domain.entity.ChainOperateInfo;
 import cn.hollis.nft.turbo.chain.domain.entity.ChainRequest;
 import cn.hollis.nft.turbo.chain.domain.response.ChainResponse;
@@ -105,11 +104,11 @@ public abstract class AbstractChainService implements ChainService {
                         ChainProcessResponse<ChainResultData> queryChainResult = queryChainResult(
                                 new ChainQueryRequest(chainProcessRequest.getIdentifier(), operateInfoId.toString()));
                         if (queryChainResult.getSuccess() && queryChainResult.getData() != null) {
-                            if (StringUtils.equals(queryChainResult.getData().getState(), ChainStateEnum.SUCCEED.name())) {
+                            if (StringUtils.equals(queryChainResult.getData().getState(), ChainOperateStateEnum.SUCCEED.name())) {
                                 this.sendMsg(operateInfo, queryChainResult.getData());
 
                                 chainOperateInfoService.updateResult(operateInfoId,
-                                        ChainOperateStateEnum.SUCCEED.name(), null);
+                                        ChainOperateStateEnum.SUCCEED, null);
                             }
                         }
                     } catch (Exception e) {

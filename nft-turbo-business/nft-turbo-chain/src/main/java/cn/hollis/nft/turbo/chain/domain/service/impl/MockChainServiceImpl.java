@@ -9,7 +9,7 @@ import cn.hollis.nft.turbo.api.chain.response.data.ChainCreateData;
 import cn.hollis.nft.turbo.api.chain.response.data.ChainOperationData;
 import cn.hollis.nft.turbo.api.chain.response.data.ChainResultData;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainCodeEnum;
-import cn.hollis.nft.turbo.chain.domain.constant.ChainStateEnum;
+import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
 import cn.hollis.nft.turbo.chain.domain.entity.ChainRequest;
 import cn.hollis.nft.turbo.chain.domain.response.ChainResponse;
 import cn.hollis.nft.turbo.chain.domain.service.AbstractChainService;
@@ -64,7 +64,7 @@ public class MockChainServiceImpl extends AbstractChainService {
         ChainResultData data = new ChainResultData();
         data.setTxHash(UUID.randomUUID().toString());
         data.setNftId("nftId");
-        data.setState(ChainStateEnum.SUCCEED.name());
+        data.setState(ChainOperateStateEnum.SUCCEED.name());
         response.setData(data);
         return response;
     }
