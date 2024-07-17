@@ -574,3 +574,29 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息表'
 ;
+
+
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = collection_inventory_stream   */
+/******************************************/
+CREATE TABLE `collection_inventory_stream` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
+  `collection_id` bigint DEFAULT NULL COMMENT '藏品id',
+  `changed_quantity` bigint DEFAULT NULL COMMENT '本次变更的数量',
+  `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
+  `quantity` bigint DEFAULT NULL COMMENT '藏品数量',
+  `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
+  `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
+  `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
+  `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
+  `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`),
+  KEY `idx_cid_ident_type` (`collection_id`,`identifier`,`stream_type`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表库存流水'
+;
+
