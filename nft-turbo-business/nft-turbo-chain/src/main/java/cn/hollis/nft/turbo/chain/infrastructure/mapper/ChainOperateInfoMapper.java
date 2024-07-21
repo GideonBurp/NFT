@@ -23,4 +23,11 @@ public interface ChainOperateInfoMapper extends BaseMapper<ChainOperateInfo> {
      */
     List<ChainOperateInfo> scanAll();
 
+    /**
+     * 根据 ID 查询出最小的 ID
+     * @param state
+     * @return
+     */
+    public Long queryMinIdByState(String state);
+
 }

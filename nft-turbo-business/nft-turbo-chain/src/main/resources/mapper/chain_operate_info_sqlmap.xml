@@ -27,4 +27,12 @@
         *
         FROM `chain_operate_info`
     </select>
+
+
+    <select id="queryMinIdByState" resultType="java.lang.Long" parameterType="java.lang.String">
+        SELECT
+        min(id)
+        FROM `chain_operate_info`
+        where state = #{state}
+    </select>
 </mapper>

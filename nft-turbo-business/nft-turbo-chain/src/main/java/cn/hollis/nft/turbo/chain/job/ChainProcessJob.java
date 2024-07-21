@@ -8,20 +8,23 @@ import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.base.exception.SystemException;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
+import cn.hollis.nft.turbo.chain.domain.constant.ChainStateEnum;
 import cn.hollis.nft.turbo.chain.domain.entity.ChainOperateInfo;
 import cn.hollis.nft.turbo.chain.domain.service.ChainOperateInfoService;
 import cn.hollis.nft.turbo.chain.domain.service.ChainService;
 import cn.hollis.nft.turbo.chain.domain.service.ChainServiceFactory;
 import cn.hollis.nft.turbo.chain.infrastructure.exception.ChainErrorCode;
 import cn.hollis.nft.turbo.chain.infrastructure.exception.ChainException;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 链上处理任务
@@ -37,25 +40,25 @@ public class ChainProcessJob {
     @Autowired
     private ChainServiceFactory chainServiceFactory;
 
-    private static final int PAGE_SIZE = 100;
+    private static final int PAGE_SIZE = 5;
 
     private static final Logger LOG = LoggerFactory.getLogger(ChainProcessJob.class);
 
     @XxlJob("unFinishOperateExecute")
     public ReturnT<String> execute() {
 
-        int currentPage = 1;
-        //fixme 这里可能存在部分任务失败导致任务一直死循环的问题，需要增加游标修复，其他的类似 job 也有。 @Hollis
-        Page<ChainOperateInfo> page = chainOperateInfoService.pageQueryOperateInfoByState(
-            ChainOperateStateEnum.PROCESSING.name(), currentPage, PAGE_SIZE);
+        Long minId = chainOperateInfoService.queryMinIdByState(ChainOperateStateEnum.PROCESSING.name());
 
-        page.getRecords().forEach(this::executeSingle);
+        List<ChainOperateInfo> chainOperateInfos = chainOperateInfoService.pageQueryOperateInfoByState(
+                ChainOperateStateEnum.PROCESSING.name(), PAGE_SIZE, minId);
 
-        while (page.hasNext()) {
-            currentPage++;
-            page = chainOperateInfoService.pageQueryOperateInfoByState(ChainOperateStateEnum.PROCESSING.name(),
-                currentPage, PAGE_SIZE);
-            page.getRecords().forEach(this::executeSingle);
+        chainOperateInfos.forEach(this::executeSingle);
+
+        while (CollectionUtils.isNotEmpty(chainOperateInfos)) {
+            minId = chainOperateInfos.stream().mapToLong(ChainOperateInfo::getId).max().orElse(0L);
+            chainOperateInfos = chainOperateInfoService.pageQueryOperateInfoByState(ChainOperateStateEnum.PROCESSING.name()
+                    , PAGE_SIZE, minId + 1);
+            chainOperateInfos.forEach(this::executeSingle);
         }
 
         return ReturnT.SUCCESS;
@@ -77,11 +80,11 @@ public class ChainProcessJob {
             if (null == chainResultData) {
                 throw new ChainException(ChainErrorCode.CHAIN_QUERY_FAIL);
             }
-            if (!StringUtils.equals(chainResultData.getState(), ChainOperateStateEnum.SUCCEED.name())) {
+            if (!StringUtils.equals(chainResultData.getState(), ChainStateEnum.SUCCEED.name())) {
                 throw new BizException(ChainErrorCode.CHAIN_PROCESS_STATE_ERROR);
             }
             //成功情况处理
-            if (StringUtils.equals(chainResultData.getState(), ChainOperateStateEnum.SUCCEED.name())) {
+            if (StringUtils.equals(chainResultData.getState(), ChainStateEnum.SUCCEED.name())) {
                 //发送消息
                 chainService.sendMsg(chainOperateInfo, chainResultData);
                 //更新操作表状态

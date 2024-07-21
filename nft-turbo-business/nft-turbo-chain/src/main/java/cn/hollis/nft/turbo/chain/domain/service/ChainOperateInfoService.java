@@ -4,8 +4,8 @@ import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
 import cn.hollis.nft.turbo.chain.domain.entity.ChainOperateInfo;
 import cn.hollis.nft.turbo.chain.infrastructure.mapper.ChainOperateInfoMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -18,6 +18,9 @@ import java.util.List;
  */
 @Service
 public class ChainOperateInfoService extends ServiceImpl<ChainOperateInfoMapper, ChainOperateInfo> {
+
+    @Autowired
+    private ChainOperateInfoMapper chainOperateInfoMapper;
 
     public Long insertInfo(String chainType, String bizId, String bizType, String operateType, String param,String operationId) {
         ChainOperateInfo operateInfo = new ChainOperateInfo();
@@ -56,13 +59,17 @@ public class ChainOperateInfoService extends ServiceImpl<ChainOperateInfoMapper,
         return retList.get(0);
     }
 
-    public Page<ChainOperateInfo> pageQueryOperateInfoByState(String state, int currentPage, int pageSize) {
-        Page<ChainOperateInfo> page = new Page<>(currentPage, pageSize);
-
+    public List<ChainOperateInfo> pageQueryOperateInfoByState(String state, int pageSize,Long minId) {
         QueryWrapper<ChainOperateInfo> wrapper = new QueryWrapper<>();
         wrapper.eq("state", state);
         wrapper.orderBy(true, true, "gmt_create");
-        return this.page(page, wrapper);
+        wrapper.ge("id", minId);
+        wrapper.last("limit " + pageSize);
+        return this.list(wrapper);
+    }
+
+    public Long queryMinIdByState(String state) {
+        return chainOperateInfoMapper.queryMinIdByState(state);
     }
 
     public void delete(Long id) {
