@@ -1,6 +1,6 @@
 package cn.hollis.nft.turbo.sms.config;
 
-import cn.hollis.nft.turbo.sms.MockSmsService;
+import cn.hollis.nft.turbo.sms.MockSmsServiceImpl;
 import cn.hollis.nft.turbo.sms.SmsService;
 import cn.hollis.nft.turbo.sms.SmsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class SmsConfiguration {
     @ConditionalOnMissingBean
     @Profile({"dev","test"})
     public SmsService mockSmsService() {
-        MockSmsService smsService = new MockSmsService();
+        MockSmsServiceImpl smsService = new MockSmsServiceImpl();
         return smsService;
     }
 

@@ -27,7 +27,7 @@ public interface OrderCreateValidator {
      * 校验
      *
      * @param request
-     * @throws Exception
+     * @throws OrderException 订单异常
      */
     public void validate(OrderCreateRequest request) throws OrderException;
 }

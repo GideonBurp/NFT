@@ -11,7 +11,7 @@ import cn.hollis.nft.turbo.api.chain.response.data.ChainOperationData;
 public interface ChainFacadeService {
 
     /**
-     * 创建交易链地址
+     * 创建链账户
      *
      * @param request
      * @return

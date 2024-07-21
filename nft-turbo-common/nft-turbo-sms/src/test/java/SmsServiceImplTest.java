@@ -1,13 +1,11 @@
-import cn.hollis.nft.turbo.sms.MockSmsService;
+import cn.hollis.nft.turbo.sms.MockSmsServiceImpl;
 import cn.hollis.nft.turbo.sms.SmsService;
-import cn.hollis.nft.turbo.sms.SmsServiceImpl;
 import cn.hollis.nft.turbo.sms.config.SmsConfiguration;
 import cn.hollis.nft.turbo.sms.response.SmsSendResponse;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,7 +21,7 @@ public class SmsServiceImplTest {
         // 填写字符串。
         String phoneNumber = "12325815658";
         String code = "3456";
-        SmsService smsService=new MockSmsService();
+        SmsService smsService=new MockSmsServiceImpl();
         SmsSendResponse res=smsService.sendMsg(phoneNumber, code);
         Assert.assertTrue(res.getSuccess());
     }
