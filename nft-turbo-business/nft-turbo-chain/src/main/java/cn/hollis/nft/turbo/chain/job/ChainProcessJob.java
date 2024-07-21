@@ -8,7 +8,6 @@ import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.base.exception.SystemException;
 import cn.hollis.nft.turbo.chain.domain.constant.ChainOperateStateEnum;
-import cn.hollis.nft.turbo.chain.domain.constant.ChainStateEnum;
 import cn.hollis.nft.turbo.chain.domain.entity.ChainOperateInfo;
 import cn.hollis.nft.turbo.chain.domain.service.ChainOperateInfoService;
 import cn.hollis.nft.turbo.chain.domain.service.ChainService;
@@ -80,11 +79,11 @@ public class ChainProcessJob {
             if (null == chainResultData) {
                 throw new ChainException(ChainErrorCode.CHAIN_QUERY_FAIL);
             }
-            if (!StringUtils.equals(chainResultData.getState(), ChainStateEnum.SUCCEED.name())) {
+            if (!StringUtils.equals(chainResultData.getState(), ChainOperateStateEnum.SUCCEED.name())) {
                 throw new BizException(ChainErrorCode.CHAIN_PROCESS_STATE_ERROR);
             }
             //成功情况处理
-            if (StringUtils.equals(chainResultData.getState(), ChainStateEnum.SUCCEED.name())) {
+            if (StringUtils.equals(chainResultData.getState(), ChainOperateStateEnum.SUCCEED.name())) {
                 //发送消息
                 chainService.sendMsg(chainOperateInfo, chainResultData);
                 //更新操作表状态
