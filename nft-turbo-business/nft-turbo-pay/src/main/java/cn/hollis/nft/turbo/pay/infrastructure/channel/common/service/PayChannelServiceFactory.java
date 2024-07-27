@@ -29,7 +29,7 @@ public class PayChannelServiceFactory {
     public PayChannelService get(PayChannel payChannel) {
 
         if (PROFILE_DEV.equals(profile)) {
-            return serviceMap.get("mockPayService");
+            return serviceMap.get("mockPayChannelService");
         }
 
         String beanName = BeanNameUtils.getBeanName(payChannel.name(), "PayChannelService");
@@ -41,7 +41,7 @@ public class PayChannelServiceFactory {
             return payChannelService;
         } else {
             throw new UnsupportedOperationException(
-                    "No PayChannelService Found With payChannel : " + payChannel);
+                    "No PayChannelService Found With payChannel : " + payChannel + " , beanName : " + beanName);
         }
     }
 }

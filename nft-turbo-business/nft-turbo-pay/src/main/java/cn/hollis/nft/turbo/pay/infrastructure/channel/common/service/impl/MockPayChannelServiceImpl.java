@@ -31,13 +31,13 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Hollis
  */
-@Service("mockPayService")
+@Service("mockPayChannelService")
 @Slf4j
 public class MockPayChannelServiceImpl implements PayChannelService {
     @Autowired
     private PayApplicationService payApplicationService;
 
-    TransmittableThreadLocal<Map> context = new TransmittableThreadLocal<>();
+    public static TransmittableThreadLocal<Map> context = new TransmittableThreadLocal<>();
 
     private static ThreadFactory chainResultProcessFactory = new ThreadFactoryBuilder()
             .setNameFormat("pay-process-pool-%d").build();
