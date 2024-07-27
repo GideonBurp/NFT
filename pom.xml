@@ -17,7 +17,7 @@
         <java.version>21</java.version>
         <spring-boot.version>3.2.2</spring-boot.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
-        <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
+        <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
         <dubbo.version>3.2.10</dubbo.version>
     </properties>
 
@@ -208,6 +208,12 @@
             <dependency>
                 <groupId>cn.hollis</groupId>
                 <artifactId>nft-turbo-job</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hollis</groupId>
+                <artifactId>nft-turbo-seata</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

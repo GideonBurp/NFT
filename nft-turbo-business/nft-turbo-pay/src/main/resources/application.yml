@@ -4,7 +4,7 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml
+    import: classpath:datasource.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml,classpath:seata.yml
 
 server:
   port: 8088

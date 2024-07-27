@@ -13,8 +13,6 @@ import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionTransferResponse;
 import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
 import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
-import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
-import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
@@ -39,9 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.*;
 
@@ -92,31 +87,13 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     @Override
     @Facade
     public CollectionSaleResponse confirmSale(CollectionSaleRequest request) {
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setUserId(Long.valueOf(request.getUserId()));
-        CompletableFuture<UserQueryResponse<UserInfo>> queryUserFuture = CompletableFuture.supplyAsync(() -> userFacadeService.query(userQueryRequest));
-
         CollectionConfirmSaleRequest confirmSaleRequest = new CollectionConfirmSaleRequest(request.getIdentifier(), request.getCollectionId(), request.getQuantity(),
-                request.getBizNo(), request.getBizType(),request.getUserId(),request.getName(),request.getCover(),request.getPurchasePrice());
+                request.getBizNo(), request.getBizType(), request.getUserId(), request.getName(), request.getCover(), request.getPurchasePrice());
         CollectionConfirmSaleResponse confirmSaleResponse = collectionService.confirmSale(confirmSaleRequest);
         CollectionSaleResponse response = new CollectionSaleResponse();
 
         if (confirmSaleResponse.getSuccess()) {
-            Collection collection = confirmSaleResponse.getCollection();
             HeldCollection heldCollection = confirmSaleResponse.getHeldCollection();
-
-            Thread.ofVirtual().start(() -> {
-                ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
-                chainProcessRequest.setRecipient(getUserInfo(queryUserFuture).getBlockChainUrl());
-                chainProcessRequest.setClassId(collection.getClassId());
-                chainProcessRequest.setClassName(collection.getName());
-                chainProcessRequest.setSerialNo(heldCollection.getSerialNo());
-                chainProcessRequest.setBizId(heldCollection.getId().toString());
-                chainProcessRequest.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
-                chainProcessRequest.setIdentifier(confirmSaleResponse.getHeldCollection().getId().toString());
-                chainFacadeService.mint(chainProcessRequest);
-            });
-
             response.setSuccess(true);
             response.setHeldCollectionId(heldCollection.getId());
         } else {
@@ -131,7 +108,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     @Override
     @Facade
     public CollectionSaleResponse trySale(CollectionSaleRequest request) {
-        CollectionTrySaleRequest collectionTrySaleRequest = new CollectionTrySaleRequest(request.getIdentifier(),request.getCollectionId(),request.getQuantity());
+        CollectionTrySaleRequest collectionTrySaleRequest = new CollectionTrySaleRequest(request.getIdentifier(), request.getCollectionId(), request.getQuantity());
         Boolean trySaleResult = collectionService.trySale(collectionTrySaleRequest);
         CollectionSaleResponse response = new CollectionSaleResponse();
         response.setSuccess(trySaleResult);
@@ -141,26 +118,12 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     @Override
     @Facade
     public CollectionSaleResponse cancelSale(CollectionSaleRequest request) {
-        CollectionCancelSaleRequest collectionCancelSaleRequest = new CollectionCancelSaleRequest(request.getIdentifier(), request.getCollectionId(),request.getQuantity());
+        CollectionCancelSaleRequest collectionCancelSaleRequest = new CollectionCancelSaleRequest(request.getIdentifier(), request.getCollectionId(), request.getQuantity());
         Boolean cancelSaleResult = collectionService.cancelSale(collectionCancelSaleRequest);
         CollectionSaleResponse response = new CollectionSaleResponse();
 
         response.setSuccess(cancelSaleResult);
         return response;
-    }
-
-    private UserInfo getUserInfo(CompletableFuture<UserQueryResponse<UserInfo>> queryUserFuture) {
-        UserQueryResponse<UserInfo> userQueryResponse;
-
-        try {
-            userQueryResponse = queryUserFuture.get();
-            if (!userQueryResponse.getSuccess() || null == userQueryResponse.getData()) {
-                throw new CollectionException(COLLECTION_USER_QUERY_FAIL);
-            }
-            return userQueryResponse.getData();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

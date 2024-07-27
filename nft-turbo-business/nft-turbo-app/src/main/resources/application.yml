@@ -6,7 +6,7 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:datasource-sharding.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml
+    import: classpath:datasource-sharding.yml,classpath:rpc.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:es.yml,classpath:seata.yml
   cloud:
     # spring.cloud.stream.function.definition 已废弃, 需要使用 spring.cloud.function.definition 代替
     function:
@@ -111,3 +111,8 @@ server:
 dubbo:
   application:
     qos-port: 33334
+
+
+seata:
+  use-jdk-proxy: true
+  enable-auto-data-source-proxy: false

@@ -17,6 +17,8 @@ import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderStreamMapper;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.shardingsphere.transaction.annotation.ShardingSphereTransactionType;
+import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,8 +89,10 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
      * @param request
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
+    @ShardingSphereTransactionType(TransactionType.BASE)
     public OrderResponse pay(OrderPayRequest request) {
-        return doExecute(request, tradeOrder -> tradeOrder.pay(request));
+        return doExecuteWithOutTrans(request, tradeOrder -> tradeOrder.pay(request));
     }
 
     /**
@@ -171,6 +175,46 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
                 return new OrderResponse.OrderResponseBuilder().orderId(orderStream.getOrderId()).streamId(String.valueOf(orderStream.getId())).buildSuccess();
             });
+        });
+    }
+
+    /**
+     * 通用订单更新逻辑(不带事务，需要调用方自己保证事务)
+     *
+     * @param orderRequest
+     * @param consumer
+     * @return
+     */
+    protected OrderResponse doExecuteWithOutTrans(BaseOrderUpdateRequest orderRequest, Consumer<TradeOrder> consumer) {
+        OrderResponse response = new OrderResponse();
+        return handle(orderRequest, response, "doExecute", request -> {
+
+            TradeOrder existOrder = orderMapper.selectByOrderId(request.getOrderId());
+            if (existOrder == null) {
+                throw new OrderException(ORDER_NOT_EXIST);
+            }
+
+            if (!hasPermission(existOrder, orderRequest.getOrderEvent(), orderRequest.getOperator(), orderRequest.getOperatorType())) {
+                throw new OrderException(PERMISSION_DENIED);
+            }
+
+            TradeOrderStream existStream = orderStreamMapper.selectByIdentifier(orderRequest.getIdentifier(), orderRequest.getOrderEvent().name(), orderRequest.getOrderId());
+            if (existStream != null) {
+                return new OrderResponse.OrderResponseBuilder().orderId(existStream.getOrderId()).streamId(existStream.getId().toString()).buildDuplicated();
+            }
+
+            //核心逻辑执行
+            consumer.accept(existOrder);
+
+            boolean result = orderMapper.updateByOrderId(existOrder) == 1;
+            Assert.isTrue(result, () -> new OrderException(OrderErrorCode.UPDATE_ORDER_FAILED));
+
+            TradeOrderStream orderStream = new TradeOrderStream(existOrder, orderRequest.getOrderEvent(), orderRequest.getIdentifier());
+            result = orderStreamMapper.insert(orderStream) == 1;
+            Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
+
+            return new OrderResponse.OrderResponseBuilder().orderId(orderStream.getOrderId()).streamId(String.valueOf(orderStream.getId())).buildSuccess();
+
         });
     }
 

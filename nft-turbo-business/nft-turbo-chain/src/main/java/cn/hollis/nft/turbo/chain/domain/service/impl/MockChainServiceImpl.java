@@ -15,6 +15,7 @@ import cn.hollis.nft.turbo.chain.domain.response.ChainResponse;
 import cn.hollis.nft.turbo.chain.domain.service.AbstractChainService;
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -34,8 +35,9 @@ public class MockChainServiceImpl extends AbstractChainService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ChainProcessResponse<ChainOperationData> mint(ChainProcessRequest request) {
-        return doPostExecute(request, ChainOperateTypeEnum.COLLECTION_CHAIN, chainRequest -> {
+        return doPostExecute(request, ChainOperateTypeEnum.COLLECTION_MINT, chainRequest -> {
         });
     }
 
@@ -47,12 +49,14 @@ public class MockChainServiceImpl extends AbstractChainService {
 
     @Override
     public ChainProcessResponse<ChainOperationData> transfer(ChainProcessRequest request) {
-        return new ChainProcessResponse.Builder().responseCode("200").responseMessage("SUCCESS").buildSuccess();
+        return doPostExecute(request, ChainOperateTypeEnum.COLLECTION_TRANSFER, chainRequest -> {
+        });
     }
 
     @Override
     public ChainProcessResponse<ChainOperationData> destroy(ChainProcessRequest request) {
-        return new ChainProcessResponse.Builder().responseCode("200").responseMessage("SUCCESS").buildSuccess();
+        return doPostExecute(request, ChainOperateTypeEnum.COLLECTION_DESTROY, chainRequest -> {
+        });
     }
 
     @Override

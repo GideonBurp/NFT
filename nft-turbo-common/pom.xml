@@ -37,6 +37,7 @@
         <module>nft-turbo-sa-token</module>
         <module>nft-turbo-mq</module>
         <module>nft-turbo-es</module>
+        <module>nft-turbo-seata</module>
     </modules>
 
 

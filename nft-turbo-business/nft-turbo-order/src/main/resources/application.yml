@@ -4,7 +4,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   config:
-    import: classpath:rpc.yml,classpath:datasource-sharding.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml
+    import: classpath:rpc.yml,classpath:datasource-sharding.yml,classpath:cache.yml,classpath:job.yml,classpath:stream.yml,classpath:seata.yml
   cloud:
     function:
       definition: orderClose;heldCollection
@@ -74,3 +74,7 @@ spring:
 server:
   port: 9000
 
+
+seata:
+  use-jdk-proxy: true
+  enable-auto-data-source-proxy: false
