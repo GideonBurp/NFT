@@ -46,7 +46,7 @@ public class ChainOperateResultListener {
             String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
             String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
             ChainOperateBody chainOperateBody = JSON.parseObject(msg.getPayload().getBody(), ChainOperateBody.class);
-            log.info("messageId:{},chainOperateBody:{}，tag:{}", messageId, chainOperateBody, tag);
+            log.info("messageId:{},chainOperateBody:{}，tag:{}", messageId, JSON.toJSONString(chainOperateBody), tag);
             //更新相关业务表
             ChainResultData chainResultData = chainOperateBody.getChainResultData();
             //成功情况处理

@@ -28,6 +28,7 @@ public class OssServiceImpl implements FileService {
 
     private String accessSecret;
 
+    @Override
     public boolean upload(String path, InputStream fileStream) {
         // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
         String endpoint = endPoint;

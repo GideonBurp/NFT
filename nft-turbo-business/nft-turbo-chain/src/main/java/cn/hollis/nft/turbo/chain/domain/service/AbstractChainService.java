@@ -226,10 +226,25 @@ public abstract class AbstractChainService implements ChainService {
         streamProducer.send("chain-out-0", chainOperateInfo.getBizType(), JSON.toJSONString(chainOperateBody));
     }
 
+    /**
+     * 执行post方法
+     * @param chainRequest
+     * @return
+     */
     protected abstract ChainResponse doPost(ChainRequest chainRequest);
 
+    /**
+     * 执行delete方法
+     * @param chainRequest
+     * @return
+     */
     protected abstract ChainResponse doDelete(ChainRequest chainRequest);
 
+    /**
+     * 执行get方法
+     * @param chainRequest
+     * @return
+     */
     protected abstract ChainResponse doGetQuery(ChainRequest chainRequest);
 
     public static <T, R extends ChainProcessResponse> ChainProcessResponse handle(T request, Function<T, R> function) {
@@ -238,6 +253,10 @@ public abstract class AbstractChainService implements ChainService {
         return function.apply(request);
     }
 
+    /**
+     * 返回chainType
+     * @return
+     */
     protected abstract String chainType();
 
 }

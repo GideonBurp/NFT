@@ -26,12 +26,13 @@ import cn.hollis.nft.turbo.trade.param.CancelParam;
 import cn.hollis.nft.turbo.trade.param.PayParam;
 import cn.hollis.nft.turbo.web.vo.Result;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -57,11 +58,6 @@ public class TradeController {
 
     @Autowired
     private GoodsFacadeService goodsFacadeService;
-
-    @RequestMapping("test")
-    public String test() {
-        return "test";
-    }
 
     /**
      * 下单
