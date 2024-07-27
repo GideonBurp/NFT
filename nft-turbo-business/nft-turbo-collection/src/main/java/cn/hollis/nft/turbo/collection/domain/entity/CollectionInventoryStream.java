@@ -4,6 +4,7 @@ import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class CollectionInventoryStream extends BaseEntity {
 
     /**
