@@ -8,6 +8,7 @@ import cn.hollis.nft.turbo.api.chain.response.data.ChainOperationData;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
 import cn.hollis.nft.turbo.chain.domain.service.ChainService;
 import cn.hollis.nft.turbo.chain.domain.service.ChainServiceFactory;
+import cn.hollis.nft.turbo.rpc.facade.Facade;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,26 +31,31 @@ public class ChainFacadeServiceImpl implements ChainFacadeService {
     private ChainServiceFactory chainServiceFactory;
 
     @Override
+    @Facade
     public ChainProcessResponse<ChainCreateData> createAddr(ChainProcessRequest request) {
         return getChainService().createAddr(request);
     }
 
     @Override
+    @Facade
     public ChainProcessResponse<ChainOperationData> chain(ChainProcessRequest request) {
         return getChainService().chain(request);
     }
 
     @Override
+    @Facade
     public ChainProcessResponse<ChainOperationData> mint(ChainProcessRequest request) {
         return getChainService().mint(request);
     }
 
     @Override
+    @Facade
     public ChainProcessResponse<ChainOperationData> transfer(ChainProcessRequest request) {
         return getChainService().transfer(request);
     }
 
     @Override
+    @Facade
     public ChainProcessResponse<ChainOperationData> destroy(ChainProcessRequest request) {
         return getChainService().destroy(request);
     }
