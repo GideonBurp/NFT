@@ -3,6 +3,11 @@ package cn.hollis.nft.turbo.api.user.response.data;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 邀请排行信息
+ *
+ * @author Hollis
+ */
 @Setter
 @Getter
 public class InviteRankInfo {

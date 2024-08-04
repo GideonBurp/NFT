@@ -37,5 +37,11 @@ public abstract class BaseOrderCreateValidator implements OrderCreateValidator {
         }
     }
 
+    /**
+     * 校验方法的具体实现
+     *
+     * @param request
+     * @throws OrderException
+     */
     protected abstract void doValidate(OrderCreateRequest request) throws OrderException;
 }

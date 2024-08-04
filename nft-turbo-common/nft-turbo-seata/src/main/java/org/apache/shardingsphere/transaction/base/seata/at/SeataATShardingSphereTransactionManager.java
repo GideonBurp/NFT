@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @author Hollis
  */
+@SuppressWarnings("AlibabaClassNamingShouldBeCamel")
 public class SeataATShardingSphereTransactionManager implements ShardingSphereTransactionManager {
     private final Map<String, DataSource> dataSourceMap = new HashMap<>();
 
@@ -56,6 +57,7 @@ public class SeataATShardingSphereTransactionManager implements ShardingSphereTr
         }
     }
 
+    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     private void initSeataRPCClient() {
         Preconditions.checkNotNull(applicationId, "please config application id within seata.conf file.");
         TMClient.init(applicationId, transactionServiceGroup);
@@ -67,10 +69,11 @@ public class SeataATShardingSphereTransactionManager implements ShardingSphereTr
         return TransactionType.BASE;
     }
 
+    @SuppressWarnings("AlibabaRemoveCommentedCode")
     @Override
     public boolean isInTransaction() {
         Preconditions.checkState(enableSeataAT, "sharding seata-at transaction has been disabled.");
-//        return null != RootContext.getXID();
+        //return null != RootContext.getXID();
         return null != SeataTransactionHolder.get();
     }
 

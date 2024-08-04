@@ -4,6 +4,11 @@ import cn.hollis.nft.turbo.base.utils.SpringContextHolder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * 通用模块的配置类
+ *
+ * @author Hollis
+ */
 @Configuration
 public class BaseConfiguration {
 
