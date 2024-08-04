@@ -1,14 +1,11 @@
 package cn.hollis.nft.turbo.user.facade;
 
-import cn.hollis.nft.turbo.api.user.request.UserActiveRequest;
-import cn.hollis.nft.turbo.api.user.request.UserAuthRequest;
-import cn.hollis.nft.turbo.api.user.request.UserModifyRequest;
-import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
-import cn.hollis.nft.turbo.api.user.request.UserRegisterRequest;
+import cn.hollis.nft.turbo.api.user.request.*;
 import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
 import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
+import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.nft.turbo.user.domain.entity.User;
 import cn.hollis.nft.turbo.user.domain.entity.convertor.UserConvertor;
@@ -41,14 +38,31 @@ public class UserFacadeServiceImpl implements UserFacadeService {
         UserQueryResponse<UserInfo> response = new UserQueryResponse();
         response.setSuccess(true);
         UserInfo userInfo = UserConvertor.INSTANCE.mapToVo(user);
+        userInfo.setPasswordHash(user.getPasswordHash());
         response.setData(userInfo);
+        return response;
+    }
+
+    @Facade
+    @Override
+    public PageResponse<UserInfo> pageQuery(UserPageQueryRequest userPageQueryRequest) {
+        var queryResult = userService.pageQueryByState(userPageQueryRequest.getKeyWord(), userPageQueryRequest.getState(), userPageQueryRequest.getCurrentPage(), userPageQueryRequest.getPageSize());
+        PageResponse<UserInfo> response = new PageResponse<>();
+        if (!queryResult.getSuccess()) {
+            response.setSuccess(false);
+            return response;
+        }
+        response.setSuccess(true);
+        response.setDatas(UserConvertor.INSTANCE.mapToVo(queryResult.getDatas()));
+        response.setCurrentPage(queryResult.getCurrentPage());
+        response.setPageSize(queryResult.getPageSize());
         return response;
     }
 
     @Override
     @Facade
     public UserOperatorResponse register(UserRegisterRequest userRegisterRequest) {
-        return userService.register(userRegisterRequest.getTelephone(),userRegisterRequest.getInviteCode());
+        return userService.register(userRegisterRequest.getTelephone(), userRegisterRequest.getInviteCode());
     }
 
     @Override

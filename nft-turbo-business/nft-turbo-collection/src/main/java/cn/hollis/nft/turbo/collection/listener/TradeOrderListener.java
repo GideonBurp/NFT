@@ -1,6 +1,5 @@
 package cn.hollis.nft.turbo.collection.listener;
 
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderEvent;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
@@ -14,12 +13,11 @@ import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryRespons
 import cn.hollis.nft.turbo.collection.domain.service.CollectionInventoryService;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
-import cn.hollis.nft.turbo.collection.facade.CollectionCancelSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionCancelSaleRequest;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;

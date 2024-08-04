@@ -38,9 +38,8 @@ public class SaTokenConfigure {
                     SaRouter.match("/admin/**", r -> StpUtil.checkRole(UserRole.ADMIN.name()));
                     SaRouter.match("/trade/**", r -> StpUtil.checkPermission(UserPermission.AUTH.name()));
 
-                    SaRouter.match("/user/**", r -> StpUtil.checkPermission(UserPermission.BASIC.name()));
-                    SaRouter.match("/orders/**", r -> StpUtil.checkPermission(UserPermission.BASIC.name()));
-
+                    SaRouter.match("/user/**", r -> StpUtil.checkPermissionOr(UserPermission.BASIC.name(), UserPermission.FROZEN.name()));
+                    SaRouter.match("/order/**", r -> StpUtil.checkPermissionOr(UserPermission.BASIC.name(),UserPermission.FROZEN.name()));
                 })
                 // 异常处理方法：每次setAuth函数出现异常时进入
                 .setError(this::getSaResult);

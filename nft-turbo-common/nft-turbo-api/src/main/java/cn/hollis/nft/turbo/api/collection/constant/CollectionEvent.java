@@ -26,5 +26,17 @@ public enum CollectionEvent {
     /**
      * 转移事件
      */
-    TRANSFER;
+    TRANSFER,
+    /**
+     * 下架
+     */
+    REMOVE,
+    /**
+     * 修改藏品库存
+     */
+    MODIFY_INVENTORY,
+    /**
+     * 修改藏品价格
+     */
+    MODIFY_PRICE;
 }

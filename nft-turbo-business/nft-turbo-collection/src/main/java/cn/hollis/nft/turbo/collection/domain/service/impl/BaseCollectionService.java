@@ -1,20 +1,24 @@
 package cn.hollis.nft.turbo.collection.domain.service.impl;
 
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
+import cn.hollis.nft.turbo.collection.domain.entity.CollectionSnapshot;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
+import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
-import cn.hollis.nft.turbo.collection.facade.CollectionCancelSaleRequest;
-import cn.hollis.nft.turbo.collection.facade.CollectionConfirmSaleRequest;
-import cn.hollis.nft.turbo.collection.facade.CollectionTrySaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionCancelSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionTrySaleRequest;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionInventoryStreamMapper;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionMapper;
+import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionSnapshotMapper;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionStreamMapper;
 import cn.hutool.core.lang.Assert;
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -43,27 +47,55 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
     private CollectionStreamMapper collectionStreamMapper;
 
     @Autowired
+    private CollectionSnapshotMapper collectionSnapshotMapper;
+
+    @Autowired
     private CollectionInventoryStreamMapper collectionInventoryStreamMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Collection create(CollectionChainRequest request) {
-        Collection existCollection = collectionMapper.selectByIdentifier(request.getIdentifier(), request.getClassId());
+    public Collection create(CollectionCreateRequest request) {
+        Collection existCollection = collectionMapper.selectByIdentifier(request.getIdentifier());
         if (existCollection != null) {
             return existCollection;
         }
 
         Collection collection = Collection.create(request);
+
         var saveResult = this.save(collection);
-        if (!saveResult) {
-            throw new CollectionException(COLLECTION_SAVE_FAILED);
-        }
+        Assert.isTrue(saveResult, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+
+        CollectionSnapshot collectionSnapshot = CollectionConvertor.INSTANCE.createSnapshot(collection);
+        var result = collectionSnapshotMapper.insert(collectionSnapshot);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_SNAPSHOT_SAVE_FAILED));
 
         CollectionStream stream = new CollectionStream(collection, request.getIdentifier(), request.getEventType());
         saveResult = collectionStreamMapper.insert(stream) == 1;
         Assert.isTrue(saveResult, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
 
         return collection;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheInvalidate(name = ":collection:cache:id:", key = "#collection.id")
+    public boolean updateAndSaveSnapshot(Collection collection) {
+        CollectionSnapshot collectionSnapshot = CollectionConvertor.INSTANCE.createSnapshot(collection);
+        var result = collectionSnapshotMapper.insert(collectionSnapshot);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_SNAPSHOT_SAVE_FAILED));
+
+        var saveResult = super.updateById(collection);
+        Assert.isTrue(saveResult, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheInvalidate(name = ":collection:cache:id:", key = "#collection.id")
+    public boolean updateById(Collection collection) {
+        var saveResult = super.updateById(collection);
+        Assert.isTrue(saveResult, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+        return true;
     }
 
     @Transactional(rollbackFor = Exception.class)

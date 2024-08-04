@@ -33,6 +33,7 @@
         <module>nft-turbo-auth</module>
         <module>nft-turbo-gateway</module>
         <module>nft-turbo-business</module>
+        <module>nft-turbo-admin</module>
     </modules>
 
     <dependencyManagement>
@@ -86,6 +87,12 @@
             <dependency>
                 <groupId>cn.hollis</groupId>
                 <artifactId>nft-turbo-gateway</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hollis</groupId>
+                <artifactId>nft-turbo-admin</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

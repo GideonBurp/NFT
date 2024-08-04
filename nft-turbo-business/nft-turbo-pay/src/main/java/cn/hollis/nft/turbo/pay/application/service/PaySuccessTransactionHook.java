@@ -60,19 +60,18 @@ public class PaySuccessTransactionHook implements TransactionHook {
     @Override
     public void afterCommit() {
         log.info("transaction is commit ,start to mint , heldCollectionId : " + heldCollectionId);
-        SingleResponse<HeldCollectionVO> heldCollectionVOSingleResponse = collectionFacadeService.queryHeldCollectionById(heldCollectionId);
+        SingleResponse<HeldCollectionVO> response = collectionFacadeService.queryHeldCollectionById(heldCollectionId);
 
-        if (heldCollectionVOSingleResponse.getSuccess()) {
-            HeldCollectionVO heldCollection = heldCollectionVOSingleResponse.getData();
-
+        if (response.getSuccess()) {
+            HeldCollectionVO heldCollection = response.getData();
             UserQueryRequest userQueryRequest = new UserQueryRequest();
             userQueryRequest.setUserId(Long.valueOf(heldCollection.getUserId()));
             UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
 
-            SingleResponse<CollectionVO> collectionVOSingleResponse = collectionFacadeService.queryById(heldCollection.getCollectionId());
+            SingleResponse<CollectionVO> collectionResponse = collectionFacadeService.queryById(heldCollection.getCollectionId());
             ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
             chainProcessRequest.setRecipient(userQueryResponse.getData().getBlockChainUrl());
-            chainProcessRequest.setClassId(collectionVOSingleResponse.getData().getClassId());
+            chainProcessRequest.setClassId(collectionResponse.getData().getId().toString());
             chainProcessRequest.setClassName(heldCollection.getName());
             chainProcessRequest.setSerialNo(heldCollection.getSerialNo());
             chainProcessRequest.setBizId(heldCollection.getId().toString());

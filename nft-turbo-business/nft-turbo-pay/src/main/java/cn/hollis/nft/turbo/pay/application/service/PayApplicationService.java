@@ -1,10 +1,11 @@
 package cn.hollis.nft.turbo.pay.application.service;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
 import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
 import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
 import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
+import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
 import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
@@ -48,20 +49,22 @@ public class PayApplicationService {
     @Autowired
     private CollectionFacadeService collectionFacadeService;
 
+    @Autowired
+    private CollectionManageFacadeService collectionManageFacadeService;
+
     /**
      * 用于测试Seata+ShardingJDBC
      */
     @GlobalTransactional(rollbackFor = Exception.class)
-    public void test(){
-        CollectionChainRequest request = new CollectionChainRequest();
+    public void test() {
+        CollectionCreateRequest request = new CollectionCreateRequest();
         request.setIdentifier(String.valueOf(System.currentTimeMillis()));
-        request.setClassId("id" + System.currentTimeMillis());
         request.setName("测试藏品");
         request.setQuantity(100L);
         request.setSaleTime(new Date());
         request.setPrice(BigDecimal.TEN);
         request.setCover("https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF");
-        collectionFacadeService.chain(request);
+        collectionManageFacadeService.create(request);
 
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
         orderCreateRequest.setBuyerId("25");
@@ -75,7 +78,7 @@ public class PayApplicationService {
         orderCreateRequest.setItemCount(1);
 
         OrderResponse response = orderFacadeService.create(orderCreateRequest);
-        Assert.isTrue(response.getSuccess(),"orderFacadeService.create failed");
+        Assert.isTrue(response.getSuccess(), "orderFacadeService.create failed");
 
         PayCreateRequest payCreateRequest = new PayCreateRequest();
         payCreateRequest.setOrderAmount(orderCreateRequest.getOrderAmount());
@@ -87,8 +90,8 @@ public class PayApplicationService {
         payCreateRequest.setPayerType(orderCreateRequest.getBuyerType());
         payCreateRequest.setPayeeId(orderCreateRequest.getSellerId());
         payCreateRequest.setPayeeType(orderCreateRequest.getSellerType());
-        PayOrder payOrder =  payOrderService.create(payCreateRequest);
-        Assert.notNull(payOrder,"payOrder create failed");
+        PayOrder payOrder = payOrderService.create(payCreateRequest);
+        Assert.notNull(payOrder, "payOrder create failed");
         throw new RuntimeException();
     }
 
@@ -98,7 +101,10 @@ public class PayApplicationService {
      *     正常支付成功：
      *     1、查询订单状态
      *     2、推进订单状态到支付成功
-     *     3、推进支付状态到支付成功
+     *     3、藏品库存真正扣减
+     *     4、创建持有的藏品
+     *     5、推进支付状态到支付成功
+     *     6、持有的藏品上链
      *
      *     支付幂等成功：
      *      1、查询订单状态

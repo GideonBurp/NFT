@@ -1,13 +1,10 @@
 package cn.hollis.nft.turbo.api.user.service;
 
-import cn.hollis.nft.turbo.api.user.request.UserActiveRequest;
-import cn.hollis.nft.turbo.api.user.request.UserAuthRequest;
-import cn.hollis.nft.turbo.api.user.request.UserModifyRequest;
-import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
-import cn.hollis.nft.turbo.api.user.request.UserRegisterRequest;
+import cn.hollis.nft.turbo.api.user.request.*;
 import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
 import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
+import cn.hollis.nft.turbo.base.response.PageResponse;
 
 /**
  * @author Hollis
@@ -20,6 +17,14 @@ public interface UserFacadeService {
      * @return
      */
     UserQueryResponse<UserInfo> query(UserQueryRequest userLoginRequest);
+
+
+    /**
+     * 分页查询用户信息
+     * @param userPageQueryRequest
+     * @return
+     */
+    PageResponse<UserInfo> pageQuery(UserPageQueryRequest userPageQueryRequest);
 
     /**
      * 用户注册

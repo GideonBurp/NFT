@@ -2,7 +2,7 @@
 /*   DatabaseName = nfturbo   */
 /*   TableName = collection   */
 /******************************************/
-CREATE TABLE `collection` (
+CREATE TABLE IF NOT EXISTS  `collection` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
@@ -30,7 +30,7 @@ CREATE TABLE `collection` (
 /*   DatabaseName = nfturbo   */
 /*   TableName = held_collection   */
 /******************************************/
-CREATE TABLE `held_collection` (
+CREATE TABLE IF NOT EXISTS  `held_collection` (
    `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
    `gmt_create` datetime NOT NULL COMMENT '创建时间',
    `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
@@ -59,7 +59,7 @@ CREATE TABLE `held_collection` (
 /*   DatabaseName = nfturbo   */
 /*   TableName = collection_stream   */
 /******************************************/
-CREATE TABLE `collection_stream` (
+CREATE TABLE IF NOT EXISTS  `collection_stream` (
      `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
      `collection_id` bigint unsigned NOT NULL  COMMENT '藏品ID',
      `gmt_create` datetime NOT NULL COMMENT '创建时间',
@@ -83,3 +83,28 @@ CREATE TABLE `collection_stream` (
      PRIMARY KEY (`id`)
 ) ;
 
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = collection_snapshot   */
+/******************************************/
+CREATE TABLE IF NOT EXISTS  `collection_snapshot` (
+       `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+       `gmt_create` datetime NOT NULL COMMENT '创建时间',
+       `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
+       `collection_id` bigint NOT NULL COMMENT '藏品id',
+       `name` varchar(512) DEFAULT NULL COMMENT '藏品名称',
+       `cover` varchar(512) DEFAULT NULL COMMENT '藏品封面',
+       `class_id` varchar(128) DEFAULT NULL COMMENT '藏品类目ID',
+       `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
+       `quantity` bigint DEFAULT NULL COMMENT '藏品数量',
+       `detail` text COMMENT '详情',
+       `saleable_inventory` bigint DEFAULT NULL COMMENT '可销售库存',
+       `create_time` datetime DEFAULT NULL COMMENT '藏品创建时间',
+       `sale_time` datetime DEFAULT NULL COMMENT '藏品发售时间',
+       `sync_chain_time` datetime DEFAULT NULL COMMENT '藏品上链时间',
+       `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+       `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+       `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
+       `version` int DEFAULT NULL COMMENT '修改版本',
+       PRIMARY KEY (`id`)
+) ;

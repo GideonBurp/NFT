@@ -1,7 +1,7 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.CollectionBaseTest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
@@ -24,9 +24,8 @@ public class HeldCollectionServiceTest extends CollectionBaseTest {
 
     @Test
     public void serviceTest() {
-        CollectionChainRequest request = new CollectionChainRequest();
+        CollectionCreateRequest request =new CollectionCreateRequest();
         request.setIdentifier("123456");
-        request.setClassId("classId");
         request.setName("name");
         request.setCover("cover");
         request.setPrice(BigDecimal.ONE);

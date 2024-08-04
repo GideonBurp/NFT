@@ -10,6 +10,7 @@ import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
 import cn.hollis.nft.turbo.api.user.response.data.InviteRankInfo;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
+import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hollis.nft.turbo.user.domain.entity.User;
 import cn.hollis.nft.turbo.user.domain.entity.convertor.UserConvertor;
@@ -26,6 +27,8 @@ import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.alicp.jetcache.template.QuickConfig;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
@@ -129,8 +132,25 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
+    @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
+    public UserOperatorResponse registerAdmin(String telephone,String password) {
+        User user = registerAdmin(telephone, telephone, password);
+        Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
+        idUserCache.put(user.getId().toString(), user);
+
+        //加入流水
+        long streamResult = userOperateStreamService.insertStream(user, UserOperateTypeEnum.REGISTER);
+        Assert.notNull(streamResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
+
+        UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
+        userOperatorResponse.setSuccess(true);
+
+        return userOperatorResponse;
+    }
+
+
     /**
-     * 注册
+     * 注册管理员
      *
      * @param telephone
      * @param nickName
@@ -144,6 +164,19 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         User user = new User();
         user.register(telephone, nickName, password, inviteCode, inviterId);
+        if (save(user)) {
+            return userMapper.findByTelephone(telephone);
+        }
+        return null;
+    }
+
+    private User registerAdmin(String telephone, String nickName, String password) {
+        if (userMapper.findByTelephone(telephone) != null) {
+            throw new UserException(DUPLICATE_TELEPHONE_NUMBER);
+        }
+
+        User user = new User();
+        user.registerAdmin(telephone, nickName, password);
         if (save(user)) {
             return userMapper.findByTelephone(telephone);
         }
@@ -278,6 +311,29 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         userOperatorResponse.setSuccess(true);
         return userOperatorResponse;
+    }
+
+    /**
+     * 分页查询用户信息
+     * @param keyWord
+     * @param state
+     * @param currentPage
+     * @param pageSize
+     * @return
+     */
+    public PageResponse<User> pageQueryByState(String keyWord, String state, int currentPage, int pageSize) {
+        Page<User> page = new Page<>(currentPage, pageSize);
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("state", state);
+
+        if (keyWord != null) {
+            wrapper.like("telephone", keyWord);
+        }
+        wrapper.orderBy(true, true, "gmt_create");
+
+        Page<User> userPage = this.page(page, wrapper);
+
+        return PageResponse.of(userPage.getRecords(), (int) userPage.getTotal(), pageSize, currentPage);
     }
 
     /**

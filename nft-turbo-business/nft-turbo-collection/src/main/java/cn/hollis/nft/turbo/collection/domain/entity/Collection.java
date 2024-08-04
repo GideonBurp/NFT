@@ -1,8 +1,7 @@
 package cn.hollis.nft.turbo.collection.domain.entity;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import org.dromara.easyes.annotation.IndexName;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -101,12 +99,12 @@ public class Collection extends BaseEntity {
      */
     private Integer version;
 
-    public static Collection create(CollectionChainRequest request) {
+    public static Collection create(CollectionCreateRequest request) {
         Collection collection = CollectionConvertor.INSTANCE.mapToEntity(request);
         collection.setOccupiedInventory(0L);
         collection.setSaleableInventory(request.getQuantity());
         collection.setState(CollectionStateEnum.INIT);
-        collection.setVersion(0);
+        collection.setVersion(1);
         return collection;
     }
 

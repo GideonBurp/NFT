@@ -106,6 +106,15 @@ public class User extends BaseEntity {
         return this;
     }
 
+    public User registerAdmin(String telephone, String nickName, String password) {
+        this.setTelephone(telephone);
+        this.setNickName(nickName);
+        this.setPasswordHash(DigestUtil.md5Hex(password));
+        this.setState(UserStateEnum.ACTIVE);
+        this.setUserRole(UserRole.ADMIN);
+        return this;
+    }
+
     public User auth(String realName, String idCard) {
         this.setRealName(realName);
         this.setIdCardNo(idCard);

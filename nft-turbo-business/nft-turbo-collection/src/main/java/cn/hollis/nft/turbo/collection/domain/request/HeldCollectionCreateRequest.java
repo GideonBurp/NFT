@@ -1,7 +1,7 @@
 package cn.hollis.nft.turbo.collection.domain.request;
 
 import cn.hollis.nft.turbo.collection.domain.constant.HeldCollectionEventType;
-import cn.hollis.nft.turbo.collection.facade.CollectionConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionConfirmSaleRequest;
 import lombok.*;
 
 import java.math.BigDecimal;

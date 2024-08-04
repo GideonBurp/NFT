@@ -19,10 +19,9 @@ public interface CollectionMapper extends BaseMapper<Collection> {
      * 根据藏品标识查询藏品信息
      *
      * @param identifier
-     * @param classId
      * @return
      */
-    Collection selectByIdentifier(String identifier, String classId);
+    Collection selectByIdentifier(String identifier);
 
     /**
      * 库存扣减

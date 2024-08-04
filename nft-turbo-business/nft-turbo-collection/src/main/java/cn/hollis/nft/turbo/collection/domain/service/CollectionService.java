@@ -1,12 +1,12 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
-import cn.hollis.nft.turbo.collection.facade.CollectionCancelSaleRequest;
-import cn.hollis.nft.turbo.collection.facade.CollectionConfirmSaleRequest;
-import cn.hollis.nft.turbo.collection.facade.CollectionTrySaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionCancelSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionTrySaleRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -21,7 +21,7 @@ public interface CollectionService extends IService<Collection> {
      * @param request
      * @return
      */
-    public Collection create(CollectionChainRequest request);
+    public Collection create(CollectionCreateRequest request);
 
     /**
      * 尝试售卖
@@ -64,5 +64,12 @@ public interface CollectionService extends IService<Collection> {
      * @return
      */
     public PageResponse<Collection> pageQueryByState(String keyWord, String state, int currentPage, int pageSize);
+
+    /**
+     * 更新并保存快照
+     * @param collection
+     * @return
+     */
+    public boolean updateAndSaveSnapshot(Collection collection);
 
 }

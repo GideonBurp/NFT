@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
-import cn.hollis.nft.turbo.base.request.BaseRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +20,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class CollectionChainRequest extends BaseCollectionRequest {
+public class CollectionCreateRequest extends BaseCollectionRequest {
     /**
      * 幂等号
      */
@@ -38,9 +37,9 @@ public class CollectionChainRequest extends BaseCollectionRequest {
     private String cover;
 
     /**
-     * '藏品类目id'
+     * '藏品详情'
      */
-    private String classId;
+    private String detail;
 
     /**
      * '价格'

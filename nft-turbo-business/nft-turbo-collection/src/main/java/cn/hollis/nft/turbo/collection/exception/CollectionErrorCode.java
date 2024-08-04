@@ -39,6 +39,10 @@ public enum CollectionErrorCode implements ErrorCode {
      */
     COLLECTION_STREAM_SAVE_FAILED("COLLECTION_STREAM_SAVE_FAILED", "藏品流水信息保存失败"),
     /**
+     * 藏品快照信息保存失败
+     */
+    COLLECTION_SNAPSHOT_SAVE_FAILED("COLLECTION_SNAPSHOT_SAVE_FAILED", "藏品快照信息保存失败"),
+    /**
      * 藏品流水信息已存在
      */
     COLLECTION_STREAM_EXIST("COLLECTION_STREAM_EXIST", "藏品流水信息已存在");

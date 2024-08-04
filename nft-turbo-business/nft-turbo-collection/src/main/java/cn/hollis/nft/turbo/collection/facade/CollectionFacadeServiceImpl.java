@@ -1,13 +1,11 @@
 package cn.hollis.nft.turbo.collection.facade;
 
-import cn.hollis.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
 import cn.hollis.nft.turbo.api.chain.request.ChainProcessRequest;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
 import cn.hollis.nft.turbo.api.collection.model.CollectionInventoryVO;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO;
 import cn.hollis.nft.turbo.api.collection.request.*;
-import cn.hollis.nft.turbo.api.collection.response.CollectionChainResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionDestroyResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionTransferResponse;
@@ -29,6 +27,9 @@ import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionCancelSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionTrySaleRequest;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
@@ -64,25 +65,6 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
 
     @Autowired
     private CollectionInventoryRedisService collectionInventoryRedisService;
-
-    @Override
-    @Facade
-    public CollectionChainResponse chain(CollectionChainRequest request) {
-        Collection collection = collectionService.create(request);
-        ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
-        chainProcessRequest.setIdentifier(request.getIdentifier());
-        chainProcessRequest.setClassId(request.getClassId());
-        chainProcessRequest.setClassName(request.getName());
-        chainProcessRequest.setBizType(ChainOperateBizTypeEnum.COLLECTION.name());
-        chainProcessRequest.setBizId(collection.getId().toString());
-        var chainRes = chainFacadeService.chain(chainProcessRequest);
-        CollectionChainResponse response = new CollectionChainResponse();
-        response.setSuccess(chainRes.getSuccess());
-        if (chainRes.getSuccess()) {
-            response.setCollectionId(collection.getId());
-        }
-        return response;
-    }
 
     @Override
     @Facade
@@ -150,7 +132,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
         ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
         chainProcessRequest.setRecipient(buyerRes.getData().getBlockChainUrl());
         chainProcessRequest.setOwner(sellerRes.getData().getBlockChainUrl());
-        chainProcessRequest.setClassId(collection.getClassId());
+        chainProcessRequest.setClassId(String.valueOf(collection.getId()));
         chainProcessRequest.setIdentifier(request.getIdentifier());
         chainProcessRequest.setNtfId(heldCollection.getNftId());
         var transferRes = chainFacadeService.transfer(chainProcessRequest);
@@ -186,7 +168,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
         ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
         chainProcessRequest.setIdentifier(request.getIdentifier());
         chainProcessRequest.setNtfId(heldCollection.getNftId());
-        chainProcessRequest.setClassId(collection.getClassId());
+        chainProcessRequest.setClassId(String.valueOf(collection.getId()));
         chainProcessRequest.setOwner(userRes.getData().getBlockChainUrl());
 
         var destroyRes = chainFacadeService.destroy(chainProcessRequest);
@@ -221,6 +203,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
         return SingleResponse.of(collectionVO);
     }
 
+    @SuppressWarnings("AlibabaRemoveCommentedCode")
     @Override
     @Facade
     public SingleResponse<Boolean> preInventoryDeduct(Long collectionId, int quantity, String identifier) {

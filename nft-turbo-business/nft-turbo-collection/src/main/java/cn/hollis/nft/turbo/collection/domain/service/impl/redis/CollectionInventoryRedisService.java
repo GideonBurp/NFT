@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -215,6 +217,11 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
     public void invalid(CollectionInventoryRequest request) {
         if (redissonClient.getBucket(getCacheKey(request)).isExists()) {
             redissonClient.getBucket(getCacheKey(request)).delete();
+        }
+
+        if (redissonClient.getBucket(getCacheStreamKey(request)).isExists()) {
+            // 让流水记录的过期时间设置为24小时后，这样可以避免流水记录立即过期，对账出现问题
+            redissonClient.getBucket(getCacheStreamKey(request)).expire(Instant.now().plus(24, ChronoUnit.HOURS));
         }
     }
 

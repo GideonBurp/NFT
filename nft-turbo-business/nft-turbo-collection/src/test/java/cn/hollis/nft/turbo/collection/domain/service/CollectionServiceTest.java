@@ -1,12 +1,12 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.CollectionBaseTest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
-import cn.hollis.nft.turbo.collection.facade.CollectionConfirmSaleRequest;
-import cn.hollis.nft.turbo.collection.facade.CollectionTrySaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.facade.request.CollectionTrySaleRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +21,8 @@ public class CollectionServiceTest extends CollectionBaseTest {
 
     @Test
     public void createTest() {
-        CollectionChainRequest request = new CollectionChainRequest();
+        CollectionCreateRequest request = new CollectionCreateRequest();
         request.setIdentifier("123456");
-        request.setClassId("classId");
         request.setName("name");
         request.setCover("cover");
         request.setPrice(BigDecimal.ONE);
@@ -39,9 +38,8 @@ public class CollectionServiceTest extends CollectionBaseTest {
 
     @Test
     public void saleTest() {
-        CollectionChainRequest request = new CollectionChainRequest();
+        CollectionCreateRequest request = new CollectionCreateRequest();
         request.setIdentifier("1234567");
-        request.setClassId("classId1");
         request.setName("name");
         request.setCover("cover");
         request.setPrice(BigDecimal.ONE);

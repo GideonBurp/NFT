@@ -3,13 +3,7 @@ package cn.hollis.nft.turbo.api.collection.service;
 import cn.hollis.nft.turbo.api.collection.model.CollectionInventoryVO;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO;
-import cn.hollis.nft.turbo.api.collection.request.CollectionChainRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionDestroyRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionPageQueryRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionTransferRequest;
-import cn.hollis.nft.turbo.api.collection.request.HeldCollectionPageQueryRequest;
-import cn.hollis.nft.turbo.api.collection.response.CollectionChainResponse;
+import cn.hollis.nft.turbo.api.collection.request.*;
 import cn.hollis.nft.turbo.api.collection.response.CollectionDestroyResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionTransferResponse;
@@ -22,14 +16,6 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
  * @author Hollis
  */
 public interface CollectionFacadeService {
-
-    /**
-     * 上链藏品
-     *
-     * @param request
-     * @return
-     */
-    CollectionChainResponse chain(CollectionChainRequest request);
 
     /**
      * 藏品出售的try阶段，做库存预占用

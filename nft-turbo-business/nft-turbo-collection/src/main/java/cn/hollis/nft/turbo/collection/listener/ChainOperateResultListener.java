@@ -6,9 +6,12 @@ import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
+import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionActiveRequest;
+import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
@@ -22,8 +25,7 @@ import org.springframework.util.Assert;
 import java.util.Date;
 import java.util.function.Consumer;
 
-import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_QUERY_FAIL;
-import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_QUERY_FAIL;
+import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.*;
 
 /**
  * 链操作结果监听器
@@ -39,6 +41,9 @@ public class ChainOperateResultListener {
 
     @Autowired
     private HeldCollectionService heldCollectionService;
+
+    @Autowired
+    private CollectionInventoryRedisService collectionInventoryRedisService;
 
     @Bean
     Consumer<Message<MessageBody>> chain() {
@@ -57,6 +62,16 @@ public class ChainOperateResultListener {
                     if (null == collection) {
                         throw new CollectionException(COLLECTION_QUERY_FAIL);
                     }
+                    //先写缓存，写成功再更新状态
+                    CollectionInventoryRequest inventoryRequest = new CollectionInventoryRequest();
+                    inventoryRequest.setCollectionId(collection.getId().toString());
+                    inventoryRequest.setInventory(collection.getQuantity().intValue());
+                    inventoryRequest.setIdentifier(collection.getId().toString());
+                    CollectionInventoryResponse inventoryResponse = collectionInventoryRedisService.init(inventoryRequest);
+                    if (!inventoryResponse.getSuccess()){
+                        throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
+                    }
+                    //更新状态
                     collection.setState(CollectionStateEnum.SUCCEED);
                     collection.setSyncChainTime(new Date());
                     collectionService.updateById(collection);
