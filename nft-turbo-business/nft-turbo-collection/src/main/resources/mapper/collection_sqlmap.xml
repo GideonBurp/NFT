@@ -37,19 +37,6 @@
         </if>
     </select>
 
-<!--    <update id="sale">-->
-<!--        UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ collection-->
-<!--        SET lock_version = lock_version + 1,gmt_modified = now()-->
-
-<!--        <if test="saleableInventory != null">-->
-<!--            , saleable_inventory = #{saleableInventory}-->
-<!--        </if>-->
-<!--        <if test="occupiedInventory != null">-->
-<!--            , occupied_inventory = #{occupiedInventory}-->
-<!--        </if>-->
-<!--        WHERE id = #{id} and lock_version = #{lockVersion}-->
-<!--    </update>-->
-
     <!--  库存预扣减  -->
     <update id="trySale">
         UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ collection
@@ -61,13 +48,13 @@
     <update id="cancelSale">
         UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ collection
         SET saleable_inventory = saleable_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
-        WHERE id = #{id} and <![CDATA[saleable_inventory  + #{quantity} < quantity]]>
+        WHERE id = #{id} and <![CDATA[saleable_inventory  + #{quantity} <= quantity]]>
     </update>
 
     <!--  库存占用  -->
     <update id="confirmSale">
         UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ collection
         SET occupied_inventory = occupied_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
-        WHERE id = #{id} and <![CDATA[occupied_inventory + #{quantity} < quantity ]]>
+        WHERE id = #{id} and <![CDATA[occupied_inventory + #{quantity} <= quantity ]]>
     </update>
 </mapper>
