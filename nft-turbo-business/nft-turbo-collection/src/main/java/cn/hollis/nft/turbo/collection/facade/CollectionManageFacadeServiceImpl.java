@@ -46,9 +46,6 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
     private CollectionService collectionService;
 
     @Autowired
-    private CollectionDbService collectionDbService;
-
-    @Autowired
     private CollectionInventoryRedisService collectionInventoryRedisService;
 
     @Override
@@ -152,7 +149,7 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
 
     @Override
     public PageResponse<CollectionVO> pageQuery(CollectionPageQueryRequest request) {
-        PageResponse<Collection> colletionPage = collectionDbService.pageQueryByState(request.getKeyword(), request.getState(), request.getCurrentPage(), request.getPageSize());
+        PageResponse<Collection> colletionPage = collectionService.pageQueryByState(request.getKeyword(), request.getState(), request.getCurrentPage(), request.getPageSize());
         return PageResponse.of(CollectionConvertor.INSTANCE.mapToVo(colletionPage.getDatas()), colletionPage.getTotal(), colletionPage.getPageSize(), request.getCurrentPage());
     }
 
