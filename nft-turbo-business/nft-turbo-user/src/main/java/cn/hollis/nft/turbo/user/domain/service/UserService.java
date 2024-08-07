@@ -119,6 +119,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
 
         addNickName(defaultNickName);
+        addInviteCode(randomString);
         updateInviteRank(inviterId);
         updateUserCache(user.getId().toString(), user);
 
@@ -466,6 +467,10 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     private boolean addNickName(String nickName) {
         return this.nickNameBloomFilter != null && this.nickNameBloomFilter.add(nickName);
+    }
+
+    private boolean addInviteCode(String inviteCode) {
+        return this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.add(inviteCode);
     }
 
     private void updateInviteRank(String inviterId) {
