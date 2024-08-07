@@ -13,7 +13,6 @@ import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.response.MultiResponse;
 import cn.hollis.nft.turbo.datasource.sharding.id.BusinessCode;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
-import cn.hollis.nft.turbo.order.domain.service.OrderManageService;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxl.job.core.biz.model.ReturnT;
@@ -25,7 +24,6 @@ import org.apache.shardingsphere.infra.hint.HintManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -43,9 +41,6 @@ public class OrderJob {
 
     @Autowired
     private OrderFacadeService orderFacadeService;
-
-    @Autowired
-    private OrderManageService orderManageService;
 
     @Autowired
     private OrderReadService orderReadService;
@@ -73,7 +68,6 @@ public class OrderJob {
     private static int MAX_TAIL_NUMBER = 99;
 
     @XxlJob("orderTimeOutExecute")
-    @Deprecated
     public ReturnT<String> orderTimeOutExecute() {
         try {
             int shardIndex = XxlJobHelper.getShardIndex();
@@ -82,16 +76,17 @@ public class OrderJob {
             LOG.info("orderTimeOutExecute start to execute , shardIndex is {} , shardTotal is {}", shardIndex, shardTotal);
 
             List<String> buyerIdTailNumberList = new ArrayList<>();
-            for (int i = 0; i < MAX_TAIL_NUMBER; i++) {
+            for (int i = 0; i <= MAX_TAIL_NUMBER; i++) {
                 if (i % shardTotal == shardIndex) {
                     buyerIdTailNumberList.add(StringUtils.leftPad(String.valueOf(i), 2, "0"));
                 }
             }
 
-            try {
-                buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
+            buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
+                try {
                     int currentPage = 1;
                     Page<TradeOrder> page = orderReadService.pageQueryTimeoutOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
+                    //其实这里用put更好一点，可以避免因为队列满了而导致异常而提前结束。
                     orderTimeoutBlockingQueue.addAll(page.getRecords());
                     forkJoinPool.execute(this::executeTimeout);
 
@@ -100,11 +95,11 @@ public class OrderJob {
                         page = orderReadService.pageQueryTimeoutOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
                         orderTimeoutBlockingQueue.addAll(page.getRecords());
                     }
-                });
-            } finally {
-                orderTimeoutBlockingQueue.add(POISON);
-                LOG.info("POISON added to blocking queue");
-            }
+                } finally {
+                    orderTimeoutBlockingQueue.add(POISON);
+                    LOG.debug("POISON added to blocking queue ，buyerIdTailNumber is {}", buyerIdTailNumber);
+                }
+            });
 
             return ReturnT.SUCCESS;
         } catch (Exception e) {
@@ -114,7 +109,6 @@ public class OrderJob {
     }
 
     @XxlJob("orderConfirmExecute")
-    @Deprecated
     public ReturnT<String> orderConfirmExecute() {
 
         int shardIndex = XxlJobHelper.getShardIndex();
@@ -123,14 +117,14 @@ public class OrderJob {
         LOG.info("orderConfirmExecute start to execute , shardIndex is {} , shardTotal is {}", shardIndex, shardTotal);
 
         List<String> buyerIdTailNumberList = new ArrayList<>();
-        for (int i = 0; i < MAX_TAIL_NUMBER; i++) {
+        for (int i = 0; i <= MAX_TAIL_NUMBER; i++) {
             if (i % shardTotal == shardIndex) {
                 buyerIdTailNumberList.add(StringUtils.leftPad(String.valueOf(i), 2, "0"));
             }
         }
 
-        try {
-            buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
+        buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
+            try {
                 int currentPage = 1;
                 Page<TradeOrder> page = orderReadService.pageQueryNeedConfirmOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
                 orderConfirmBlockingQueue.addAll(page.getRecords());
@@ -141,11 +135,11 @@ public class OrderJob {
                     page = orderReadService.pageQueryNeedConfirmOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
                     orderConfirmBlockingQueue.addAll(page.getRecords());
                 }
-            });
-        } finally {
-            orderConfirmBlockingQueue.add(POISON);
-            LOG.info("POISON added to blocking queue");
-        }
+            } finally {
+                orderConfirmBlockingQueue.add(POISON);
+                LOG.debug("POISON added to blocking queue ，buyerIdTailNumber is {}", buyerIdTailNumber);
+            }
+        });
 
         return ReturnT.SUCCESS;
     }
@@ -156,6 +150,7 @@ public class OrderJob {
             while (true) {
                 tradeOrder = orderConfirmBlockingQueue.take();
                 if (tradeOrder == POISON) {
+                    LOG.debug("POISON toked from blocking queue");
                     break;
                 }
                 executeConfirmSingle(tradeOrder);
@@ -163,6 +158,7 @@ public class OrderJob {
         } catch (InterruptedException e) {
             LOG.error("executeConfirm failed", e);
         }
+        LOG.debug("executeConfirm finish");
     }
 
     private void executeTimeout() {
@@ -171,13 +167,16 @@ public class OrderJob {
             while (true) {
                 tradeOrder = orderTimeoutBlockingQueue.take();
                 if (tradeOrder == POISON) {
+                    LOG.debug("POISON toked from blocking queue");
                     break;
                 }
+                LOG.info("executeTimeout tradeOrderId = {}" , tradeOrder.getId());
                 executeTimeoutSingle(tradeOrder);
             }
         } catch (InterruptedException e) {
             LOG.error("executeTimeout failed", e);
         }
+        LOG.debug("executeTimeout finish");
     }
 
     @XxlJob("orderTimeOutExecuteWithHint")
@@ -279,6 +278,7 @@ public class OrderJob {
             orderTimeoutRequest.setOperateTime(new Date());
             orderTimeoutRequest.setOperator(UserType.PLATFORM.name());
             orderTimeoutRequest.setOperatorType(UserType.PLATFORM);
+            orderTimeoutRequest.setIdentifier(tradeOrder.getOrderId());
             orderFacadeService.timeout(orderTimeoutRequest);
         }
     }
