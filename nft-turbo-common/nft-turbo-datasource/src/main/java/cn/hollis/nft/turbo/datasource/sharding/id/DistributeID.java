@@ -82,8 +82,8 @@ public class DistributeID {
 
     public static DistributeID valueOf(String id) {
         DistributeID distributeId = new DistributeID();
-        distributeId.businessCode = id.substring(0, 1);
-        distributeId.seq = id.substring(1, id.length() - 4);
+        distributeId.businessCode = id.substring(0, 2);
+        distributeId.seq = id.substring(2, id.length() - 4);
         distributeId.table = id.substring(id.length() - 4, id.length());
         return distributeId;
     }
