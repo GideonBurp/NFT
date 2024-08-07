@@ -26,7 +26,7 @@ public class NoticeService extends ServiceImpl<NoticeMapper, Notice> {
     public Page<Notice> pageQueryForRetry(int currentPage, int pageSize) {
         Page<Notice> page = new Page<>(currentPage, pageSize);
         QueryWrapper<Notice> wrapper = new QueryWrapper<>();
-        wrapper.between("state", NoticeState.INIT.name(),NoticeState.FAILED);
+        wrapper.in("state", NoticeState.INIT.name(),NoticeState.FAILED);
 
         wrapper.orderBy(true, true, "gmt_create");
 
