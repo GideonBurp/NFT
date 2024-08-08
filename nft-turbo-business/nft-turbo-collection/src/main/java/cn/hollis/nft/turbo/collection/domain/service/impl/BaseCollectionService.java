@@ -104,7 +104,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
         if (null != existStream) {
-            throw new CollectionException(COLLECTION_STREAM_EXIST);
+            return true;
         }
 
         //查询出最新的值
@@ -127,7 +127,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
         if (null != existStream) {
-            throw new CollectionException(COLLECTION_STREAM_EXIST);
+            return true;
         }
 
         //查询出最新的值
@@ -151,8 +151,13 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
         if (null != existStream) {
-            throw new CollectionException(COLLECTION_STREAM_EXIST);
+            CollectionConfirmSaleResponse response = new CollectionConfirmSaleResponse();
+            response.setSuccess(true);
+            response.setCollection(getById(existStream.getCollectionId()));
+            response.setHeldCollection(heldCollectionService.getById(existStream.getHeldCollectionId()));
+            return response;
         }
+
         Collection collection = this.getById(request.collectionId());
 
         //新增collection流水
@@ -166,6 +171,10 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         var heldCollection = heldCollectionService.create(heldCollectionCreateRequest);
 
         result = collectionMapper.confirmSale(request.collectionId(), collection.getOccupiedInventory(), request.quantity());
+
+        stream.addHeldCollectionId(heldCollection.getId());
+        int res = collectionInventoryStreamMapper.updateById(stream);
+        Assert.isTrue(res > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
 
         Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
         CollectionConfirmSaleResponse collectionSaleResponse = new CollectionConfirmSaleResponse();

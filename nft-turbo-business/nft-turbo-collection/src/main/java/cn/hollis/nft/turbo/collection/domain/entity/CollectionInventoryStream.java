@@ -3,11 +3,17 @@ package cn.hollis.nft.turbo.collection.domain.entity;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -67,6 +73,11 @@ public class CollectionInventoryStream extends BaseEntity {
      */
     private CollectionStateEnum state;
 
+    /**
+     * 扩展信息
+     */
+    private String extendInfo;
+
     public CollectionInventoryStream(Collection collection, String identifier, CollectionEvent streamType, Long quantity) {
         this.collectionId = collection.getId();
         this.price = collection.getPrice();
@@ -79,5 +90,26 @@ public class CollectionInventoryStream extends BaseEntity {
         this.changedQuantity = quantity;
         super.setLockVersion(collection.getLockVersion());
         super.setDeleted(collection.getDeleted());
+    }
+
+    public void addHeldCollectionId(Long heldCollectionId) {
+        Map<String, Serializable> extendMap;
+        if (this.extendInfo == null) {
+            extendMap = Maps.newHashMapWithExpectedSize(1);
+        } else {
+
+            extendMap = JSON.parseObject(this.extendInfo, HashMap.class);
+        }
+        extendMap.put("heldCollectionId", heldCollectionId);
+        this.extendInfo = JSON.toJSONString(extendMap);
+    }
+
+    @JSONField(serialize = false)
+    public Long getHeldCollectionId() {
+        if (this.extendInfo != null) {
+            return ((Integer)JSON.parseObject(this.extendInfo, HashMap.class).get("heldCollectionId")).longValue();
+        }
+
+        return null;
     }
 }
