@@ -51,45 +51,44 @@ public class TradeOrderListener {
             String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
             String closeType = msg.getHeaders().get("CLOSE_TYPE", String.class);
 
-            BaseOrderUpdateRequest orderCloseRequest;
+            BaseOrderUpdateRequest orderUpdateRequest;
             if (TradeOrderEvent.CANCEL.name().equals(closeType)) {
-                orderCloseRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCancelRequest.class);
+                orderUpdateRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCancelRequest.class);
             } else if (TradeOrderEvent.TIME_OUT.name().equals(closeType)) {
-                orderCloseRequest = JSON.parseObject(msg.getPayload().getBody(), OrderTimeoutRequest.class);
+                orderUpdateRequest = JSON.parseObject(msg.getPayload().getBody(), OrderTimeoutRequest.class);
             } else {
                 throw new UnsupportedOperationException("unsupported closeType " + closeType);
             }
 
-            log.info("received messageId:{},orderCloseRequest:{}，closeType:{}", messageId, JSON.toJSONString(orderCloseRequest), closeType);
+            log.info("received messageId:{},orderCloseRequest:{}，closeType:{}", messageId, JSON.toJSONString(orderUpdateRequest), closeType);
 
-            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCloseRequest.getOrderId());
-            if (response.getSuccess()) {
-                TradeOrderVO tradeOrderVO = response.getData();
-                if (response.getData().getOrderState() == TradeOrderState.CLOSED) {
-                    CollectionCancelSaleRequest collectionCancelSaleRequest = new CollectionCancelSaleRequest(orderCloseRequest.getOrderId(), Long.valueOf(tradeOrderVO.getGoodsId()), tradeOrderVO.getItemCount().longValue());
-                    Boolean cancelSaleResult = collectionService.cancelSale(collectionCancelSaleRequest);
-                    if (cancelSaleResult) {
-                        CollectionInventoryRequest collectionInventoryRequest = new CollectionInventoryRequest();
-                        collectionInventoryRequest.setCollectionId(tradeOrderVO.getGoodsId());
-                        collectionInventoryRequest.setInventory(tradeOrderVO.getItemCount());
-                        collectionInventoryRequest.setIdentifier(orderCloseRequest.getOrderId());
-                        CollectionInventoryResponse decreaseResponse = collectionInventoryService.increase(collectionInventoryRequest);
-                        if (decreaseResponse.getSuccess()) {
-                            log.info("decrease success,collectionInventoryRequest:{}", collectionInventoryRequest);
-                            return;
-                        } else {
-                            log.error("increase inventory failed,orderCloseRequest:{} , decreaseResponse : {}", JSON.toJSONString(orderCloseRequest), JSON.toJSONString(decreaseResponse));
-                        }
-                    } else {
-                        log.error("cancelSale failed,orderCloseRequest:{} , collectionSaleResponse : {}", JSON.toJSONString(orderCloseRequest), JSON.toJSONString(cancelSaleResult));
-                    }
-                } else {
-                    log.error("trade order state is illegal ,orderCloseRequest:{} , tradeOrderVO : {}", JSON.toJSONString(orderCloseRequest), JSON.toJSONString(tradeOrderVO));
-                }
-            } else {
-                log.error("getTradeOrder failed,orderCloseRequest:{} , orderQueryResponse : {}", JSON.toJSONString(orderCloseRequest), JSON.toJSONString(response));
+            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderUpdateRequest.getOrderId());
+            if (!response.getSuccess()) {
+                log.error("getTradeOrder failed,orderCloseRequest:{} , orderQueryResponse : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(response));
+                throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
             }
-            throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
+            TradeOrderVO tradeOrderVO = response.getData();
+            if (response.getData().getOrderState() != TradeOrderState.CLOSED) {
+                log.error("trade order state is illegal ,orderCloseRequest:{} , tradeOrderVO : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(tradeOrderVO));
+                throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
+            }
+            CollectionCancelSaleRequest collectionCancelSaleRequest = new CollectionCancelSaleRequest(orderUpdateRequest.getOrderId(), Long.valueOf(tradeOrderVO.getGoodsId()), tradeOrderVO.getItemCount().longValue());
+            Boolean cancelSaleResult = collectionService.cancelSale(collectionCancelSaleRequest);
+            if (!cancelSaleResult) {
+                log.error("cancelSale failed,orderCloseRequest:{} , collectionSaleResponse : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(cancelSaleResult));
+                throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
+            }
+            CollectionInventoryRequest collectionInventoryRequest = new CollectionInventoryRequest();
+            collectionInventoryRequest.setCollectionId(tradeOrderVO.getGoodsId());
+            collectionInventoryRequest.setInventory(tradeOrderVO.getItemCount());
+            collectionInventoryRequest.setIdentifier(orderUpdateRequest.getOrderId());
+            CollectionInventoryResponse decreaseResponse = collectionInventoryService.increase(collectionInventoryRequest);
+            if (decreaseResponse.getSuccess()) {
+                log.info("decrease success,collectionInventoryRequest:{}", collectionInventoryRequest);
+            } else {
+                log.error("increase inventory failed,orderCloseRequest:{} , decreaseResponse : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(decreaseResponse));
+                throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
+            }
         };
     }
 }
