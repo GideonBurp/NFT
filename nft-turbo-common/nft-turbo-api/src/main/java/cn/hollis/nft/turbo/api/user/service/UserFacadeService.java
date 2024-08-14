@@ -13,10 +13,10 @@ public interface UserFacadeService {
 
     /**
      * 用户信息查询
-     * @param userLoginRequest
+     * @param userQueryRequest
      * @return
      */
-    UserQueryResponse<UserInfo> query(UserQueryRequest userLoginRequest);
+    UserQueryResponse<UserInfo> query(UserQueryRequest userQueryRequest);
 
 
     /**

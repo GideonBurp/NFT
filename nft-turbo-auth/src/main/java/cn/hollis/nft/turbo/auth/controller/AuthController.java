@@ -105,8 +105,7 @@ public class AuthController {
 
         //判断是注册还是登陆
         //查询用户信息
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setTelephone(loginParam.getTelephone());
+        UserQueryRequest userQueryRequest = new UserQueryRequest(loginParam.getTelephone());
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
         UserInfo userInfo = userQueryResponse.getData();
         if (userInfo == null) {
@@ -142,27 +141,6 @@ public class AuthController {
         StpUtil.logout();
         return Result.success(true);
     }
-
-    /**
-     * 登录方法
-     *
-     * @param loginParam 登录信息
-     * @return 结果
-     */
-    @PostMapping("/loginEasy")
-    public Result<LoginVO> loginEasy(@Valid @RequestBody LoginParam loginParam) {
-        UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
-        userRegisterRequest.setTelephone(loginParam.getTelephone());
-
-        StpUtil.login("12321312", new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe())
-                .setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
-        UserInfo userInfo = new UserInfo();
-        userInfo.setUserId(12321312L);
-        StpUtil.getSession().set("12321312", userInfo);
-        LoginVO loginVO = new LoginVO(userInfo);
-        return Result.success(loginVO);
-    }
-
 
     @RequestMapping("test")
     public String test() {

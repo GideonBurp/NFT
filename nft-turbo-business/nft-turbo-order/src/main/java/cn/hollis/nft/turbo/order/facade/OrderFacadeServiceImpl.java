@@ -164,8 +164,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         if (tradeOrderVO.getSellerType() == UserType.PLATFORM) {
             return "平台";
         }
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setUserId(Long.valueOf(tradeOrderVO.getSellerId()));
+        UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(tradeOrderVO.getSellerId()));
 
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
         if (userQueryResponse.getSuccess()) {

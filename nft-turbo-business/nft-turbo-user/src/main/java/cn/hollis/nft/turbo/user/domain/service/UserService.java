@@ -338,6 +338,16 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
     /**
+     * 通过手机号和密码查询用户信息
+     * @param telephone
+     * @param password
+     * @return
+     */
+    public User findByTelephoneAndPass(String telephone,String password) {
+        return userMapper.findByTelephoneAndPass(telephone,DigestUtil.md5Hex(password));
+    }
+
+    /**
      * 通过手机号查询用户信息
      *
      * @param telephone
@@ -357,25 +367,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     @CacheRefresh(refresh = 60, timeUnit = TimeUnit.MINUTES)
     public User findById(Long userId) {
         return userMapper.findById(userId);
-    }
-
-    /**
-     * 查询用户信息
-     *
-     * @param userQueryRequest
-     * @return
-     */
-    public User queryUserInfo(UserQueryRequest userQueryRequest) {
-
-        if (null != userQueryRequest.getUserId()) {
-            return findById(userQueryRequest.getUserId());
-        }
-
-        if (StringUtils.isNotBlank(userQueryRequest.getTelephone())) {
-            return findByTelephone(userQueryRequest.getTelephone());
-        }
-
-        return null;
     }
 
     /**

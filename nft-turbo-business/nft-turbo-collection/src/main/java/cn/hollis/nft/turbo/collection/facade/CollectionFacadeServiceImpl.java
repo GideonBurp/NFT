@@ -111,11 +111,9 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     @Override
     @Facade
     public CollectionTransferResponse transfer(CollectionTransferRequest request) {
-        UserQueryRequest buyerQuery = new UserQueryRequest();
-        buyerQuery.setUserId(request.getBuyerId());
+        UserQueryRequest buyerQuery = new UserQueryRequest(request.getBuyerId());
         var buyerRes = userFacadeService.query(buyerQuery);
-        UserQueryRequest sellerQuery = new UserQueryRequest();
-        sellerQuery.setUserId(request.getSellerId());
+        UserQueryRequest sellerQuery = new UserQueryRequest(request.getSellerId());
         var sellerRes = userFacadeService.query(sellerQuery);
         if (!buyerRes.getSuccess() || null == buyerRes.getData() || !sellerRes.getSuccess()
                 || null == sellerRes.getData()) {
@@ -159,8 +157,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
         if (null == heldCollection || StringUtils.isNotBlank(heldCollection.getNftId())) {
             throw new CollectionException(HELD_COLLECTION_QUERY_FAIL);
         }
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setUserId(Long.valueOf(heldCollection.getUserId()));
+        UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(heldCollection.getUserId()));
         var userRes = userFacadeService.query(userQueryRequest);
         if (!userRes.getSuccess() || null == userRes.getData()) {
             throw new CollectionException(COLLECTION_USER_QUERY_FAIL);

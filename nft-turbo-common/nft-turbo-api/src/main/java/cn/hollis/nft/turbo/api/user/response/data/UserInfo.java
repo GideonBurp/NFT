@@ -69,8 +69,4 @@ public class UserInfo implements Serializable {
      * 邀请码
      */
     private String inviteCode;
-    /**
-     * 用户密码hash
-     */
-    private String passwordHash;
 }

@@ -58,8 +58,6 @@ public class UserController {
     @GetMapping("/getUserInfo")
     public Result<UserInfo> getUserInfo() {
         String userId = (String) StpUtil.getLoginId();
-        UserQueryRequest request = new UserQueryRequest();
-        request.setUserId(Long.valueOf(userId));
         User user = userService.findById(Long.valueOf(userId));
 
         if (user == null) {

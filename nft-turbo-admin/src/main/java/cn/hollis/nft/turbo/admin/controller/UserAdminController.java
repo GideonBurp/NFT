@@ -8,7 +8,6 @@ import cn.hollis.nft.turbo.admin.vo.AdminLoginVO;
 import cn.hollis.nft.turbo.api.user.constant.UserRole;
 import cn.hollis.nft.turbo.api.user.request.UserPageQueryRequest;
 import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
-import cn.hollis.nft.turbo.api.user.request.UserRegisterRequest;
 import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
 import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
@@ -18,17 +17,14 @@ import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.web.util.MultiResultConvertor;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
-import cn.hutool.crypto.digest.DigestUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import static cn.hollis.nft.turbo.admin.infrastructure.exception.AdminErrorCode.ADMIN_USER_NOT_EXIST;
-import static cn.hollis.nft.turbo.admin.infrastructure.exception.AdminErrorCode.ADMIN_USER_PASSWORD_ERROR;
 
 /**
  * 用户后台管理
@@ -56,8 +52,7 @@ public class UserAdminController {
     @GetMapping("/getUserInfo")
     public Result<UserInfo> getUserInfo() {
         String userId = (String) StpUtil.getLoginId();
-        UserQueryRequest request = new UserQueryRequest();
-        request.setUserId(Long.valueOf(userId));
+        UserQueryRequest request = new UserQueryRequest(Long.valueOf(userId));
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(request);
         UserInfo userInfo = userQueryResponse.getData();
 
@@ -80,20 +75,10 @@ public class UserAdminController {
 
     @PostMapping("/registerAdmin")
     public Result<Boolean> registerAdmin(@Valid String phone) {
-        //查询用户信息
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setTelephone(phone);
-        UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
-        UserInfo userInfo = userQueryResponse.getData();
-        //用户不存在或者不是管理员用户
-        if (userInfo == null || !userInfo.getUserRole().equals(UserRole.ADMIN)) {
-            //需要注册
-            UserRegisterRequest userRegisterRequest = new UserRegisterRequest();
-            userRegisterRequest.setTelephone(phone);
-            userRegisterRequest.setPassword(phone);
-            userManageFacadeService.registerAdmin(userRegisterRequest);
-        }
-        return Result.success(true);
+        //不直接提供管理员注册功能，通过数据订正进行管理员账号初始化
+        //INSERT INTO `users` (`gmt_create`,`gmt_modified`,`nick_name`,`password_hash`,`state`,`invite_code`,`telephone`,`inviter_id`,`last_login_time`,`profile_photo_url`,`block_chain_url`,`block_chain_platform`,`certification`,`real_name`,`id_card_no`,`user_role`,`deleted`,`lock_version`) VALUES ('2024-07-06 14:13:26','2024-07-06 14:13:26','藏家_R3qWhY3333','34347c343003e57232a5d21f14fe399e','ACTIVE',null,'13333333333',null,null,null,null,null,null,null,null,'ADMIN',0,0);
+
+        return null;
     }
 
     /**
@@ -106,23 +91,18 @@ public class UserAdminController {
     public Result<AdminLoginVO> login(@Valid @RequestBody AdminLoginParam loginParam) {
 
         //查询用户信息
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setTelephone(loginParam.getTelephone());
+        UserQueryRequest userQueryRequest = new UserQueryRequest(loginParam.getTelephone(), loginParam.getPassword());
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
         UserInfo userInfo = userQueryResponse.getData();
-        //用户不存在或者不是管理员用户，不能登陆
+        //用户不存在（密码错误）或者不是管理员用户，不能登陆
         if (userInfo == null || !userInfo.getUserRole().equals(UserRole.ADMIN)) {
             return Result.error(ADMIN_USER_NOT_EXIST.getCode(), ADMIN_USER_NOT_EXIST.getMessage());
         } else {
-            if (StringUtils.equals(DigestUtil.md5Hex(loginParam.getPassword()), userInfo.getPasswordHash())) {
-                //登录
-                StpUtil.login(userInfo.getUserId(), new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe()).setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
-                StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);
-                AdminLoginVO loginVO = new AdminLoginVO(userInfo);
-                return Result.success(loginVO);
-            } else {
-                return Result.error(ADMIN_USER_PASSWORD_ERROR.getCode(), ADMIN_USER_PASSWORD_ERROR.getMessage());
-            }
+            //登录
+            StpUtil.login(userInfo.getUserId(), new SaLoginModel().setIsLastingCookie(loginParam.getRememberMe()).setTimeout(DEFAULT_LOGIN_SESSION_TIMEOUT));
+            StpUtil.getSession().set(userInfo.getUserId().toString(), userInfo);
+            AdminLoginVO loginVO = new AdminLoginVO(userInfo);
+            return Result.success(loginVO);
         }
     }
 
@@ -136,8 +116,7 @@ public class UserAdminController {
     public Result<UserOperatorResponse> freeze(@Valid Long userId) {
         String adminUserId = (String) StpUtil.getLoginId();
         //查询用户信息
-        UserQueryRequest adminQueryRequest = new UserQueryRequest();
-        adminQueryRequest.setUserId(Long.valueOf(adminUserId));
+        UserQueryRequest adminQueryRequest = new UserQueryRequest(Long.valueOf(adminUserId));
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(adminQueryRequest);
         UserInfo userInfo = userQueryResponse.getData();
         //用户不存在或者不是管理员用户
@@ -156,8 +135,7 @@ public class UserAdminController {
     public Result<UserOperatorResponse> unfreeze(@Valid Long userId) {
         String adminUserId = (String) StpUtil.getLoginId();
         //查询用户信息
-        UserQueryRequest adminQueryRequest = new UserQueryRequest();
-        adminQueryRequest.setUserId(Long.valueOf(adminUserId));
+        UserQueryRequest adminQueryRequest = new UserQueryRequest(Long.valueOf(adminUserId));
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(adminQueryRequest);
         UserInfo userInfo = userQueryResponse.getData();
         //用户不存在或者不是管理员用户
@@ -172,8 +150,7 @@ public class UserAdminController {
     }
 
     private void refreshUserInSession(Long userId) {
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setUserId(userId);
+        UserQueryRequest userQueryRequest = new UserQueryRequest(userId);
         UserQueryResponse userQueryResponse = userFacadeService.query(userQueryRequest);
         StpUtil.getSession().set(userId.toString(), userQueryResponse.getData());
     }

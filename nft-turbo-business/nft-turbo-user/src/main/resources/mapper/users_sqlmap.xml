@@ -41,8 +41,8 @@
         <if test="telephone!=null">AND telephone = #{telephone}</if>
     </select>
 
-    <select id="findByNameAndPass" resultMap="BaseResultMap">select * from users where deleted=0
-        <if test="nickName!=null">AND nick_name = #{nickName}</if>
+    <select id="findByTelephoneAndPass" resultMap="BaseResultMap">select * from users where deleted=0
+        <if test="telephone!=null">AND telephone = #{telephone}</if>
         <if test="passwordHash!=null">AND password_hash = #{passwordHash}</if>
     </select>
 </mapper>

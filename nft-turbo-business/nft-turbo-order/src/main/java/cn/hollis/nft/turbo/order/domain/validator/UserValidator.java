@@ -27,8 +27,7 @@ public class UserValidator extends BaseOrderCreateValidator {
     @Override
     public void doValidate(OrderCreateRequest request) throws OrderException {
         String buyerId = request.getBuyerId();
-        UserQueryRequest userQueryRequest = new UserQueryRequest();
-        userQueryRequest.setUserId(Long.valueOf(buyerId));
+        UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(buyerId));
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
         if (userQueryResponse.getSuccess() && userQueryResponse.getData() != null) {
             UserInfo userInfo = userQueryResponse.getData();

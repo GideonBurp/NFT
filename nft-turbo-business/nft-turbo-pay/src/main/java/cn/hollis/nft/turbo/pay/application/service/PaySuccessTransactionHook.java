@@ -64,8 +64,7 @@ public class PaySuccessTransactionHook implements TransactionHook {
 
         if (response.getSuccess()) {
             HeldCollectionVO heldCollection = response.getData();
-            UserQueryRequest userQueryRequest = new UserQueryRequest();
-            userQueryRequest.setUserId(Long.valueOf(heldCollection.getUserId()));
+            UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(heldCollection.getUserId()));
             UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
 
             SingleResponse<CollectionVO> collectionResponse = collectionFacadeService.queryById(heldCollection.getCollectionId());
