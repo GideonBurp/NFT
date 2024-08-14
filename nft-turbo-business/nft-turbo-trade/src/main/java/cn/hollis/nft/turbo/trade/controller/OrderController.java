@@ -67,13 +67,13 @@ public class OrderController {
             TradeOrderVO tradeOrderVO = singleResponse.getData();
             if (tradeOrderVO.getTimeout() && tradeOrderVO.getOrderState() == TradeOrderState.CONFIRM) {
                 //如果订单已经超时，并且尚未关闭，则执行一次关单后再返回数据
-                OrderTimeoutRequest cancelRequest = new OrderTimeoutRequest();
-                cancelRequest.setOperatorType(PLATFORM);
-                cancelRequest.setOperator(PLATFORM.getDesc());
-                cancelRequest.setOrderId(tradeOrderVO.getOrderId());
-                cancelRequest.setOperateTime(new Date());
-                cancelRequest.setIdentifier(UUID.randomUUID().toString());
-                orderFacadeService.timeout(cancelRequest);
+                OrderTimeoutRequest timeoutRequest = new OrderTimeoutRequest();
+                timeoutRequest.setOperatorType(PLATFORM);
+                timeoutRequest.setOperator(PLATFORM.getDesc());
+                timeoutRequest.setOrderId(tradeOrderVO.getOrderId());
+                timeoutRequest.setOperateTime(new Date());
+                timeoutRequest.setIdentifier(UUID.randomUUID().toString());
+                orderFacadeService.timeout(timeoutRequest);
                 singleResponse = orderFacadeService.getTradeOrder(orderId, userId);
             }
             return Result.success(singleResponse.getData());
