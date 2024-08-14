@@ -216,11 +216,6 @@ public abstract class AbstractChainService implements ChainService {
         chainOperateBody.setOperateInfoId(chainOperateInfo.getId());
         chainOperateBody.setOperateType(ChainOperateTypeEnum.valueOf(chainOperateInfo.getOperateType()));
         chainOperateBody.setChainType(ChainType.valueOf(chainOperateInfo.getChainType()));
-        //铸造藏品需要获取serialNo
-        if (StringUtils.equals(chainOperateInfo.getBizType(), COLLECTION_MINT.name())) {
-            ChainProcessRequest chainProcessRequest = JSON.parseObject(chainOperateInfo.getParam(), ChainProcessRequest.class);
-            chainResultData.setSerialNo(chainProcessRequest.getSerialNo());
-        }
         chainOperateBody.setChainResultData(chainResultData);
 
         streamProducer.send("chain-out-0", chainOperateInfo.getBizType(), JSON.toJSONString(chainOperateBody));
