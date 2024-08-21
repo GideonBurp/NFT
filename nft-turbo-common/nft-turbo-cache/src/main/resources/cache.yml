@@ -15,10 +15,10 @@ spring:
           timeout: 3000
           retryAttempts: 3
           retryInterval: 1500
-          password: 'NFTurbo666'  #首次启动前务必修改成你自己的
+          password: 'NFTurbo666'  #首次启动前务必修改成你自己的,并删除这段注解！！！
           subscriptionsPerConnection: 5
           clientName: null
-          address: "redis://192.168.0.1:6379"   #首次启动前务必修改成你自己的
+          address: "redis://192.168.0.1:6379"   #首次启动前务必修改成你自己的,并删除这段注解！！！
           subscriptionConnectionMinimumIdleSize: 1
           subscriptionConnectionPoolSize: 50
           connectionMinimumIdleSize: 24
