@@ -5,8 +5,9 @@ import cn.hollis.nft.turbo.api.pay.constant.PayOrderState;
 import cn.hollis.nft.turbo.api.pay.request.PayCreateRequest;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
+import cn.hollis.nft.turbo.datasource.sharding.id.BusinessCode;
 import cn.hollis.nft.turbo.pay.domain.entity.convertor.PayOrderConvertor;
-import cn.hollis.nft.turbo.pay.domain.event.PayRefundEvent;
+import cn.hollis.nft.turbo.pay.domain.event.RefundSuccessEvent;
 import cn.hollis.nft.turbo.pay.domain.event.PaySuccessEvent;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.IdUtil;
@@ -18,6 +19,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
+ * 支付单
+ *
  * @author Hollis
  */
 @Setter
@@ -127,7 +130,7 @@ public class PayOrder extends BaseEntity {
     public static PayOrder create(PayCreateRequest payCreateRequest) {
         PayOrder payOrder = PayOrderConvertor.INSTANCE.mapToEntity(payCreateRequest);
         payOrder.setOrderState(PayOrderState.TO_PAY);
-        payOrder.setPayOrderId(String.valueOf(IdUtil.getSnowflakeNextId()));
+        payOrder.setPayOrderId(String.valueOf(IdUtil.getSnowflake(BusinessCode.PAY_ORDER.code()).nextId()));
         payOrder.setPaidAmount(BigDecimal.ZERO);
         return payOrder;
     }
@@ -155,12 +158,11 @@ public class PayOrder extends BaseEntity {
         return this;
     }
 
-    public PayOrder refundSuccess(PayRefundEvent payRefundEvent) {
+    public PayOrder refundSuccess(RefundSuccessEvent refundSuccessEvent) {
         Assert.equals(this.getOrderState(), PayOrderState.PAID);
         this.setOrderState(PayOrderState.REFUNDED);
-        this.paySucceedTime = payRefundEvent.getRefundedTime();
-        this.refundChannelStreamId = payRefundEvent.getChannelStreamId();
-        this.refundedAmount = payRefundEvent.getRefundedAmount();
+        this.refundChannelStreamId = refundSuccessEvent.getChannelStreamId();
+        this.refundedAmount = refundSuccessEvent.getRefundedAmount();
         return this;
     }
 }

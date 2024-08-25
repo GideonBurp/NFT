@@ -43,6 +43,11 @@
 
         <dependency>
             <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-rpc</artifactId>
         </dependency>
 

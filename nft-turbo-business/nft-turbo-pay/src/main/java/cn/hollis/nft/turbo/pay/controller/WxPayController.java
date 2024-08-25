@@ -83,4 +83,12 @@ public class WxPayController {
 
         Assert.isTrue(result, "支付通知失败");
     }
+
+    @RequestMapping(value = "/refundNotify", method = {RequestMethod.POST, RequestMethod.GET})
+    @ResponseBody
+    public void refundNotify(HttpServletRequest request, HttpServletResponse response) {
+        PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        boolean result = wxPayChannelService.refundNotify(request, response);
+        Assert.isTrue(result, "退款通知失败");
+    }
 }

@@ -49,7 +49,7 @@ public class OrderResponse extends BaseResponse {
             return orderResponse;
         }
 
-        public OrderResponse buildFail(String msg, String code) {
+        public OrderResponse buildFail(String code, String msg) {
             OrderResponse orderResponse = new OrderResponse();
             orderResponse.setOrderId(orderId);
             orderResponse.setStreamId(streamId);

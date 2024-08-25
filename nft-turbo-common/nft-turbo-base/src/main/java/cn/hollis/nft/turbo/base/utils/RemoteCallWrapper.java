@@ -44,6 +44,10 @@ public class RemoteCallWrapper {
         return call(function, request, requestName, true, false);
     }
 
+    public static <T, R> R call(Function<T, R> function, T request, String requestName,boolean checkResponse) {
+        return call(function, request, requestName, checkResponse, false);
+    }
+
     public static <T, R> R call(Function<T, R> function, T request, boolean checkResponse, boolean checkResponseCode) {
         return call(function, request, request.getClass().getSimpleName(), checkResponse, checkResponseCode);
     }

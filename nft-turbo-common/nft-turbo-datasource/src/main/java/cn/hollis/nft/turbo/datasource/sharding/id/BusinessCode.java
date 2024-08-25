@@ -7,7 +7,16 @@ public enum BusinessCode {
     /**
      * 订单
      */
-    TRADE_ORDER(10, 4);
+    TRADE_ORDER(10, 4),
+    /**
+     * 支付单
+     */
+    PAY_ORDER(11, 1),
+
+    /**
+     * 退款单
+     */
+    REFUND_ORDER(12, 1);
 
     private static final int MAX_CODE = 99;
 

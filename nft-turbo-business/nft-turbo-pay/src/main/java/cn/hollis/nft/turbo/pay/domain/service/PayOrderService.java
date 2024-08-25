@@ -6,6 +6,7 @@ import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.pay.domain.entity.PayOrder;
 import cn.hollis.nft.turbo.pay.domain.event.PaySuccessEvent;
+import cn.hollis.nft.turbo.pay.domain.event.RefundSuccessEvent;
 import cn.hollis.nft.turbo.pay.infrastructure.mapper.PayOrderMapper;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -59,7 +60,6 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return true;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public Boolean paySuccess(PaySuccessEvent paySuccessEvent) {
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(paySuccessEvent.getPayOrderId());
         payOrder.paySuccess(paySuccessEvent);
@@ -73,6 +73,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     public Boolean payExpired(String payOrderId) {
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(payOrderId);
         payOrder.payExpired();
+
+        boolean saveResult = saveOrUpdate(payOrder);
+        Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
+
+        return true;
+    }
+
+    public Boolean refundSuccess(RefundSuccessEvent refundSuccessEvent) {
+        PayOrder payOrder = payOrderMapper.selectByPayOrderId(refundSuccessEvent.getPayOrderId());
+        payOrder.refundSuccess(refundSuccessEvent);
 
         boolean saveResult = saveOrUpdate(payOrder);
         Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));

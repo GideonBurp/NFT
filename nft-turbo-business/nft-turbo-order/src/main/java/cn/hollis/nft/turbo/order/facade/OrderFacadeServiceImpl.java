@@ -108,7 +108,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
             return orderService.confirm(request);
         }
 
-        return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(response.getResponseMessage(), response.getResponseCode());
+        return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
     }
 
     @NotNull

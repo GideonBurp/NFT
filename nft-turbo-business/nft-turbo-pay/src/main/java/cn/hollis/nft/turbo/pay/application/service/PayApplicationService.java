@@ -1,10 +1,10 @@
 package cn.hollis.nft.turbo.pay.application.service;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
+import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
 import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
 import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
-import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
 import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
@@ -15,19 +15,32 @@ import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderPayRequest;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.api.pay.constant.PayChannel;
+import cn.hollis.nft.turbo.api.pay.constant.PayErrorCode;
 import cn.hollis.nft.turbo.api.pay.request.PayCreateRequest;
+import cn.hollis.nft.turbo.api.pay.request.RefundCreateRequest;
+import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
+import cn.hollis.nft.turbo.base.utils.MoneyUtils;
 import cn.hollis.nft.turbo.base.utils.RemoteCallWrapper;
 import cn.hollis.nft.turbo.pay.domain.entity.PayOrder;
+import cn.hollis.nft.turbo.pay.domain.entity.RefundOrder;
 import cn.hollis.nft.turbo.pay.domain.event.PaySuccessEvent;
+import cn.hollis.nft.turbo.pay.domain.event.RefundSuccessEvent;
 import cn.hollis.nft.turbo.pay.domain.service.PayOrderService;
+import cn.hollis.nft.turbo.pay.domain.service.RefundOrderService;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.RefundChannelRequest;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelServiceFactory;
+import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
 import io.seata.spring.annotation.GlobalTransactional;
 import io.seata.tm.api.transaction.TransactionHookManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -40,6 +53,8 @@ import java.util.UUID;
 @Slf4j
 public class PayApplicationService {
 
+    private static final String REFUND_MEMO_PREFIX = "重复支付退款：";
+
     @Autowired
     private PayOrderService payOrderService;
 
@@ -51,6 +66,16 @@ public class PayApplicationService {
 
     @Autowired
     private CollectionManageFacadeService collectionManageFacadeService;
+
+    @Autowired
+    private RefundOrderService refundOrderService;
+
+    @Autowired
+    @Lazy
+    private PayChannelServiceFactory payChannelServiceFactory;
+
+    @Autowired
+    protected TransactionTemplate transactionTemplate;
 
     /**
      * 用于测试Seata+ShardingJDBC
@@ -78,7 +103,7 @@ public class PayApplicationService {
         orderCreateRequest.setItemCount(1);
 
         OrderResponse response = orderFacadeService.create(orderCreateRequest);
-        Assert.isTrue(response.getSuccess(), "orderFacadeService.create failed");
+        Assert.isTrue(response.getSuccess(), () -> new BizException(OrderErrorCode.UPDATE_ORDER_FAILED));
 
         PayCreateRequest payCreateRequest = new PayCreateRequest();
         payCreateRequest.setOrderAmount(orderCreateRequest.getOrderAmount());
@@ -91,7 +116,7 @@ public class PayApplicationService {
         payCreateRequest.setPayeeId(orderCreateRequest.getSellerId());
         payCreateRequest.setPayeeType(orderCreateRequest.getSellerType());
         PayOrder payOrder = payOrderService.create(payCreateRequest);
-        Assert.notNull(payOrder, "payOrder create failed");
+        Assert.notNull(payOrder, () -> new BizException(PayErrorCode.PAY_ORDER_CREATE_FAILED));
         throw new RuntimeException();
     }
 
@@ -128,9 +153,17 @@ public class PayApplicationService {
         TradeOrderVO tradeOrderVO = response.getData();
 
         OrderPayRequest orderPayRequest = getOrderPayRequest(paySuccessEvent, payOrder);
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.pay(req), orderPayRequest, "orderFacadeService.pay");
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.pay(req), orderPayRequest, "orderFacadeService.pay",false);
         if (orderResponse.getResponseCode() != null && orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())) {
-            doChargeBack(paySuccessEvent);
+            log.info("order already paid ,do chargeback ," + payOrder.getBizNo());
+
+            //开启事务并处理退款操作
+            transactionTemplate.executeWithoutResult(transactionStatus -> {
+                Boolean result = payOrderService.paySuccess(paySuccessEvent);
+                Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
+                doChargeBack(paySuccessEvent);
+            });
+
             return true;
         }
 
@@ -145,7 +178,22 @@ public class PayApplicationService {
         TransactionHookManager.registerHook(new PaySuccessTransactionHook(collectionSaleResponse.getHeldCollectionId()));
 
         Boolean result = payOrderService.paySuccess(paySuccessEvent);
-        Assert.isTrue(result, "payOrderService.paySuccess failed");
+        Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
+
+        return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public boolean refundSuccess(RefundSuccessEvent refundSuccessEvent) {
+        RefundOrder refundOrder = refundOrderService.queryByOrderId(refundSuccessEvent.getRefundOrderId());
+        if (refundOrder.isRefunded()) {
+            return true;
+        }
+
+        boolean refundResult = payOrderService.refundSuccess(refundSuccessEvent)
+                && refundOrderService.refundSuccess(refundSuccessEvent);
+
+        Assert.isTrue(refundResult, () -> new BizException(PayErrorCode.REFUND_SUCCESS_NOTICE_FAILED));
 
         return true;
     }
@@ -174,11 +222,35 @@ public class PayApplicationService {
         orderPayRequest.setOrderId(payOrder.getBizNo());
         orderPayRequest.setOperatorType(payOrder.getPayerType());
         orderPayRequest.setOperator(payOrder.getPayerId());
-        orderPayRequest.setIdentifier(payOrder.getBizNo());
+        orderPayRequest.setIdentifier(payOrder.getPayOrderId());
         return orderPayRequest;
     }
 
     private void doChargeBack(PaySuccessEvent paySuccessEvent) {
-        //todo
+        RefundCreateRequest refundCreateRequest = new RefundCreateRequest();
+        refundCreateRequest.setIdentifier(paySuccessEvent.getChannelStreamId());
+        refundCreateRequest.setMemo(REFUND_MEMO_PREFIX + paySuccessEvent.getChannelStreamId());
+        refundCreateRequest.setPayOrderId(paySuccessEvent.getPayOrderId());
+        refundCreateRequest.setRefundAmount(paySuccessEvent.getPaidAmount());
+        refundCreateRequest.setRefundChannel(paySuccessEvent.getPayChannel());
+        RefundOrder refundOrder = refundOrderService.create(refundCreateRequest);
+        Assert.notNull(refundOrder, () -> new BizException(PayErrorCode.REFUND_CREATE_FAILED));
+
+        //异步进行退款执行，失败了交给定时任务重试
+        Thread.ofVirtual().start(() -> {
+            RefundChannelRequest refundChannelRequest = new RefundChannelRequest();
+            refundChannelRequest.setRefundOrderId(refundOrder.getRefundOrderId());
+            refundChannelRequest.setPaidAmount(MoneyUtils.yuanToCent(refundOrder.getPaidAmount()));
+            refundChannelRequest.setPayChannelStreamId(refundOrder.getPayChannelStreamId());
+            refundChannelRequest.setPayOrderId(refundOrder.getPayOrderId());
+            refundChannelRequest.setRefundAmount(MoneyUtils.yuanToCent(refundOrder.getApplyRefundAmount()));
+            refundChannelRequest.setRefundReason(refundOrder.getMemo());
+
+            RefundChannelResponse refundChannelResponse = payChannelServiceFactory.get(paySuccessEvent.getPayChannel()).refund(refundChannelRequest);
+
+            if (refundChannelResponse.getSuccess()) {
+                refundOrderService.paying(refundOrder.getRefundOrderId());
+            }
+        });
     }
 }

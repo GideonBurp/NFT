@@ -1,6 +1,5 @@
 package cn.hollis.nft.turbo.pay.infrastructure.channel.common.service;
 
-import cn.hollis.nft.turbo.api.chain.constant.ChainType;
 import cn.hollis.nft.turbo.api.pay.constant.PayChannel;
 import cn.hollis.nft.turbo.base.utils.BeanNameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
