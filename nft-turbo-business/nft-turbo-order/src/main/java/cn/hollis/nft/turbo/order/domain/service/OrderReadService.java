@@ -63,7 +63,7 @@ public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
         wrapper.in("order_state", TradeOrderState.CONFIRM.name(), TradeOrderState.CREATE.name());
         wrapper.lt("gmt_create", DateUtils.addMinutes(new Date(), -TradeOrder.DEFAULT_TIME_OUT_MINUTES));
         if (buyerIdTailNumber != null) {
-            wrapper.likeLeft("buyer_id", buyerIdTailNumber);
+            wrapper.likeRight("reverse_buyer_id", buyerIdTailNumber);
         }
         wrapper.orderBy(true, true, "gmt_create");
 

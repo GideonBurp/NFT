@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `trade_order` (
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
   `order_id` varchar(32)  NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
+  `reverse_buyer_id` varchar(32) NOT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',

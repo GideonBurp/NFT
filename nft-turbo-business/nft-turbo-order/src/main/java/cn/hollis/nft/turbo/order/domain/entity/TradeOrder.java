@@ -15,6 +15,7 @@ import cn.hollis.nft.turbo.order.infrastructure.id.WorkerIdHolder;
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.math.BigDecimal;
@@ -41,6 +42,11 @@ public class TradeOrder extends BaseEntity {
      * 买家id
      */
     private String buyerId;
+
+    /**
+     * 买家 ID 的逆序
+     */
+    private String reverseBuyerId;
 
     /**
      * 买家id类型
@@ -171,6 +177,7 @@ public class TradeOrder extends BaseEntity {
 
     public static TradeOrder createOrder(OrderCreateRequest request) {
         TradeOrder tradeOrder = TradeOrderConvertor.INSTANCE.mapToEntity(request);
+        tradeOrder.setReverseBuyerId(StringUtils.reverse(request.getBuyerId()));
         tradeOrder.setOrderState(TradeOrderState.CREATE);
         tradeOrder.setPaidAmount(BigDecimal.ZERO);
         String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, request.getBuyerId());

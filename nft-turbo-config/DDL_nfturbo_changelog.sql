@@ -1,4 +1,32 @@
-# 2024-08-25 新增refund_order表,pay_order表新增字段
+# 2024-08-31 trade_order 表新增reverse_buyer_id
+
+ALTER TABLE `trade_order_0000`
+	ADD COLUMN `reverse_buyer_id` varchar(32) NULL COMMENT '逆序的买家ID' AFTER `buyer_id`,
+	ADD KEY `idx_rvbuyer_state`(`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
+;
+
+ALTER TABLE `trade_order_0001`
+	ADD COLUMN `reverse_buyer_id` varchar(32) NULL COMMENT '逆序的买家ID' AFTER `buyer_id`,
+	ADD KEY `idx_rvbuyer_state`(`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
+;
+
+ALTER TABLE `trade_order_0002`
+	ADD COLUMN `reverse_buyer_id` varchar(32) NULL COMMENT '逆序的买家ID' AFTER `buyer_id`,
+	ADD KEY `idx_rvbuyer_state`(`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
+;
+
+ALTER TABLE `trade_order_0003`
+	ADD COLUMN `reverse_buyer_id` varchar(32) NULL COMMENT '逆序的买家ID' AFTER `buyer_id`,
+	ADD KEY `idx_rvbuyer_state`(`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
+;
+
+update trade_order_0000 set `reverse_buyer_id`  = REVERSE(`buyer_id` );
+update trade_order_0001 set `reverse_buyer_id`  = REVERSE(`buyer_id` );
+update trade_order_0003 set `reverse_buyer_id`  = REVERSE(`buyer_id` );
+update trade_order_0002 set `reverse_buyer_id`  = REVERSE(`buyer_id` );
+
+
+# 2024-08-25 新增refund_order表
 
 /******************************************/
 /*   DatabaseName = nfturbo   */

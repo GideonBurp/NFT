@@ -10,6 +10,7 @@
         <result property="gmtModified" column="GMT_MODIFIED"/>
         <result property="orderId" column="order_id"/>
         <result property="buyerId" column="buyer_id"/>
+        <result property="reverseBuyerId" column="reverse_buyer_id"/>
         <result property="buyerType" column="buyer_type"/>
         <result property="sellerId" column="seller_id"/>
         <result property="sellerType" column="seller_type"/>

@@ -176,6 +176,7 @@ CREATE TABLE `trade_order_0000` (
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
   `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
+  `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',
@@ -203,7 +204,8 @@ CREATE TABLE `trade_order_0000` (
   UNIQUE KEY `uk_buyer_identifier` (`identifier`,`buyer_id`,`goods_id`) USING BTREE,
   KEY `idx_order_id` (`order_id`) USING BTREE,
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
-  KEY `idx_state_time` (`order_state`,`gmt_create`)
+  KEY `idx_state_time` (`order_state`,`gmt_create`),
+  KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
 ;
 
@@ -217,6 +219,7 @@ CREATE TABLE `trade_order_0001` (
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
   `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
+  `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',
@@ -244,7 +247,8 @@ CREATE TABLE `trade_order_0001` (
   UNIQUE KEY `uk_buyer_identifier` (`identifier`,`buyer_id`,`goods_id`) USING BTREE,
   KEY `idx_order_id` (`order_id`) USING BTREE,
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
-  KEY `idx_state_time` (`order_state`,`gmt_create`)
+  KEY `idx_state_time` (`order_state`,`gmt_create`),
+  KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
 ;
 
@@ -258,6 +262,7 @@ CREATE TABLE `trade_order_0002` (
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
   `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
+  `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',
@@ -285,7 +290,8 @@ CREATE TABLE `trade_order_0002` (
   UNIQUE KEY `uk_buyer_identifier` (`identifier`,`buyer_id`,`goods_id`) USING BTREE,
   KEY `idx_order_id` (`order_id`) USING BTREE,
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
-  KEY `idx_state_time` (`order_state`,`gmt_create`)
+  KEY `idx_state_time` (`order_state`,`gmt_create`),
+  KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
 ;
 
@@ -299,6 +305,7 @@ CREATE TABLE `trade_order_0003` (
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
   `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
+  `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',
@@ -326,7 +333,8 @@ CREATE TABLE `trade_order_0003` (
   UNIQUE KEY `uk_buyer_identifier` (`identifier`,`buyer_id`,`goods_id`) USING BTREE,
   KEY `idx_order_id` (`order_id`) USING BTREE,
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
-  KEY `idx_state_time` (`order_state`,`gmt_create`)
+  KEY `idx_state_time` (`order_state`,`gmt_create`),
+  KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
 ;
 
