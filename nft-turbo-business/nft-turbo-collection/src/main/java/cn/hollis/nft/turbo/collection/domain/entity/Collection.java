@@ -81,7 +81,7 @@ public class Collection extends BaseEntity {
     /**
      * '藏品发售时间'
      */
-    @Field(name = "sale_time",type = FieldType.Date, format = {},pattern = "yyyy-MM-dd HH:mm:ss || strict_date_optional_time || epoch_millis")
+    @Field(name = "sale_time", type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd HH:mm:ss || strict_date_optional_time || epoch_millis")
     private Date saleTime;
 
     /**
@@ -106,6 +106,11 @@ public class Collection extends BaseEntity {
         collection.setState(CollectionStateEnum.INIT);
         collection.setVersion(1);
         return collection;
+    }
+
+    public Collection remove() {
+        this.state = CollectionStateEnum.REMOVED;
+        return this;
     }
 
 }

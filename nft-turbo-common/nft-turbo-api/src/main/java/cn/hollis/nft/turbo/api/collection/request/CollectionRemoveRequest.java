@@ -15,19 +15,8 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor
 public class CollectionRemoveRequest extends BaseCollectionRequest {
-    /**
-     * 幂等号
-     */
-    private String identifier;
-
-    /**
-     * '藏品id'
-     */
-    private Long collectionId;
-
 
     @Override
     public CollectionEvent getEventType() {

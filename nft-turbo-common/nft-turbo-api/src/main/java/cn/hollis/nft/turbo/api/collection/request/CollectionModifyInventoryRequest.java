@@ -18,15 +18,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CollectionModifyInventoryRequest extends BaseCollectionRequest {
-    /**
-     * 幂等号
-     */
-    private String identifier;
-
-    /**
-     * '藏品id'
-     */
-    private Long collectionId;
 
     /**
      * '藏品数量'

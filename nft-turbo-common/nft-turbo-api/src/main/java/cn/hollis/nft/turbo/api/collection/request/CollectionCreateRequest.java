@@ -21,10 +21,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CollectionCreateRequest extends BaseCollectionRequest {
-    /**
-     * 幂等号
-     */
-    private String identifier;
 
     /**
      * '藏品名称'

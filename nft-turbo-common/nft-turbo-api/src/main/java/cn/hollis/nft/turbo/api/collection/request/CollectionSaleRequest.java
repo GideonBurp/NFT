@@ -43,16 +43,6 @@ public class CollectionSaleRequest extends BaseCollectionRequest {
     private BigDecimal purchasePrice;
 
     /**
-     * 幂等号
-     */
-    private String identifier;
-
-    /**
-     * '藏品id'
-     */
-    private Long collectionId;
-
-    /**
      * '持有人id'
      */
     private String userId;

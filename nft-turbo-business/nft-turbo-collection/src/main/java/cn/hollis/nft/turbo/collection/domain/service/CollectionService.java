@@ -1,6 +1,10 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionModifyInventoryRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionModifyPriceRequest;
+import cn.hollis.nft.turbo.api.collection.request.CollectionRemoveRequest;
+import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
@@ -22,6 +26,30 @@ public interface CollectionService extends IService<Collection> {
      * @return
      */
     public Collection create(CollectionCreateRequest request);
+
+    /**
+     * 更新库存
+     *
+     * @param request
+     * @return
+     */
+    public CollectionInventoryModifyResponse modifyInventory(CollectionModifyInventoryRequest request);
+
+    /**
+     * 更新价格
+     *
+     * @param request
+     * @return
+     */
+    public Boolean modifyPrice(CollectionModifyPriceRequest request);
+
+    /**
+     * 下架
+     *
+     * @param request
+     * @return
+     */
+    public Boolean remove(CollectionRemoveRequest request);
 
     /**
      * 尝试售卖
@@ -49,6 +77,7 @@ public interface CollectionService extends IService<Collection> {
 
     /**
      * 查询
+     *
      * @param collectionId
      * @return
      */
@@ -64,12 +93,4 @@ public interface CollectionService extends IService<Collection> {
      * @return
      */
     public PageResponse<Collection> pageQueryByState(String keyWord, String state, int currentPage, int pageSize);
-
-    /**
-     * 更新并保存快照
-     * @param collection
-     * @return
-     */
-    public boolean updateAndSaveSnapshot(Collection collection);
-
 }

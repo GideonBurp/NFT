@@ -3,10 +3,11 @@ package cn.hollis.nft.turbo.collection.facade;
 import cn.hollis.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
 import cn.hollis.nft.turbo.api.chain.request.ChainProcessRequest;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
-import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
+import cn.hollis.nft.turbo.api.collection.constant.CollectionInventoryModifyType;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.request.*;
 import cn.hollis.nft.turbo.api.collection.response.CollectionChainResponse;
+import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionModifyResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionRemoveResponse;
 import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
@@ -16,7 +17,6 @@ import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConverto
 import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
-import cn.hollis.nft.turbo.collection.domain.service.impl.db.CollectionDbService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_INVENTORY_UPDATE_FAILED;
-import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_QUERY_FAIL;
 
 /**
  * 藏品管理服务
@@ -72,22 +71,16 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
     @Override
     public CollectionRemoveResponse remove(CollectionRemoveRequest request) {
         CollectionRemoveResponse response = new CollectionRemoveResponse();
-        Collection collection = collectionService.getById(request.getCollectionId());
-        if (null == collection) {
-            throw new CollectionException(COLLECTION_QUERY_FAIL);
-        }
+        Boolean result = collectionService.remove(request);
 
-        collection.setState(CollectionStateEnum.REMOVED);
-        var removeRes = collectionService.updateById(collection);
-
-        if (removeRes) {
+        if (result) {
             CollectionInventoryRequest inventoryRequest = new CollectionInventoryRequest();
             inventoryRequest.setCollectionId(request.getCollectionId().toString());
             collectionInventoryRedisService.invalid(inventoryRequest);
         }
 
-        response.setSuccess(removeRes);
-        response.setCollectionId(collection.getId());
+        response.setSuccess(result);
+        response.setCollectionId(request.getCollectionId());
         return response;
     }
 
@@ -95,15 +88,17 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
     public CollectionModifyResponse modifyInventory(CollectionModifyInventoryRequest request) {
         CollectionModifyResponse response = new CollectionModifyResponse();
         response.setCollectionId(request.getCollectionId());
-        Collection collection = collectionService.getById(request.getCollectionId());
-        if (null == collection) {
-            throw new CollectionException(COLLECTION_QUERY_FAIL);
+
+        CollectionInventoryModifyResponse modifyResponse = collectionService.modifyInventory(request);
+
+        if (!modifyResponse.getSuccess()) {
+            response.setSuccess(false);
+            response.setResponseCode(COLLECTION_INVENTORY_UPDATE_FAILED.getCode());
+            response.setResponseMessage(COLLECTION_INVENTORY_UPDATE_FAILED.getMessage());
+            return response;
         }
 
-        long oldSaleableInventory = collection.getSaleableInventory();
-        long quantityDiff = request.getQuantity() - collection.getQuantity();
-
-        if (quantityDiff == 0) {
+        if (modifyResponse.getModifyType() == CollectionInventoryModifyType.UNMODIFIED) {
             response.setSuccess(true);
             return response;
         }
@@ -111,9 +106,9 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
         CollectionInventoryRequest inventoryRequest = new CollectionInventoryRequest();
         inventoryRequest.setCollectionId(request.getCollectionId().toString());
         inventoryRequest.setIdentifier(request.getIdentifier());
-        inventoryRequest.setInventory((int) Math.abs(quantityDiff));
+        inventoryRequest.setInventory(modifyResponse.getQuantityModified().intValue());
         CollectionInventoryResponse inventoryResponse;
-        if (quantityDiff > 0) {
+        if (modifyResponse.getModifyType() == CollectionInventoryModifyType.INCREASE) {
             inventoryResponse = collectionInventoryRedisService.increase(inventoryRequest);
         } else {
             inventoryResponse = collectionInventoryRedisService.decrease(inventoryRequest);
@@ -124,26 +119,16 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
             throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
         }
 
-        collection.setQuantity(request.getQuantity());
-        collection.setSaleableInventory(oldSaleableInventory + quantityDiff);
-        boolean res = collectionService.updateById(collection);
-        response.setSuccess(res);
+        response.setSuccess(true);
         return response;
     }
 
     @Override
     public CollectionModifyResponse modifyPrice(CollectionModifyPriceRequest request) {
-        Collection collection = collectionService.getById(request.getCollectionId());
-        if (null == collection) {
-            throw new CollectionException(COLLECTION_QUERY_FAIL);
-        }
-        collection.setVersion(collection.getVersion() + 1);
-        collection.setPrice(request.getPrice());
-        var res = collectionService.updateAndSaveSnapshot(collection);
-
+        Boolean result = collectionService.modifyPrice(request);
         CollectionModifyResponse response = new CollectionModifyResponse();
-        response.setSuccess(res);
-        response.setCollectionId(collection.getId());
+        response.setSuccess(result);
+        response.setCollectionId(request.getCollectionId());
         return response;
     }
 

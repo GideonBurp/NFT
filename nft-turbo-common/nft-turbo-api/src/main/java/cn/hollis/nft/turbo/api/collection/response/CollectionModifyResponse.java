@@ -14,5 +14,4 @@ public class CollectionModifyResponse extends BaseResponse {
      * 藏品id
      */
     private Long collectionId;
-
 }
