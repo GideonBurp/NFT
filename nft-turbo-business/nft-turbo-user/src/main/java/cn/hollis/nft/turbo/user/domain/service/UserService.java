@@ -198,6 +198,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         if (user.getState() == UserStateEnum.AUTH || user.getState() == UserStateEnum.ACTIVE) {
             userOperatorResponse.setSuccess(true);
+            userOperatorResponse.setUser(UserConvertor.INSTANCE.mapToVo(user));
             return userOperatorResponse;
         }
 
