@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.auth.param;
 
+import cn.hollis.nft.turbo.base.validator.IsMobile;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ public class RegisterParam {
     /**
      * 手机号
      */
-    @NotBlank(message = "手机号不能为空")
+    @IsMobile
     private String telephone;
 
     /**

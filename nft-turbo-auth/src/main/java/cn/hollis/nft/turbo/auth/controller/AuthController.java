@@ -15,7 +15,9 @@ import cn.hollis.nft.turbo.auth.exception.AuthException;
 import cn.hollis.nft.turbo.auth.param.LoginParam;
 import cn.hollis.nft.turbo.auth.param.RegisterParam;
 import cn.hollis.nft.turbo.auth.vo.LoginVO;
+import cn.hollis.nft.turbo.base.validator.IsMobile;
 import cn.hollis.nft.turbo.web.vo.Result;
+import cn.hutool.core.lang.Validator;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +62,7 @@ public class AuthController {
     private static final Integer DEFAULT_LOGIN_SESSION_TIMEOUT = 60 * 60 * 24 * 7;
 
     @GetMapping("/sendCaptcha")
-    public Result<Boolean> sendCaptcha(@NotBlank String telephone) {
+    public Result<Boolean> sendCaptcha(@IsMobile String telephone) {
         NoticeResponse noticeResponse = noticeFacadeService.generateAndSendSmsCaptcha(telephone);
         return Result.success(noticeResponse.getSuccess());
     }
