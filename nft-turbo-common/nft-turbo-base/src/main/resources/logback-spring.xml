@@ -34,7 +34,9 @@
     </appender>
 
     <root level="INFO">
+        <!--   输出到日志文件    -->
         <appender-ref ref="APPLICATION"/>
+        <!--   输出到控制台    -->
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
