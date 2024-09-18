@@ -20,22 +20,8 @@
         <result property="saleTime" column="SALE_TIME"/>
         <result property="syncChainTime" column="SYNC_CHAIN_TIME"/>
         <result property="deleted" column="DELETED"/>
-        <result property="identifier" column="identifier"/>
         <result property="lockVersion" column="LOCK_VERSION"/>
     </resultMap>
-
-    <select id="selectByIdentifier" resultMap="resultCollectionMap">
-        SELECT
-        *
-        FROM `collection`
-        where deleted=0
-        <if test="classId!=null">
-            AND class_id = #{classId}
-        </if>
-        <if test="identifier!=null">
-            AND identifier = #{identifier}
-        </if>
-    </select>
 
     <!--  库存预扣减  -->
     <update id="trySale">

@@ -61,11 +61,6 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Collection create(CollectionCreateRequest request) {
-        Collection existCollection = collectionMapper.selectByIdentifier(request.getIdentifier());
-        if (existCollection != null) {
-            return existCollection;
-        }
-
         Collection collection = Collection.create(request);
 
         var saveResult = this.save(collection);
