@@ -157,12 +157,9 @@ public class PayApplicationService {
         if (orderResponse.getResponseCode() != null && orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())) {
             log.info("order already paid ,do chargeback ," + payOrder.getBizNo());
 
-            //开启事务并处理退款操作
-            transactionTemplate.executeWithoutResult(transactionStatus -> {
-                Boolean result = payOrderService.paySuccess(paySuccessEvent);
-                Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
-                doChargeBack(paySuccessEvent);
-            });
+            Boolean result = payOrderService.paySuccess(paySuccessEvent);
+            Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
+            doChargeBack(paySuccessEvent);
 
             return true;
         }
