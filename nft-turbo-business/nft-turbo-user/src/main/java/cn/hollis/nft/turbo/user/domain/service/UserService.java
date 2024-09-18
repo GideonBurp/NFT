@@ -133,8 +133,14 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return userOperatorResponse;
     }
 
+    /**
+     * 管理员注册
+     * @param telephone
+     * @param password
+     * @return
+     */
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
-    public UserOperatorResponse registerAdmin(String telephone,String password) {
+    public UserOperatorResponse registerAdmin(String telephone, String password) {
         User user = registerAdmin(telephone, telephone, password);
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
         idUserCache.put(user.getId().toString(), user);
@@ -151,7 +157,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
 
     /**
-     * 注册管理员
+     * 注册
      *
      * @param telephone
      * @param nickName
@@ -165,10 +171,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         User user = new User();
         user.register(telephone, nickName, password, inviteCode, inviterId);
-        if (save(user)) {
-            return userMapper.findByTelephone(telephone);
-        }
-        return null;
+        return save(user) ? user : null;
     }
 
     private User registerAdmin(String telephone, String nickName, String password) {
@@ -178,10 +181,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         User user = new User();
         user.registerAdmin(telephone, nickName, password);
-        if (save(user)) {
-            return userMapper.findByTelephone(telephone);
-        }
-        return null;
+        return save(user) ? user:null;
     }
 
     /**
@@ -316,6 +316,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     /**
      * 分页查询用户信息
+     *
      * @param keyWord
      * @param state
      * @param currentPage
@@ -339,12 +340,13 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     /**
      * 通过手机号和密码查询用户信息
+     *
      * @param telephone
      * @param password
      * @return
      */
-    public User findByTelephoneAndPass(String telephone,String password) {
-        return userMapper.findByTelephoneAndPass(telephone,DigestUtil.md5Hex(password));
+    public User findByTelephoneAndPass(String telephone, String password) {
+        return userMapper.findByTelephoneAndPass(telephone, DigestUtil.md5Hex(password));
     }
 
     /**
