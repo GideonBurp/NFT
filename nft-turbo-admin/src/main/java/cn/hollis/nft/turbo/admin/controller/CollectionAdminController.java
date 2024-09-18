@@ -74,6 +74,7 @@ public class CollectionAdminController {
         String userId = (String) StpUtil.getLoginId();
 
         CollectionCreateRequest request = new CollectionCreateRequest();
+        request.setIdentifier(UUID.randomUUID().toString());
         request.setPrice(param.getPrice());
         request.setQuantity(param.getQuantity());
         request.setName(param.getName());
