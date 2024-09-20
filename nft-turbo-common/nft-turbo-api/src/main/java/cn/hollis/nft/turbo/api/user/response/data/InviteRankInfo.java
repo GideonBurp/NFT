@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.api.user.response.data;
 
+import com.github.houbb.sensitive.annotation.strategy.SensitiveStrategyMaskHalf;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ public class InviteRankInfo {
     /**
      * 昵称
      */
+    @SensitiveStrategyMaskHalf
     private String nickName;
 
     /**
@@ -23,7 +25,7 @@ public class InviteRankInfo {
     private String inviteCode;
 
     /**
-     * 邀请用户数
+     * 邀请积分
      */
-    private Integer inviteCount;
+    private Integer inviteScore;
 }

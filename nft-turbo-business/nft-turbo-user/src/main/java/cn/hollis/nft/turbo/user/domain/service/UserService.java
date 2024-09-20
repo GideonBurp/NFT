@@ -5,7 +5,6 @@ import cn.hollis.nft.turbo.api.user.constant.UserStateEnum;
 import cn.hollis.nft.turbo.api.user.request.UserActiveRequest;
 import cn.hollis.nft.turbo.api.user.request.UserAuthRequest;
 import cn.hollis.nft.turbo.api.user.request.UserModifyRequest;
-import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
 import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
 import cn.hollis.nft.turbo.api.user.response.data.InviteRankInfo;
 import cn.hollis.nft.turbo.base.exception.BizException;
@@ -135,6 +134,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     /**
      * 管理员注册
+     *
      * @param telephone
      * @param password
      * @return
@@ -181,7 +181,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         User user = new User();
         user.registerAdmin(telephone, nickName, password);
-        return save(user) ? user:null;
+        return save(user) ? user : null;
     }
 
     /**
@@ -198,7 +198,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         if (user.getState() == UserStateEnum.AUTH || user.getState() == UserStateEnum.ACTIVE) {
             userOperatorResponse.setSuccess(true);
-            userOperatorResponse.setUser(UserConvertor.INSTANCE.mapToVo(user));
             return userOperatorResponse;
         }
 
@@ -417,6 +416,18 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return null;
     }
 
+    public PageResponse<User> getUsersByInviterId(String inviterId, int currentPage, int pageSize) {
+        Page<User> page = new Page<>(currentPage, pageSize);
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.select("nick_name","gmt_create");
+        wrapper.eq("inviter_id", inviterId);
+
+        wrapper.orderBy(true, false, "gmt_create");
+
+        Page<User> userPage = this.page(page, wrapper);
+        return PageResponse.of(userPage.getRecords(), (int) userPage.getTotal(), pageSize, currentPage);
+    }
+
     public List<InviteRankInfo> getTopN(Integer topN) {
         Collection<ScoredEntry<String>> rankInfos = inviteRank.entryRangeReversed(0, topN - 1);
 
@@ -431,7 +442,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
                     if (user != null) {
                         inviteRankInfo.setNickName(user.getNickName());
                         inviteRankInfo.setInviteCode(user.getInviteCode());
-                        inviteRankInfo.setInviteCount(rankInfo.getScore().intValue() / 100);
+                        inviteRankInfo.setInviteScore(rankInfo.getScore().intValue());
                         inviteRankInfos.add(inviteRankInfo);
                     }
                 }

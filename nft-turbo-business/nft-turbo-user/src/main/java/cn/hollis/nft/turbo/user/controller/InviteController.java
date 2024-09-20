@@ -2,6 +2,10 @@ package cn.hollis.nft.turbo.user.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hollis.nft.turbo.api.user.response.data.InviteRankInfo;
+import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
+import cn.hollis.nft.turbo.base.response.PageResponse;
+import cn.hollis.nft.turbo.user.domain.entity.User;
+import cn.hollis.nft.turbo.user.domain.entity.convertor.UserConvertor;
 import cn.hollis.nft.turbo.user.domain.service.UserService;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
@@ -36,7 +40,7 @@ public class InviteController {
         }
 
         List<InviteRankInfo> inviteRankInfos = userService.getTopN(topN);
-        return MultiResult.successMulti(inviteRankInfos, topN, 10, 10);
+        return MultiResult.successMulti(inviteRankInfos, topN, 1, 10);
     }
 
     @GetMapping("/getMyRank")
@@ -44,5 +48,14 @@ public class InviteController {
         String userId = (String) StpUtil.getLoginId();
         Integer rank = userService.getInviteRank(userId);
         return Result.success(rank);
+    }
+
+    @GetMapping("/getInviteList")
+    public MultiResult<UserInfo> getInviteList(int currentPage) {
+        String userId = (String) StpUtil.getLoginId();
+
+        PageResponse<User> pageResponse = userService.getUsersByInviterId(userId,currentPage,20);
+
+        return MultiResult.successMulti(UserConvertor.INSTANCE.mapToVo(pageResponse.getDatas()), pageResponse.getTotal(), currentPage, 20);
     }
 }

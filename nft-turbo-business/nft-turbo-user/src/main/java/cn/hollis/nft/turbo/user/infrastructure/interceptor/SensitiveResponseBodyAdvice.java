@@ -1,9 +1,9 @@
 package cn.hollis.nft.turbo.user.infrastructure.interceptor;
 
+import cn.hollis.nft.turbo.api.user.response.data.InviteRankInfo;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
-import cn.hollis.nft.turbo.user.domain.entity.User;
-import cn.hollis.nft.turbo.user.domain.entity.convertor.UserConvertor;
 import cn.hollis.nft.turbo.web.vo.Result;
+import com.github.houbb.sensitive.core.api.SensitiveUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -11,7 +11,8 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-import com.github.houbb.sensitive.core.api.SensitiveUtil;
+
+import java.util.Collection;
 
 /**
  * 脱敏响应体处理
@@ -29,14 +30,24 @@ public class SensitiveResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        // 如果返回的对象是UserInfo，进行脱敏处理
-        if (body instanceof Result && ((Result<?>) body).getData() instanceof UserInfo) {
-            Result<UserInfo> result = (Result<UserInfo>) body;
-            UserInfo userInfo = result.getData();
-            User user = UserConvertor.INSTANCE.mapToEntity(userInfo);
-            user = SensitiveUtil.desCopy(user);
-            result.setData(UserConvertor.INSTANCE.mapToVo(user));
-            return result;
+        // 如果返回的对象是UserInfo/InviteRankInfo，进行脱敏处理
+        if (body instanceof Result) {
+
+            if (((Result<?>) body).getData() instanceof Collection<?>) {
+                ((Result<Collection>) body).setData(SensitiveUtil.desCopyCollection((Collection) ((Result<?>) body).getData()));
+                return body;
+            }
+
+            switch (((Result<?>) body).getData()) {
+                case UserInfo userInfo:
+                    ((Result<UserInfo>) body).setData(SensitiveUtil.desCopy(userInfo));
+                    return body;
+                case InviteRankInfo inviteRankInfo:
+                    ((Result<InviteRankInfo>) body).setData(SensitiveUtil.desCopy(inviteRankInfo));
+                    return body;
+                default:
+                    return body;
+            }
         }
         return body;
     }
