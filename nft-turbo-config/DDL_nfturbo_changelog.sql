@@ -1,3 +1,8 @@
+# 2024-09-20 pay_order 针对支付单号增加唯一性约束
+ALTER TABLE `pay_order`
+	DROP KEY `idx_pay_order`,
+	ADD Unique KEY `uk_pay_order`(`pay_order_id`) USING BTREE
+
 # 2024-08-31 trade_order 表新增reverse_buyer_id
 
 ALTER TABLE `trade_order_0000`

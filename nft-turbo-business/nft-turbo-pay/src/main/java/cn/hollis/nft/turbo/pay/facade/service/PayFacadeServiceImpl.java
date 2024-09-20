@@ -23,6 +23,7 @@ import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayChannel
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelServiceFactory;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hutool.core.lang.Assert;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,7 @@ public class PayFacadeServiceImpl implements PayFacadeService {
         payChannelRequest.setDescription(payCreateRequest.getMemo());
         payChannelRequest.setOrderId(payOrder.getPayOrderId());
         payChannelRequest.setAttach(payCreateRequest.getBizNo());
+        payChannelRequest.setExpireTime(DateUtils.addMinutes(payOrder.getGmtCreate(), PayOrder.DEFAULT_TIME_OUT_MINUTES));
         PayChannelResponse payChannelResponse = payChannelServiceFactory.get(payCreateRequest.getPayChannel()).pay(payChannelRequest);
         return payChannelResponse;
     }

@@ -162,7 +162,7 @@ CREATE TABLE `pay_order` (
   `refund_channel_stream_id` varchar(64) DEFAULT NULL COMMENT '退款流水号',
   PRIMARY KEY (`id`),
   KEY `idx_biz` (`biz_no`,`biz_type`) USING BTREE,
-  KEY `idx_pay_order` (`pay_order_id`) USING BTREE
+  Unique KEY `uk_pay_order`(`pay_order_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 ;
 

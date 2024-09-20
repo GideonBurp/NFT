@@ -72,7 +72,8 @@ public class WxPayChannelServiceImpl implements PayChannelService {
         WxPayChannelResponse resp = new WxPayChannelResponse();
 
         try {
-            String timeExpire = DateTimeZoneUtil.dateToTimeZone(System.currentTimeMillis() + 1000 * 60 * 3);
+            String timeExpire = DateTimeZoneUtil.dateToTimeZone(payChannelRequest.getExpireTime());
+
             UnifiedOrderModel unifiedOrderModel = new UnifiedOrderModel()
                     .setAppid(wxPayBean.getAppId())
                     .setMchid(wxPayBean.getMchId())

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Date;
+
 /**
  * 支付参数
  * @author wswyb001
@@ -39,4 +41,8 @@ public class PayChannelRequest extends BaseRequest {
      */
     private String attach;
 
+    /**
+     * 超时时间
+     */
+    private Date expireTime;
 }

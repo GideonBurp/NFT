@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.pay.domain.entity;
 
+import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
 import cn.hollis.nft.turbo.api.pay.constant.PayChannel;
 import cn.hollis.nft.turbo.api.pay.constant.PayOrderState;
 import cn.hollis.nft.turbo.api.pay.request.PayCreateRequest;
@@ -65,7 +66,7 @@ public class PayOrder extends BaseEntity {
     /**
      * 业务单号类型
      */
-    private String bizType;
+    private BizOrderType bizType;
 
     /**
      * 订单金额
