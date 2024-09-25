@@ -31,7 +31,11 @@ public class SensitiveResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         // 如果返回的对象是UserInfo/InviteRankInfo，进行脱敏处理
-        if (body instanceof Result) {
+        if (body != null && body instanceof Result) {
+
+            if (((Result<?>) body).getData() == null) {
+                return body;
+            }
 
             if (((Result<?>) body).getData() instanceof Collection<?>) {
                 ((Result<Collection>) body).setData(SensitiveUtil.desCopyCollection((Collection) ((Result<?>) body).getData()));
