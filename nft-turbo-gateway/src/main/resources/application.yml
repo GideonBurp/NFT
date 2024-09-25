@@ -2,7 +2,7 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:cache.yml,classpath:config.yml,classpath:limiter.yml
+    import: classpath:base.yml,classpath:cache.yml,classpath:config.yml,classpath:limiter.yml
   cloud:
     gateway:
       default-filters:

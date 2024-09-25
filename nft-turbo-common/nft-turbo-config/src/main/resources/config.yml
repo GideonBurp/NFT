@@ -2,8 +2,8 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 192.168.0.1:8848 #首次启动前务必修改成你自己的
+        server-addr: ${nft.turbo.nacos.server.url}
       config:
-        server-addr: 192.168.0.1:8848 #首次启动前务必修改成你自己的
+        server-addr: ${nft.turbo.nacos.server.url}
         file-extension: properties
         name: ${spring.application.name}
