@@ -104,7 +104,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
             randomString = RandomUtil.randomString(6).toUpperCase();
             //前缀 + 6位随机数 + 手机号后四位
             defaultNickName = DEFAULT_NICK_NAME_PREFIX + randomString + telephone.substring(7, 11);
-        } while (nickNameExist(defaultNickName) & inviteCodeExist(randomString));
+        } while (nickNameExist(defaultNickName) || inviteCodeExist(randomString));
 
         String inviterId = null;
         if (StringUtils.isNotBlank(inviteCode)) {
