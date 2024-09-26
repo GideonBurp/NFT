@@ -35,6 +35,6 @@ dubbo:
   application:
     name: nft-turbo-business
   registry:
-    address: nacos://192.168.0.1:8848  # 这是跑单元测试的时候需要用到nacos地址，可以改成你自己的，也可以把对应的服务mock调，使用@MockBean注解即可
+    address: nacos://192.168.0.1:8848  # 这是跑单元测试的时候需要用到nacos地址，也可以把对应的服务mock调，使用@MockBean注解即可
   consumer:
     check: false

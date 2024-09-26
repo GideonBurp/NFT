@@ -7,7 +7,7 @@ seata:
     type: nacos
     nacos:
       server-addr: ${nft.turbo.nacos.server.url}
-      group: seata
+      group: ${nft.turbo.seata.nacos.group}
       data-id: ${nft.turbo.seata.nacos.data-id}
       namespace: ${nft.turbo.seata.nacos.namespace}
   registry:
@@ -15,6 +15,6 @@ seata:
     nacos:
       application: seata-server
       server-addr: ${nft.turbo.nacos.server.url}
-      group: seata
+      group: ${nft.turbo.seata.nacos.group}
       cluster: default
       namespace: ${nft.turbo.seata.nacos.namespace}

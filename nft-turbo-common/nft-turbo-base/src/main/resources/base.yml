@@ -35,4 +35,5 @@ nft:
     seata:
       nacos:
         data-id: seataServer.properties # nft.turbo.seata.nacos.data-id - Seata 对应的Nacos 保存配置的 data-id #首次启动前务必修改成你自己的
+        group: seata # nft.turbo.seata.nacos.group - Seata 对应的Nacos 保存配置的 data-id #首次启动前务必修改成你自己的
         namespace: 7ebdfb9b-cd9d-4a5e-8969-1ada0bb9ba04 # nft.turbo.seata.nacos.namespace - Seata 对应的Nacos 保存配置的 namespace #首次启动前务必修改成你自己的
