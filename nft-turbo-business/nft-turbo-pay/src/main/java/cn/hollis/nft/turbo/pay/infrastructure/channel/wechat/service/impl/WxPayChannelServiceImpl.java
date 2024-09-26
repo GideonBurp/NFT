@@ -220,7 +220,6 @@ public class WxPayChannelServiceImpl implements PayChannelService {
     /**
      * 退款通知
      */
-    @Autowired
     @Override
     public boolean refundNotify(HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> map = new HashMap<>(12);
