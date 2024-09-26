@@ -23,7 +23,6 @@ public class SmsConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = SmsProperties.PREFIX, value = "enabled", havingValue = "true")
     @Profile({"default","prod"})
     public SmsService smsService() {
         SmsServiceImpl smsService = new SmsServiceImpl();

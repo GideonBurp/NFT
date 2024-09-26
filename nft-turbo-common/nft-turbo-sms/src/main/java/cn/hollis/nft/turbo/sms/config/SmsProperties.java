@@ -21,8 +21,6 @@ public class SmsProperties {
 
     private String templateId;
 
-    private boolean enabled;
-
     public String getHost() {
         return host;
     }
@@ -61,13 +59,5 @@ public class SmsProperties {
 
     public void setTemplateId(String templateId) {
         this.templateId = templateId;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

@@ -23,7 +23,6 @@ public class OssConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = OssProperties.PREFIX, value = "enabled", havingValue = "true")
     @Profile({"default", "prod"})
     public FileService ossService() {
         OssServiceImpl ossService = new OssServiceImpl();
