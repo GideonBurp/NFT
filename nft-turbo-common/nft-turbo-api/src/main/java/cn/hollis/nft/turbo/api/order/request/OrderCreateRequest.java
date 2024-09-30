@@ -84,6 +84,11 @@ public class OrderCreateRequest extends BaseOrderRequest {
      */
     private Integer snapshotVersion;
 
+    /**
+     * 交易订单号
+     */
+    private String orderId;
+
     @Override
     public TradeOrderEvent getOrderEvent() {
         return TradeOrderEvent.CREATE;

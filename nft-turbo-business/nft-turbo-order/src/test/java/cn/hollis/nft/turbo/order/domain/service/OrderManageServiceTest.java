@@ -7,7 +7,7 @@ import cn.hollis.nft.turbo.api.order.request.*;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.api.pay.constant.PayChannel;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
-import cn.hollis.nft.turbo.datasource.sharding.id.BusinessCode;
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.order.domain.OrderBaseTest;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderMapper;

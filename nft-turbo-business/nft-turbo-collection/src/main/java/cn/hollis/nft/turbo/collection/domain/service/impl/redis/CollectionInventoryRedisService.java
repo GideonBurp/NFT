@@ -1,6 +1,6 @@
 package cn.hollis.nft.turbo.collection.domain.service.impl.redis;
 
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
+import cn.hollis.nft.turbo.api.collection.request.InventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionInventoryService;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.List;
 
 import static cn.hollis.nft.turbo.base.response.ResponseCode.BIZ_ERROR;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
@@ -44,7 +43,7 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
     private static final String ERROR_CODE_OPERATION_ALREADY_EXECUTED = "OPERATION_ALREADY_EXECUTED";
 
     @Override
-    public CollectionInventoryResponse init(CollectionInventoryRequest request) {
+    public CollectionInventoryResponse init(InventoryRequest request) {
         CollectionInventoryResponse collectionInventoryResponse = new CollectionInventoryResponse();
         if (redissonClient.getBucket(getCacheKey(request)).isExists()) {
             collectionInventoryResponse.setSuccess(true);
@@ -60,13 +59,13 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
     }
 
     @Override
-    public Integer getInventory(CollectionInventoryRequest request) {
+    public Integer getInventory(InventoryRequest request) {
         Integer stock = (Integer) redissonClient.getBucket(getCacheKey(request), IntegerCodec.INSTANCE).get();
         return stock;
     }
 
     @Override
-    public CollectionInventoryResponse decrease(CollectionInventoryRequest request) {
+    public CollectionInventoryResponse decrease(InventoryRequest request) {
         CollectionInventoryResponse collectionInventoryResponse = new CollectionInventoryResponse();
         String luaScript = """
                 if redis.call('hexists', KEYS[2], ARGV[2]) == 1 then
@@ -110,7 +109,7 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
                     luaScript,
                     RScript.ReturnType.INTEGER,
                     Arrays.asList(getCacheKey(request), getCacheStreamKey(request)),
-                    request.getInventory(), request.getIdentifier())).intValue();
+                    request.getInventory(), "DECREASE_" + request.getIdentifier())).intValue();
 
             collectionInventoryResponse.setSuccess(true);
             collectionInventoryResponse.setCollectionId(request.getCollectionId());
@@ -140,12 +139,21 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
     }
 
     @Override
-    public List<Object> getInventoryDecreaseLogs(CollectionInventoryRequest request) {
-        return redissonClient.getScoredSortedSet(getCacheStreamKey(request)).stream().toList();
+    public String getInventoryDecreaseLog(InventoryRequest request) {
+        String luaScript = """
+                local jsonString = redis.call('hget', KEYS[1], ARGV[1])
+                return jsonString
+                """;
+
+        String stream = redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
+                luaScript,
+                RScript.ReturnType.STATUS,
+                Arrays.asList(getCacheStreamKey(request)), "DECREASE_" + request.getIdentifier());
+        return stream;
     }
 
     @Override
-    public CollectionInventoryResponse increase(CollectionInventoryRequest request) {
+    public CollectionInventoryResponse increase(InventoryRequest request) {
         CollectionInventoryResponse collectionInventoryResponse = new CollectionInventoryResponse();
         String luaScript = """
                 if redis.call('hexists', KEYS[2], ARGV[2]) == 1 then
@@ -186,7 +194,7 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
                     luaScript,
                     RScript.ReturnType.INTEGER,
                     Arrays.asList(getCacheKey(request), getCacheStreamKey(request)),
-                    request.getInventory(), request.getIdentifier())).intValue();
+                    request.getInventory(), "INCREASE_" + request.getIdentifier())).intValue();
 
             collectionInventoryResponse.setSuccess(true);
             collectionInventoryResponse.setCollectionId(request.getCollectionId());
@@ -214,7 +222,7 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
     }
 
     @Override
-    public void invalid(CollectionInventoryRequest request) {
+    public void invalid(InventoryRequest request) {
         if (redissonClient.getBucket(getCacheKey(request)).isExists()) {
             redissonClient.getBucket(getCacheKey(request)).delete();
         }
@@ -226,12 +234,12 @@ public class CollectionInventoryRedisService implements CollectionInventoryServi
     }
 
     @NotNull
-    private static String getCacheKey(CollectionInventoryRequest request) {
+    private static String getCacheKey(InventoryRequest request) {
         return INVENTORY_KEY + request.getCollectionId();
     }
 
     @NotNull
-    private static String getCacheStreamKey(CollectionInventoryRequest request) {
+    private static String getCacheStreamKey(InventoryRequest request) {
         return INVENTORY_STREAM_KEY + request.getCollectionId();
     }
 }

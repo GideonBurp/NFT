@@ -30,6 +30,11 @@ spring:
           destination: order-close-topic
           group: order-group
           binder: rocketmq
+        newBuy-in-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
   shardingsphere:
     rules:
       sharding:
@@ -60,7 +65,7 @@ spring:
           trade-order-sharding:
             type: CLASS_BASED
             props:
-              algorithmClassName: cn.hollis.nft.turbo.datasource.sharding.algorithm.TurboKeyShardingAlgorithm
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
               strategy: complex
               tableCount: 4
               mainColum: buyer_id

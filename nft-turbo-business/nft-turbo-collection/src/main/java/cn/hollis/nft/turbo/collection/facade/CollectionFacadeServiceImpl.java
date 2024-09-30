@@ -18,7 +18,6 @@ import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.HeldCollectionConvertor;
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionDestroyRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionTransferRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
@@ -92,6 +91,15 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     public CollectionSaleResponse trySale(CollectionSaleRequest request) {
         CollectionTrySaleRequest collectionTrySaleRequest = new CollectionTrySaleRequest(request.getIdentifier(), request.getCollectionId(), request.getQuantity());
         Boolean trySaleResult = collectionService.trySale(collectionTrySaleRequest);
+        CollectionSaleResponse response = new CollectionSaleResponse();
+        response.setSuccess(trySaleResult);
+        return response;
+    }
+
+    @Override
+    public CollectionSaleResponse trySaleWithoutHint(CollectionSaleRequest request) {
+        CollectionTrySaleRequest collectionTrySaleRequest = new CollectionTrySaleRequest(request.getIdentifier(),request.getCollectionId(),request.getQuantity());
+        Boolean trySaleResult = collectionService.trySaleWithoutHint(collectionTrySaleRequest);
         CollectionSaleResponse response = new CollectionSaleResponse();
         response.setSuccess(trySaleResult);
         return response;
@@ -186,7 +194,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     public SingleResponse<CollectionVO> queryById(Long collectionId) {
         Collection collection = collectionService.queryById(collectionId);
 
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId(collectionId.toString());
         Integer inventory = collectionInventoryRedisService.getInventory(request);
 
@@ -203,36 +211,21 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     @SuppressWarnings("AlibabaRemoveCommentedCode")
     @Override
     @Facade
-    public SingleResponse<Boolean> preInventoryDeduct(Long collectionId, int quantity, String identifier) {
+    public SingleResponse<Boolean> preInventoryDeduct(InventoryRequest request) {
 
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
-        request.setIdentifier(identifier);
-        request.setInventory(quantity);
-        request.setCollectionId(collectionId.toString());
         CollectionInventoryResponse collectionInventoryResponse = collectionInventoryRedisService.decrease(request);
         if (collectionInventoryResponse.getSuccess()) {
-
-//            //通过netty时间轮，起一个延迟任务，反查订单是否创建成功，如果未创建，则回退库存
-//            HashedWheelTimer timer = new HashedWheelTimer();
-//
-//            TimerTask task = new TimerTask() {
-//                @Override
-//                public void run(Timeout timeout) throws Exception {
-//                    //但是这里不做实现了，主要原因：
-//                    //1、藏品模块或者库存模块，不应该冗余太多业务关于订单模块的业务逻辑，
-//                    //2、这种检查并不能100%的解决问题，因为一旦这时候服务挂了，或者应用重启了，就丢失了这个任务了。
-//                    //所以，这种不一致的情况需要通过对账实现
-//                    //要么就是单独搞一个对账中心，要么就是通过对账平台配核对来发现。
-//                }
-//            };
-//
-//            //timer.newTimeout(task, 3, TimeUnit.MINUTES);
-
             return SingleResponse.of(true);
         }
 
         logger.error("decrease inventory failed, " + JSON.toJSONString(collectionInventoryResponse));
         return SingleResponse.fail(collectionInventoryResponse.getResponseCode(), collectionInventoryResponse.getResponseMessage());
+    }
+
+    @Override
+    public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest request) {
+        String stream = collectionInventoryRedisService.getInventoryDecreaseLog(request);
+        return SingleResponse.of(stream);
     }
 
     @Override
@@ -243,7 +236,7 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
         collectionInventoryVO.setQuantity(collection.getQuantity());
         collectionInventoryVO.setOccupiedInventory(collection.getOccupiedInventory());
 
-        CollectionInventoryRequest collectionInventoryRequest = new CollectionInventoryRequest();
+        InventoryRequest collectionInventoryRequest = new InventoryRequest();
         collectionInventoryRequest.setCollectionId(collectionId.toString());
         Integer saleableInventory = collectionInventoryRedisService.getInventory(collectionInventoryRequest);
         collectionInventoryVO.setSaleableInventory(saleableInventory.longValue());

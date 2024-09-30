@@ -30,7 +30,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -93,22 +92,39 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     }
 
     @Override
+    @Facade
     public OrderResponse confirm(OrderConfirmRequest request) {
-
-        TradeOrder existOrder = orderReadService.getOrder(request.getOrderId());
-
         CollectionSaleRequest collectionSaleRequest = new CollectionSaleRequest();
-        collectionSaleRequest.setUserId(existOrder.getBuyerId());
-        collectionSaleRequest.setCollectionId(Long.valueOf(existOrder.getGoodsId()));
-        collectionSaleRequest.setIdentifier(request.getIdentifier());
-        collectionSaleRequest.setQuantity((long) existOrder.getItemCount());
+        collectionSaleRequest.setUserId(request.getBuyerId());
+        collectionSaleRequest.setCollectionId(request.getCollectionId());
+        collectionSaleRequest.setIdentifier(request.getOrderId());
+        collectionSaleRequest.setQuantity(request.getItemCount());
         CollectionSaleResponse response = collectionFacadeService.trySale(collectionSaleRequest);
 
         if (response.getSuccess()) {
             return orderService.confirm(request);
         }
 
-        return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
+        return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
+    }
+
+    @Override
+    @Facade
+    public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
+        try {
+            orderValidatorChain.validate(request);
+        } catch (OrderException e) {
+            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
+        }
+
+        CollectionSaleRequest collectionSaleRequest = new CollectionSaleRequest(request);
+        CollectionSaleResponse response = collectionFacadeService.trySaleWithoutHint(collectionSaleRequest);
+
+        if (!response.getSuccess()) {
+            return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+        }
+
+        return orderService.createAndConfirm(request);
     }
 
     @NotNull

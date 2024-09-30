@@ -11,7 +11,7 @@ import cn.hollis.nft.turbo.api.pay.request.PayQueryRequest;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.response.MultiResponse;
-import cn.hollis.nft.turbo.datasource.sharding.id.BusinessCode;
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -291,6 +291,9 @@ public class OrderJob {
         confirmRequest.setOrderId(tradeOrder.getOrderId());
         confirmRequest.setIdentifier(tradeOrder.getIdentifier());
         confirmRequest.setOperateTime(new Date());
+        confirmRequest.setOrderId(tradeOrder.getOrderId());
+        confirmRequest.setBuyerId(tradeOrder.getBuyerId());
+        confirmRequest.setItemCount((long)tradeOrder.getItemCount());
 
         orderFacadeService.confirm(confirmRequest);
     }

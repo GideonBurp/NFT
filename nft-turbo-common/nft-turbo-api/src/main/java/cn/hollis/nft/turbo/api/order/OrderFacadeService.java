@@ -46,6 +46,13 @@ public interface OrderFacadeService {
     public OrderResponse confirm(OrderConfirmRequest request);
 
     /**
+     * 创建并确认订单
+     * @param request
+     * @return
+     */
+    public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request);
+
+    /**
      * 订单支付
      *
      * @param request

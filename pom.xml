@@ -220,6 +220,12 @@
 
             <dependency>
                 <groupId>cn.hollis</groupId>
+                <artifactId>nft-turbo-order-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hollis</groupId>
                 <artifactId>nft-turbo-seata</artifactId>
                 <version>${project.version}</version>
             </dependency>

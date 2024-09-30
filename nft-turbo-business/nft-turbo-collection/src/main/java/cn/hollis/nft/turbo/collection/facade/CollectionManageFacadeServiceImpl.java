@@ -14,7 +14,6 @@ import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
@@ -74,7 +73,7 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
         Boolean result = collectionService.remove(request);
 
         if (result) {
-            CollectionInventoryRequest inventoryRequest = new CollectionInventoryRequest();
+            InventoryRequest inventoryRequest = new InventoryRequest();
             inventoryRequest.setCollectionId(request.getCollectionId().toString());
             collectionInventoryRedisService.invalid(inventoryRequest);
         }
@@ -103,7 +102,7 @@ public class CollectionManageFacadeServiceImpl implements CollectionManageFacade
             return response;
         }
 
-        CollectionInventoryRequest inventoryRequest = new CollectionInventoryRequest();
+        InventoryRequest inventoryRequest = new InventoryRequest();
         inventoryRequest.setCollectionId(request.getCollectionId().toString());
         inventoryRequest.setIdentifier(request.getIdentifier());
         inventoryRequest.setInventory(modifyResponse.getQuantityModified().intValue());

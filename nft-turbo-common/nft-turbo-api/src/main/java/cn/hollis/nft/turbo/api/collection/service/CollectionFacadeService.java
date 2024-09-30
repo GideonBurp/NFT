@@ -26,6 +26,14 @@ public interface CollectionFacadeService {
     CollectionSaleResponse trySale(CollectionSaleRequest request);
 
     /**
+     * 藏品出售的try阶段，做库存预占用-无hint
+     *
+     * @param request
+     * @return
+     */
+    CollectionSaleResponse trySaleWithoutHint(CollectionSaleRequest request);
+
+    /**
      * 藏品出售的confirm阶段，做真正售出
      *
      * @param request
@@ -68,12 +76,18 @@ public interface CollectionFacadeService {
     /**
      * 预扣减库存
      *
-     * @param collectionId 藏品id
-     * @param quantity     数量
-     * @param identifier   唯一标识
+     * @param request 入参
      * @return
      */
-    public SingleResponse<Boolean> preInventoryDeduct(Long collectionId, int quantity, String identifier);
+    public SingleResponse<Boolean> preInventoryDeduct(InventoryRequest request);
+
+    /**
+     * 查询库存操作流水
+     *
+     * @param request
+     * @return
+     */
+    public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest request);
 
     /**
      * 查询藏品库存

@@ -21,6 +21,7 @@ import org.apache.shardingsphere.transaction.annotation.ShardingSphereTransactio
 import org.apache.shardingsphere.transaction.core.TransactionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,35 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
 
         applicationContext.publishEvent(new OrderCreateEvent(tradeOrder));
+        return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
+    }
+
+    /**
+     * 订单创建并确认
+     * @param request
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
+        TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
+        if (existOrder != null) {
+            return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
+        }
+
+        TradeOrder tradeOrder = TradeOrder.createOrder(request);
+        OrderConfirmRequest confirmRequest = new OrderConfirmRequest();
+        BeanUtils.copyProperties(request,confirmRequest);
+        confirmRequest.setOrderId(tradeOrder.getOrderId());
+
+        tradeOrder.confirm(confirmRequest);
+
+        boolean result = save(tradeOrder);
+        Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
+
+        TradeOrderStream orderStream = new TradeOrderStream(tradeOrder, request.getOrderEvent(), request.getIdentifier());
+        result = orderStreamMapper.insert(orderStream) == 1;
+        Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
+
         return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
     }
 

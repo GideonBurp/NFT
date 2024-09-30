@@ -7,11 +7,8 @@ import cn.hollis.nft.turbo.api.order.request.*;
 import cn.hollis.nft.turbo.api.pay.constant.PayChannel;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
-import cn.hollis.nft.turbo.datasource.sharding.id.BusinessCode;
-import cn.hollis.nft.turbo.datasource.sharding.id.DistributeID;
 import cn.hollis.nft.turbo.order.domain.entity.convertor.TradeOrderConvertor;
 import cn.hollis.nft.turbo.order.domain.entity.statemachine.OrderStateMachine;
-import cn.hollis.nft.turbo.order.infrastructure.id.WorkerIdHolder;
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
@@ -180,7 +177,7 @@ public class TradeOrder extends BaseEntity {
         tradeOrder.setReverseBuyerId(StringUtils.reverse(request.getBuyerId()));
         tradeOrder.setOrderState(TradeOrderState.CREATE);
         tradeOrder.setPaidAmount(BigDecimal.ZERO);
-        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, request.getBuyerId());
+        String orderId = request.getOrderId();
         tradeOrder.setOrderId(orderId);
         return tradeOrder;
     }

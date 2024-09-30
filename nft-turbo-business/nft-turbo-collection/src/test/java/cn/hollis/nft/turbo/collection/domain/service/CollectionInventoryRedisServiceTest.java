@@ -1,8 +1,8 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
 
+import cn.hollis.nft.turbo.api.collection.request.InventoryRequest;
 import cn.hollis.nft.turbo.collection.CollectionBaseTest;
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.impl.redis.CollectionInventoryRedisService;
 import com.alibaba.fastjson.JSON;
@@ -29,7 +29,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void init() {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test3211");
         request.setInventory(66);
         collectionInventoryRedisService.init(request);
@@ -40,7 +40,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void decrease_concurrent() throws InterruptedException {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test321");
         request.setInventory(100);
         collectionInventoryRedisService.invalid(request);
@@ -55,7 +55,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
                 try {
                     startGate.await(); // 等待所有线程准备好
                     try {
-                        CollectionInventoryRequest decreaseRequest = new CollectionInventoryRequest();
+                        InventoryRequest decreaseRequest = new InventoryRequest();
                         decreaseRequest.setCollectionId("test321");
                         decreaseRequest.setInventory(1);
                         decreaseRequest.setIdentifier(UUID.randomUUID().toString());
@@ -78,13 +78,13 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void decrease_duplicated() {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test0321");
         request.setInventory(100);
         collectionInventoryRedisService.invalid(request);
         collectionInventoryRedisService.init(request);
 
-        CollectionInventoryRequest decreaseRequest = new CollectionInventoryRequest();
+        InventoryRequest decreaseRequest = new InventoryRequest();
         decreaseRequest.setCollectionId("test0321");
         decreaseRequest.setInventory(1);
         decreaseRequest.setIdentifier(UUID.randomUUID().toString());
@@ -103,13 +103,13 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void increase_duplicated() {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test00321");
         request.setInventory(100);
         collectionInventoryRedisService.invalid(request);
         collectionInventoryRedisService.init(request);
 
-        CollectionInventoryRequest decreaseRequest = new CollectionInventoryRequest();
+        InventoryRequest decreaseRequest = new InventoryRequest();
         decreaseRequest.setCollectionId("test00321");
         decreaseRequest.setInventory(1);
         decreaseRequest.setIdentifier(UUID.randomUUID().toString());
@@ -128,7 +128,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void increase_concurrent() throws InterruptedException {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test32122");
         request.setInventory(100);
         collectionInventoryRedisService.invalid(request);
@@ -143,7 +143,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
                 try {
                     startGate.await(); // 等待所有线程准备好
                     try {
-                        CollectionInventoryRequest decreaseRequest = new CollectionInventoryRequest();
+                        InventoryRequest decreaseRequest = new InventoryRequest();
                         decreaseRequest.setCollectionId("test32122");
                         decreaseRequest.setInventory(1);
                         decreaseRequest.setIdentifier(UUID.randomUUID().toString());
@@ -166,7 +166,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void decrease_oversold() throws InterruptedException {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test3213");
         request.setInventory(100);
         collectionInventoryRedisService.invalid(request);
@@ -181,7 +181,7 @@ public class CollectionInventoryRedisServiceTest extends CollectionBaseTest {
 
     @Test
     public void invalid_decrease() throws InterruptedException {
-        CollectionInventoryRequest request = new CollectionInventoryRequest();
+        InventoryRequest request = new InventoryRequest();
         request.setCollectionId("test321366");
         request.setInventory(100);
         collectionInventoryRedisService.init(request);

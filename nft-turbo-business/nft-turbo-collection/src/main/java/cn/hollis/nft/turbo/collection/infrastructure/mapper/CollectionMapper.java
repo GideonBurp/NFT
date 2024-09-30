@@ -51,6 +51,14 @@ public interface CollectionMapper extends BaseMapper<Collection> {
     int trySale(Long id, Long quantity);
 
     /**
+     * 库存预扣减-无hint版
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int trySaleWithoutHint(Long id, Long quantity);
+
+    /**
      * 库存退回
      *
      * @param id

@@ -16,6 +16,11 @@ public enum TradeOrderEvent {
     CONFIRM,
 
     /**
+     * 订单创建并确认
+     */
+    CREATE_AND_CONFIRM,
+
+    /**
      * 订单支付
      */
     PAY,

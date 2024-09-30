@@ -2,6 +2,7 @@ package cn.hollis.nft.turbo.trade.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
@@ -19,15 +20,20 @@ import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.base.utils.RemoteCallWrapper;
+import cn.hollis.nft.turbo.order.sharding.id.DistributeID;
+import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
 import cn.hollis.nft.turbo.trade.exception.TradeErrorCode;
 import cn.hollis.nft.turbo.trade.exception.TradeException;
 import cn.hollis.nft.turbo.trade.param.BuyParam;
 import cn.hollis.nft.turbo.trade.param.CancelParam;
 import cn.hollis.nft.turbo.trade.param.PayParam;
 import cn.hollis.nft.turbo.web.vo.Result;
+import cn.hollis.turbo.stream.producer.StreamProducer;
+import com.alibaba.fastjson.JSON;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,6 +65,9 @@ public class TradeController {
     @Autowired
     private GoodsFacadeService goodsFacadeService;
 
+    @Autowired
+    private StreamProducer streamProducer;
+
     /**
      * 下单
      *
@@ -67,9 +76,43 @@ public class TradeController {
      */
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
+        OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
+
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
+
+        if (orderResponse.getSuccess()) {
+            return Result.success(orderCreateRequest.getOrderId());
+        }
+
+        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+    }
+
+    /**
+     * 下单（不基于inventory hint的实现）
+     *
+     * @param
+     * @return 幂等号
+     */
+    @PostMapping("/newBuy")
+    public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
+        OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
+
+        boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
+
+        if (!result) {
+            throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+        }
+
+        return Result.success(orderCreateRequest.getOrderId());
+    }
+
+    @NotNull
+    private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
         String userId = (String) StpUtil.getLoginId();
+        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
         //创建订单
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+        orderCreateRequest.setOrderId(orderId);
         orderCreateRequest.setIdentifier(tokenThreadLocal.get());
         orderCreateRequest.setBuyerId(userId);
         orderCreateRequest.setGoodsId(buyParam.getGoodsId());
@@ -85,14 +128,7 @@ public class TradeController {
         orderCreateRequest.setGoodsPicUrl(goodsVO.getGoodsPicUrl());
         orderCreateRequest.setSnapshotVersion(goodsVO.getVersion());
         orderCreateRequest.setOrderAmount(orderCreateRequest.getItemPrice().multiply(new BigDecimal(orderCreateRequest.getItemCount())));
-
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
-
-        if (orderResponse.getSuccess()) {
-            return Result.success(orderResponse.getOrderId());
-        }
-
-        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+        return orderCreateRequest;
     }
 
     /**

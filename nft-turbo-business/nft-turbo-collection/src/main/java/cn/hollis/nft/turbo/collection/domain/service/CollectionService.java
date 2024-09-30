@@ -60,6 +60,14 @@ public interface CollectionService extends IService<Collection> {
     public Boolean trySale(CollectionTrySaleRequest request);
 
     /**
+     * 尝试售卖-无hint版
+     *
+     * @param request
+     * @return
+     */
+    public Boolean trySaleWithoutHint(CollectionTrySaleRequest request);
+
+    /**
      * 取消售卖
      *
      * @param request

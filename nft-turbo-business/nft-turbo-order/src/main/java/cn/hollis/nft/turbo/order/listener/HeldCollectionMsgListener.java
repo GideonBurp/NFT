@@ -34,7 +34,7 @@ public class HeldCollectionMsgListener {
             String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
             String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
             HeldCollectionDTO heldCollectionDTO = JSON.parseObject(msg.getPayload().getBody(), HeldCollectionDTO.class);
-            log.info("messageId:{},heldCollectionDTO:{}，tag:{}", messageId, heldCollectionDTO, tag);
+            log.info("Received HeldCollection Message messageId:{},heldCollectionDTO:{}，tag:{}", messageId, heldCollectionDTO, tag);
 
             if (heldCollectionDTO.getState().equals(HeldCollectionState.ACTIVED.name())) {
                 String orderId = heldCollectionDTO.getBizNo();

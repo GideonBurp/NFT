@@ -2,6 +2,7 @@ package cn.hollis.nft.turbo.api.collection.request;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
+import cn.hollis.nft.turbo.api.order.request.OrderCreateAndConfirmRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,5 +68,12 @@ public class CollectionSaleRequest extends BaseCollectionRequest {
     @Override
     public CollectionEvent getEventType() {
         return CollectionEvent.SALE;
+    }
+
+    public CollectionSaleRequest(OrderCreateAndConfirmRequest orderCreateAndConfirmRequest) {
+        this.userId = orderCreateAndConfirmRequest.getBuyerId();
+        this.quantity = (long)orderCreateAndConfirmRequest.getItemCount();
+        super.setCollectionId(Long.valueOf(orderCreateAndConfirmRequest.getGoodsId()));
+        super.setIdentifier(orderCreateAndConfirmRequest.getOrderId());
     }
 }

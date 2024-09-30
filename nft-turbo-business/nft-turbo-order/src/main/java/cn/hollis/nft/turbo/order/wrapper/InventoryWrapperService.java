@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.order.wrapper;
 
 import cn.hollis.nft.turbo.api.collection.model.CollectionInventoryVO;
+import cn.hollis.nft.turbo.api.collection.request.InventoryRequest;
 import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsInventoryVO;
@@ -23,7 +24,11 @@ public class InventoryWrapperService {
         String preDeductIdentifier = orderCreateRequest.getBuyerId() + "_" + orderCreateRequest.getIdentifier() + "_" + orderCreateRequest.getItemCount();
         return switch (goodsType) {
             case COLLECTION -> {
-                SingleResponse<Boolean> response = collectionFacadeService.preInventoryDeduct(Long.valueOf(orderCreateRequest.getGoodsId()), orderCreateRequest.getItemCount(), preDeductIdentifier);
+                InventoryRequest inventoryRequest = new InventoryRequest();
+                inventoryRequest.setCollectionId(orderCreateRequest.getGoodsId());
+                inventoryRequest.setIdentifier(orderCreateRequest.getOrderId());
+                inventoryRequest.setInventory(orderCreateRequest.getItemCount());
+                SingleResponse<Boolean> response = collectionFacadeService.preInventoryDeduct(inventoryRequest);
                 if (response.getSuccess()) {
                     yield response.getData();
                 }

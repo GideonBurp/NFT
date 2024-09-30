@@ -30,6 +30,11 @@
 
         <dependency>
             <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-config</artifactId>
         </dependency>
 
@@ -51,6 +56,16 @@
         <dependency>
             <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-mq</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-order-client</artifactId>
         </dependency>
 
         <!--  TEST  -->

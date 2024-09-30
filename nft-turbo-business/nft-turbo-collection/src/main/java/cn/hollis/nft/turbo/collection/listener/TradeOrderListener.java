@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.collection.listener;
 
+import cn.hollis.nft.turbo.api.collection.request.InventoryRequest;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderEvent;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
@@ -8,7 +9,6 @@ import cn.hollis.nft.turbo.api.order.request.BaseOrderUpdateRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderCancelRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderTimeoutRequest;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionInventoryService;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
@@ -46,7 +46,6 @@ public class TradeOrderListener {
 
     @Bean
     Consumer<Message<MessageBody>> orderClose() {
-        log.info("orderClose consumer init");
         return msg -> {
             String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
             String closeType = msg.getHeaders().get("CLOSE_TYPE", String.class);
@@ -60,7 +59,7 @@ public class TradeOrderListener {
                 throw new UnsupportedOperationException("unsupported closeType " + closeType);
             }
 
-            log.info("received messageId:{},orderCloseRequest:{}，closeType:{}", messageId, JSON.toJSONString(orderUpdateRequest), closeType);
+            log.info("Received OrderClose Message  messageId:{},orderCloseRequest:{}，closeType:{}", messageId, JSON.toJSONString(orderUpdateRequest), closeType);
 
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderUpdateRequest.getOrderId());
             if (!response.getSuccess()) {
@@ -78,7 +77,7 @@ public class TradeOrderListener {
                 log.error("cancelSale failed,orderCloseRequest:{} , collectionSaleResponse : {}", JSON.toJSONString(orderUpdateRequest), JSON.toJSONString(cancelSaleResult));
                 throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
             }
-            CollectionInventoryRequest collectionInventoryRequest = new CollectionInventoryRequest();
+            InventoryRequest collectionInventoryRequest = new InventoryRequest();
             collectionInventoryRequest.setCollectionId(tradeOrderVO.getGoodsId());
             collectionInventoryRequest.setInventory(tradeOrderVO.getItemCount());
             collectionInventoryRequest.setIdentifier(orderUpdateRequest.getOrderId());

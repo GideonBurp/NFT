@@ -200,6 +200,29 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    public Boolean trySaleWithoutHint(CollectionTrySaleRequest request) {
+        //流水校验
+        CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
+        if (null != existStream) {
+            return true;
+        }
+
+        //查询出最新的值
+        Collection collection = this.getById(request.collectionId());
+
+        //新增collection流水
+        CollectionInventoryStream stream = new CollectionInventoryStream(collection, request.identifier(), request.eventType(), request.quantity());
+        int result = collectionInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = collectionMapper.trySaleWithoutHint(request.collectionId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+        return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public Boolean cancelSale(CollectionCancelSaleRequest request) {
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());

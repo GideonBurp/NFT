@@ -10,7 +10,7 @@ spring:
   cloud:
     # spring.cloud.stream.function.definition 已废弃, 需要使用 spring.cloud.function.definition 代替
     function:
-      definition: chain;orderClose;heldCollection
+      definition: chain;orderClose;heldCollection;newBuy
     stream:
       rocketmq:
         bindings:
@@ -26,6 +26,10 @@ spring:
             consumer:
               subscription:
                 expression: 'ACTIVE' # 这里设置你希望订阅的Tag
+          newBuy-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: inventoryDeductTransactionListener
       bindings:
         heldCollection-out-0:
           content-type: application/json
@@ -56,6 +60,16 @@ spring:
           content-type: application/json
           destination: order-close-topic
           group: order-group
+          binder: rocketmq
+        newBuy-out-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
+        newBuy-in-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
           binder: rocketmq
   shardingsphere:
     rules:
@@ -89,14 +103,14 @@ spring:
           turbo-complex-sharding:
             type: CLASS_BASED
             props:
-              algorithmClassName: cn.hollis.nft.turbo.datasource.sharding.algorithm.TurboKeyShardingAlgorithm
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboKeyShardingAlgorithm
               strategy: complex
               tableCount: 4
               mainColum: buyer_id
           turbo-hint-sharding:
             type: CLASS_BASED
             props:
-              algorithmClassName: cn.hollis.nft.turbo.datasource.sharding.algorithm.TurboHintShardingAlgorithm
+              algorithmClassName: cn.hollis.nft.turbo.order.infrastructure.sharding.algorithm.TurboHintShardingAlgorithm
               strategy: hint
         keyGenerators:
           snowflake:

@@ -4,7 +4,7 @@ import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.order.NfTurboOrderApplication;
-import cn.hollis.nft.turbo.order.infrastructure.id.WorkerIdHolder;
+import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
 import cn.hutool.core.util.RandomUtil;
 import com.xxl.job.core.executor.XxlJobExecutor;
 import org.junit.Before;

@@ -1,10 +1,8 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
+import cn.hollis.nft.turbo.api.collection.request.InventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 藏品库存服务
@@ -20,7 +18,7 @@ public interface CollectionInventoryService {
      * @param request
      * @return
      */
-    public CollectionInventoryResponse init(CollectionInventoryRequest request);
+    public CollectionInventoryResponse init(InventoryRequest request);
 
     /**
      * 获取藏品库存
@@ -28,7 +26,7 @@ public interface CollectionInventoryService {
      * @param request
      * @return
      */
-    public Integer getInventory(CollectionInventoryRequest request);
+    public Integer getInventory(InventoryRequest request);
 
     /**
      * 扣减藏品库存
@@ -36,7 +34,7 @@ public interface CollectionInventoryService {
      * @param request
      * @return
      */
-    public CollectionInventoryResponse decrease(CollectionInventoryRequest request);
+    public CollectionInventoryResponse decrease(InventoryRequest request);
 
     /**
      * 获取藏品库存扣减日志
@@ -44,7 +42,7 @@ public interface CollectionInventoryService {
      * @param request
      * @return
      */
-    public List<Object> getInventoryDecreaseLogs(CollectionInventoryRequest request);
+    public String getInventoryDecreaseLog(InventoryRequest request);
 
     /**
      * 增加藏品库存
@@ -52,7 +50,7 @@ public interface CollectionInventoryService {
      * @param request
      * @return
      */
-    public CollectionInventoryResponse increase(CollectionInventoryRequest request);
+    public CollectionInventoryResponse increase(InventoryRequest request);
 
     /**
      * 失效藏品库存
@@ -60,5 +58,5 @@ public interface CollectionInventoryService {
      * @param request
      * @return
      */
-    public void invalid(CollectionInventoryRequest request);
+    public void invalid(InventoryRequest request);
 }

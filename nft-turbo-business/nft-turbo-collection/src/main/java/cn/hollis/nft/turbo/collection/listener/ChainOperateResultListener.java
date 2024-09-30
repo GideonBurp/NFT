@@ -4,9 +4,9 @@ import cn.hollis.nft.turbo.api.chain.model.ChainOperateBody;
 import cn.hollis.nft.turbo.api.chain.response.data.ChainResultData;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
+import cn.hollis.nft.turbo.api.collection.request.InventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
-import cn.hollis.nft.turbo.collection.domain.request.CollectionInventoryRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionActiveRequest;
 import cn.hollis.nft.turbo.collection.domain.response.CollectionInventoryResponse;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
@@ -51,7 +51,7 @@ public class ChainOperateResultListener {
             String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
             String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
             ChainOperateBody chainOperateBody = JSON.parseObject(msg.getPayload().getBody(), ChainOperateBody.class);
-            log.info("messageId:{},chainOperateBody:{}，tag:{}", messageId, JSON.toJSONString(chainOperateBody), tag);
+            log.info("Received Chain Message messageId:{},chainOperateBody:{}，tag:{}", messageId, JSON.toJSONString(chainOperateBody), tag);
             //更新相关业务表
             ChainResultData chainResultData = chainOperateBody.getChainResultData();
             //成功情况处理
@@ -63,12 +63,12 @@ public class ChainOperateResultListener {
                         throw new CollectionException(COLLECTION_QUERY_FAIL);
                     }
                     //先写缓存，写成功再更新状态
-                    CollectionInventoryRequest inventoryRequest = new CollectionInventoryRequest();
+                    InventoryRequest inventoryRequest = new InventoryRequest();
                     inventoryRequest.setCollectionId(collection.getId().toString());
                     inventoryRequest.setInventory(collection.getQuantity().intValue());
                     inventoryRequest.setIdentifier(collection.getId().toString());
                     CollectionInventoryResponse inventoryResponse = collectionInventoryRedisService.init(inventoryRequest);
-                    if (!inventoryResponse.getSuccess()){
+                    if (!inventoryResponse.getSuccess()) {
                         throw new CollectionException(COLLECTION_INVENTORY_UPDATE_FAILED);
                     }
                     //更新状态

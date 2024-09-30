@@ -2,7 +2,23 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml
+    import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
+  cloud:
+    function:
+      definition: newBuy
+    stream:
+      rocketmq:
+        bindings:
+          newBuy-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: inventoryDeductTransactionListener
+      bindings:
+        newBuy-out-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
 
 server:
   port: 8084
