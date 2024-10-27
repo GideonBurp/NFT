@@ -97,6 +97,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
+    @Transactional
     public UserOperatorResponse register(String telephone, String inviteCode) {
         String defaultNickName;
         String randomString;
@@ -140,6 +141,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
+    @Transactional
     public UserOperatorResponse registerAdmin(String telephone, String password) {
         User user = registerAdmin(telephone, telephone, password);
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
@@ -191,6 +193,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @CacheInvalidate(name = ":user:cache:id:", key = "#userAuthRequest.userId")
+    @Transactional
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userAuthRequest.getUserId());
@@ -198,6 +201,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         if (user.getState() == UserStateEnum.AUTH || user.getState() == UserStateEnum.ACTIVE) {
             userOperatorResponse.setSuccess(true);
+            userOperatorResponse.setUser(UserConvertor.INSTANCE.mapToVo(user));
             return userOperatorResponse;
         }
 
@@ -226,6 +230,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @CacheInvalidate(name = ":user:cache:id:", key = "#userActiveRequest.userId")
+    @Transactional
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userActiveRequest.getUserId());
@@ -378,6 +383,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @CacheInvalidate(name = ":user:cache:id:", key = "#userModifyRequest.userId")
+    @Transactional
     public UserOperatorResponse modify(UserModifyRequest userModifyRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userModifyRequest.getUserId());

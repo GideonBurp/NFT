@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Date;
 
@@ -21,7 +22,7 @@ public class OrderEventListener {
     @Autowired
     private OrderFacadeService orderFacadeService;
 
-    @EventListener(OrderCreateEvent.class)
+    @TransactionalEventListener(value = OrderCreateEvent.class)
     @Async("orderListenExecutor")
     public void onApplicationEvent(OrderCreateEvent event) {
 
@@ -35,6 +36,7 @@ public class OrderEventListener {
         confirmRequest.setOrderId(tradeOrder.getOrderId());
         confirmRequest.setBuyerId(tradeOrder.getBuyerId());
         confirmRequest.setItemCount((long)tradeOrder.getItemCount());
+        confirmRequest.setCollectionId(Long.valueOf(tradeOrder.getGoodsId()));
 
         orderFacadeService.confirm(confirmRequest);
     }
