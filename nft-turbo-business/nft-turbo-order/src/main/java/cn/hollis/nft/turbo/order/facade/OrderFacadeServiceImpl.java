@@ -145,6 +145,9 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         OrderResponse response = orderService.pay(request);
         if (!response.getSuccess()) {
             TradeOrder existOrder = orderReadService.getOrder(request.getOrderId());
+            if (existOrder != null && existOrder.isClosed()) {
+                return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(OrderErrorCode.ORDER_ALREADY_CLOSED.getCode(), OrderErrorCode.ORDER_ALREADY_CLOSED.getMessage());
+            }
             if (existOrder != null && existOrder.isPaid()) {
                 if (existOrder.getPayStreamId().equals(request.getPayStreamId()) && existOrder.getPayChannel() == request.getPayChannel()) {
                     return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();

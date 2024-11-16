@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.pay.domain.service;
 
+import cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState;
 import cn.hollis.nft.turbo.api.pay.request.RefundCreateRequest;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
@@ -10,6 +11,7 @@ import cn.hollis.nft.turbo.pay.infrastructure.mapper.PayOrderMapper;
 import cn.hollis.nft.turbo.pay.infrastructure.mapper.RefundOrderMapper;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +57,7 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
         return refundOrder;
     }
 
-    public boolean paying(String refundOrderId) {
+    public boolean refunding(String refundOrderId) {
         RefundOrder refundOrder = refundOrderMapper.selectByRefundOrderId(refundOrderId);
         refundOrder.refunding();
 
@@ -73,5 +75,15 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
         Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
         return true;
+    }
+
+    public Page<RefundOrder> pageQueryNeedRetryOrders(int currentPage, int pageSize) {
+        Page<RefundOrder> page = new Page<>(currentPage, pageSize);
+
+        QueryWrapper<RefundOrder> wrapper = new QueryWrapper<>();
+        wrapper.in("refund_order_state", PayRefundOrderState.REFUNDING, PayRefundOrderState.TO_REFUND);
+        wrapper.orderBy(true, true, "gmt_create");
+
+        return this.page(page, wrapper);
     }
 }

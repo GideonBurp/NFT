@@ -137,24 +137,27 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                 map.put("message", "签名错误");
             } else {
                 WxPayNotifyEntity wxPayNotifyEntity = JSON.parseObject(plainText, WxPayNotifyEntity.class);
+                if(wxPayNotifyEntity.getTradeState().equals(SUCCESS.name())){
+                    PaySuccessEvent paySuccessEvent = new PaySuccessEvent();
+                    paySuccessEvent.setChannelStreamId(wxPayNotifyEntity.getTransactionId());
+                    paySuccessEvent.setPaidAmount(MoneyUtils.centToYuan(Long.valueOf(wxPayNotifyEntity.getAmount().getTotal())));
+                    paySuccessEvent.setPayOrderId(wxPayNotifyEntity.getOutTradeNo());
+                    paySuccessEvent.setPaySucceedTime(DateUtil.parseUTC(wxPayNotifyEntity.getSuccessTime()));
+                    paySuccessEvent.setPayChannel(PayChannel.WECHAT);
 
-                PaySuccessEvent paySuccessEvent = new PaySuccessEvent();
-                paySuccessEvent.setChannelStreamId(wxPayNotifyEntity.getTransactionId());
-                paySuccessEvent.setPaidAmount(MoneyUtils.centToYuan(Long.valueOf(wxPayNotifyEntity.getAmount().getTotal())));
-                paySuccessEvent.setPayOrderId(wxPayNotifyEntity.getOutTradeNo());
-                paySuccessEvent.setPaySucceedTime(DateUtil.parseUTC(wxPayNotifyEntity.getSuccessTime()));
-                paySuccessEvent.setPayChannel(PayChannel.WECHAT);
+                    boolean paySuccessResult = payApplicationService.paySuccess(paySuccessEvent);
 
-                boolean paySuccessResult = payApplicationService.paySuccess(paySuccessEvent);
-
-                if (paySuccessResult) {
-                    response.setStatus(200);
-                    map.put("code", SUCCESS.name());
-                    map.put("message", SUCCESS.name());
-                } else {
-                    response.setStatus(500);
-                    map.put("code", "ERROR");
-                    map.put("message", "内部处理失败");
+                    if (paySuccessResult) {
+                        response.setStatus(200);
+                        map.put("code", SUCCESS.name());
+                        map.put("message", SUCCESS.name());
+                    } else {
+                        response.setStatus(500);
+                        map.put("code", "ERROR");
+                        map.put("message", "内部处理失败");
+                    }
+                }else{
+                    //todo 支付失败处理
                 }
             }
 

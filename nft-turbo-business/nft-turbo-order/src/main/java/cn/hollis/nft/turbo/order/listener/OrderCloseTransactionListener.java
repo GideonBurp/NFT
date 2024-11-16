@@ -70,9 +70,9 @@ public class OrderCloseTransactionListener implements TransactionListener {
         String closeType = messageExt.getProperties().get("CLOSE_TYPE");
         BaseOrderUpdateRequest baseOrderUpdateRequest = null;
         if (TradeOrderEvent.CANCEL.name().equals(closeType)) {
-            baseOrderUpdateRequest = JSON.parseObject(JSON.parseObject(new String(messageExt.getBody())).getString("body"),OrderCancelRequest.class);
+            baseOrderUpdateRequest = JSON.parseObject(JSON.parseObject(new String(messageExt.getBody())).getString("body"), OrderCancelRequest.class);
         } else if (TradeOrderEvent.TIME_OUT.name().equals(closeType)) {
-            baseOrderUpdateRequest = JSON.parseObject(JSON.parseObject(new String(messageExt.getBody())).getString("body"),OrderTimeoutRequest.class);
+            baseOrderUpdateRequest = JSON.parseObject(JSON.parseObject(new String(messageExt.getBody())).getString("body"), OrderTimeoutRequest.class);
         }
 
         TradeOrder tradeOrder = orderReadService.getOrder(baseOrderUpdateRequest.getOrderId());

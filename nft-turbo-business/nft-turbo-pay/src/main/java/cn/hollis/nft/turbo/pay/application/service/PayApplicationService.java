@@ -154,7 +154,9 @@ public class PayApplicationService {
 
         OrderPayRequest orderPayRequest = getOrderPayRequest(paySuccessEvent, payOrder);
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.pay(req), orderPayRequest, "orderFacadeService.pay",false);
-        if (orderResponse.getResponseCode() != null && orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())) {
+
+        //如果订单已经被其他支付推进到支付成功，或者已经关单，则启动退款流程
+        if (needChargeBack(orderResponse)) {
             log.info("order already paid ,do chargeback ," + payOrder.getBizNo());
 
             Boolean result = payOrderService.paySuccess(paySuccessEvent);
@@ -178,6 +180,12 @@ public class PayApplicationService {
         Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
 
         return true;
+    }
+
+    private static boolean needChargeBack(OrderResponse orderResponse) {
+        return orderResponse.getResponseCode() != null
+                && (orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())
+                || orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_CLOSED.getCode()));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -246,7 +254,7 @@ public class PayApplicationService {
             RefundChannelResponse refundChannelResponse = payChannelServiceFactory.get(paySuccessEvent.getPayChannel()).refund(refundChannelRequest);
 
             if (refundChannelResponse.getSuccess()) {
-                refundOrderService.paying(refundOrder.getRefundOrderId());
+                refundOrderService.refunding(refundOrder.getRefundOrderId());
             }
         });
     }

@@ -27,6 +27,11 @@ public enum OrderErrorCode implements ErrorCode {
     ORDER_ALREADY_PAID("ORDER_ALREADY_PAID", "订单已支付"),
 
     /**
+     * 订单已关闭
+     */
+    ORDER_ALREADY_CLOSED("ORDER_ALREADY_CLOSED", "订单已关闭"),
+
+    /**
      * 订单状态转移非法
      */
     ORDER_STATE_TRANSFER_ILLEGAL("ORDER_STATE_TRANSFER_ILLEGAL", "订单状态转移非法"),
@@ -93,4 +98,4 @@ public enum OrderErrorCode implements ErrorCode {
     public String getMessage() {
         return this.message;
     }
-    }
+}

@@ -168,6 +168,11 @@ public class TradeOrder extends BaseEntity {
     }
 
     @JSONField(serialize = false)
+    public Boolean isClosed() {
+        return orderState == TradeOrderState.CLOSED;
+    }
+
+    @JSONField(serialize = false)
     public Date getPayExpireTime() {
         return DateUtils.addMinutes(this.getGmtCreate(), TradeOrder.DEFAULT_TIME_OUT_MINUTES);
     }
