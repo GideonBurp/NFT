@@ -35,7 +35,7 @@ public class RefundOrderRetryJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(RefundOrderRetryJob.class);
 
-    @XxlJob("payTimeOutExecute")
+    @XxlJob("refundOrderRetryJob")
     public ReturnT<String> execute() {
 
         int currentPage = 1;
