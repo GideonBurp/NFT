@@ -9,6 +9,7 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.StandardReflectionParameterNameDiscoverer;
+import org.springframework.core.annotation.Order;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Aspect
 @Component
+@Order(Integer.MIN_VALUE)
 public class DistributeLockAspect {
 
     private RedissonClient redissonClient;

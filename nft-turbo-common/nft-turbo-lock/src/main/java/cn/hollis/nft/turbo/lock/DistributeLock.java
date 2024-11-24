@@ -49,7 +49,7 @@ public @interface DistributeLock {
 
     /**
      * 加锁等待时长，毫秒
-     * 默认情况下不设置等待时长，不做等待
+     * 默认情况下不设置等待时长，会一直等待直到获取到锁
      * @return
      */
     public int waitTime() default DistributeLockConstant.DEFAULT_WAIT_TIME;
