@@ -22,5 +22,25 @@ spring:
           uri: lb://nfturbo-business
           predicates:
             - Path=/trade/**,/order/**,/user/**,/collection/**,/wxPay/**
+#        - id: nfturbo-collection
+#          uri: lb://nfturbo-collection
+#          predicates:
+#            - Path=/collection/**
+#        - id: nfturbo-order
+#          uri: lb://nfturbo-order
+#          predicates:
+#            - Path=/order/**
+#        - id: nfturbo-trade
+#          uri: lb://nfturbo-trade
+#          predicates:
+#            - Path=/trade/**
+#        - id: nfturbo-user
+#          uri: lb://nfturbo-user
+#          predicates:
+#            - Path=/user/**
+#        - id: nfturbo-pay
+#          uri: lb://nfturbo-pay
+#          predicates:
+#            - Path=/wxPay/**
 server:
   port: 8081
