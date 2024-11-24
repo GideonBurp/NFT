@@ -129,9 +129,11 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
 
     @NotNull
     private OrderResponse sendTransactionMsgForClose(BaseOrderUpdateRequest request) {
-        boolean result = streamProducer.send("orderClose-out-0", null, JSON.toJSONString(request), "CLOSE_TYPE", request.getOrderEvent().name());
+        //因为RocketMQ 的事务消息中，如果本地事务发生了异常，这里返回也会是个 true，所以就需要做一下反查进行二次判断，才能知道关单操作是否成功
+        streamProducer.send("orderClose-out-0", null, JSON.toJSONString(request), "CLOSE_TYPE", request.getOrderEvent().name());
+        TradeOrder tradeOrder = orderReadService.getOrder(request.getOrderId());
         OrderResponse orderResponse = new OrderResponse();
-        if (result) {
+        if (tradeOrder.isClosed()) {
             orderResponse.setSuccess(true);
         } else {
             orderResponse.setSuccess(false);
