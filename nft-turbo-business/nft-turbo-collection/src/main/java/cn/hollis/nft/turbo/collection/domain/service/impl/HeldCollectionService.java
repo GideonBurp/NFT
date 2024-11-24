@@ -34,6 +34,7 @@ import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_
 
 /**
  * 持有的藏品服务
+ *
  * @author Hollis
  */
 @Service
@@ -157,5 +158,17 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
     private boolean sendMsg(HeldCollection heldCollection, HeldCollectionEventType eventType) {
         HeldCollectionDTO heldCollectionDTO = HeldCollectionConvertor.INSTANCE.mapToDto(heldCollection);
         return streamProducer.send("heldCollection-out-0", eventType.name(), JSON.toJSONString(heldCollectionDTO));
+    }
+
+    public Page<HeldCollection> pageQueryForChainMint(int currentPage, int pageSize) {
+        Page<HeldCollection> page = new Page<>(currentPage, pageSize);
+        QueryWrapper<HeldCollection> wrapper = new QueryWrapper<>();
+        wrapper.in("state", HeldCollectionState.INIT);
+        wrapper.isNull("nft_id");
+        wrapper.isNull("tx_hash");
+        wrapper.isNull("sync_chain_time");
+        wrapper.orderBy(true, true, "gmt_create");
+
+        return this.page(page, wrapper);
     }
 }
