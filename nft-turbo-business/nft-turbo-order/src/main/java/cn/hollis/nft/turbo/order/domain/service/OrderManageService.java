@@ -65,6 +65,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
+//    @ShardingSphereTransactionType(TransactionType.BASE)
     public OrderResponse create(OrderCreateRequest request) {
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
         if (existOrder != null) {

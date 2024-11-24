@@ -106,7 +106,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return this.getOne(queryWrapper);
     }
 
-    public PayOrder queryByOrderIdAndPayer(String payOrderId,String payerId) {
+    public PayOrder queryByOrderIdAndPayer(String payOrderId, String payerId) {
         QueryWrapper<PayOrder> queryWrapper = new QueryWrapper();
         queryWrapper.eq("pay_order_id", payOrderId);
         queryWrapper.eq("payer_id", payerId);

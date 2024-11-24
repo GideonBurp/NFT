@@ -53,7 +53,7 @@ import java.util.UUID;
 @Slf4j
 public class PayApplicationService {
 
-    private static final String REFUND_MEMO_PREFIX = "重复支付退款：";
+    private static final String REFUND_MEMO_PREFIX = "退款：";
 
     @Autowired
     private PayOrderService payOrderService;
@@ -92,7 +92,8 @@ public class PayApplicationService {
         collectionManageFacadeService.create(request);
 
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
-        orderCreateRequest.setBuyerId("25");
+        orderCreateRequest.setBuyerId("2511111");
+        orderCreateRequest.setOrderId("2511111");
         orderCreateRequest.setSellerId("123321111");
         orderCreateRequest.setGoodsId("10018");
         orderCreateRequest.setGoodsName(UUID.randomUUID().toString());
@@ -161,7 +162,7 @@ public class PayApplicationService {
 
             Boolean result = payOrderService.paySuccess(paySuccessEvent);
             Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
-            doChargeBack(paySuccessEvent);
+            doChargeBack(paySuccessEvent,tradeOrderVO);
 
             return true;
         }
@@ -231,10 +232,10 @@ public class PayApplicationService {
         return orderPayRequest;
     }
 
-    private void doChargeBack(PaySuccessEvent paySuccessEvent) {
+    private void doChargeBack(PaySuccessEvent paySuccessEvent,TradeOrderVO tradeOrderVO) {
         RefundCreateRequest refundCreateRequest = new RefundCreateRequest();
         refundCreateRequest.setIdentifier(paySuccessEvent.getChannelStreamId());
-        refundCreateRequest.setMemo(REFUND_MEMO_PREFIX + paySuccessEvent.getChannelStreamId());
+        refundCreateRequest.setMemo(REFUND_MEMO_PREFIX + tradeOrderVO.getOrderId());
         refundCreateRequest.setPayOrderId(paySuccessEvent.getPayOrderId());
         refundCreateRequest.setRefundAmount(paySuccessEvent.getPaidAmount());
         refundCreateRequest.setRefundChannel(paySuccessEvent.getPayChannel());

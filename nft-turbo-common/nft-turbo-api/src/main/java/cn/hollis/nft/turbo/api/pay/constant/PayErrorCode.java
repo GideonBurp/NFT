@@ -12,6 +12,11 @@ public enum PayErrorCode implements ErrorCode {
     PAY_ORDER_CREATE_FAILED("PAY_ORDER_CREATE_FAILED", "支付单创建失败"),
 
     /**
+     * 订单已支付过
+     */
+    ORDER_IS_ALREADY_PAID("ORDER_IS_ALREADY_PAID", "订单已支付过"),
+
+    /**
      * 支付成功回调处理失败
      */
     PAY_SUCCESS_NOTICE_FAILED("PAY_SUCCESS_NOTICE_FAILED", "支付成功回调处理失败"),

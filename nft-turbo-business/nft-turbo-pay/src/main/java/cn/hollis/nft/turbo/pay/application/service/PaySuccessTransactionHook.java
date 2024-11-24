@@ -67,10 +67,9 @@ public class PaySuccessTransactionHook implements TransactionHook {
             UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(heldCollection.getUserId()));
             UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
 
-            SingleResponse<CollectionVO> collectionResponse = collectionFacadeService.queryById(heldCollection.getCollectionId());
             ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
             chainProcessRequest.setRecipient(userQueryResponse.getData().getBlockChainUrl());
-            chainProcessRequest.setClassId(collectionResponse.getData().getId().toString());
+            chainProcessRequest.setClassId(heldCollection.getCollectionId().toString());
             chainProcessRequest.setClassName(heldCollection.getName());
             chainProcessRequest.setSerialNo(heldCollection.getSerialNo());
             chainProcessRequest.setBizId(heldCollection.getId().toString());

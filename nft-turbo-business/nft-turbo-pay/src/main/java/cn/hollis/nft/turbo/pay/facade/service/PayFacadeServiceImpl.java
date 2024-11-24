@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.pay.facade.service;
 
+import cn.hollis.nft.turbo.api.pay.constant.PayErrorCode;
 import cn.hollis.nft.turbo.api.pay.constant.PayOrderState;
 import cn.hollis.nft.turbo.api.pay.model.PayOrderVO;
 import cn.hollis.nft.turbo.api.pay.request.PayCreateRequest;
@@ -52,10 +53,17 @@ public class PayFacadeServiceImpl implements PayFacadeService {
         PayCreateResponse response = new PayCreateResponse();
         PayOrder payOrder = payOrderService.create(payCreateRequest);
 
-        if (payOrder.getOrderState() != PayOrderState.TO_PAY) {
+        if (payOrder.getOrderState() == PayOrderState.PAYING) {
             response.setPayOrderId(payOrder.getPayOrderId());
             response.setPayUrl(payOrder.getPayUrl());
             response.setSuccess(true);
+            return response;
+        }
+
+        if (payOrder.isPaid()) {
+            response.setSuccess(false);
+            response.setResponseCode(PayErrorCode.ORDER_IS_ALREADY_PAID.getCode());
+            response.setResponseMessage(PayErrorCode.ORDER_IS_ALREADY_PAID.getMessage());
             return response;
         }
 
