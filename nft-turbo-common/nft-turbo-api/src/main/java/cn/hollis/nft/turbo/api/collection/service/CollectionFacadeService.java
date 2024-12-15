@@ -113,6 +113,8 @@ public interface CollectionFacadeService {
      */
     public PageResponse<HeldCollectionVO> pageQueryHeldCollection(HeldCollectionPageQueryRequest request);
 
+    public SingleResponse<Long> queryHeldCollectionCount(String userId);
+
     /**
      * 根据id查询持有藏品
      *

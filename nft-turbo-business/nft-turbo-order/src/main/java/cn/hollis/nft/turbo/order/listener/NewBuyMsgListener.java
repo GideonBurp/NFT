@@ -42,8 +42,8 @@ public class NewBuyMsgListener {
 
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
             BeanUtils.copyProperties(orderCreateRequest, orderCreateAndConfirmRequest);
-            orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
-            orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
+            orderCreateAndConfirmRequest.setOperator(orderCreateRequest.getBuyerId());
+            orderCreateAndConfirmRequest.setOperatorType(UserType.CUSTOMER);
             orderCreateAndConfirmRequest.setOperateTime(new Date());
 
             OrderResponse orderResponse = orderFacadeService.createAndConfirm(orderCreateAndConfirmRequest);

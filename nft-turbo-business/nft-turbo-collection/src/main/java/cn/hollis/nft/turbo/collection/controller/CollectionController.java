@@ -84,6 +84,20 @@ public class CollectionController {
     }
 
     /**
+     * 用户持有藏品列表
+     *
+     * @param
+     * @return 结果
+     */
+    @GetMapping("/heldCollectionCount")
+    public Result<Long> heldCollectionCount() {
+        String userId = (String) StpUtil.getLoginId();
+
+        SingleResponse<Long> response = collectionFacadeService.queryHeldCollectionCount(userId);
+        return Result.success(response.getData());
+    }
+
+    /**
      * 用户持有藏品详情
      *
      * @param

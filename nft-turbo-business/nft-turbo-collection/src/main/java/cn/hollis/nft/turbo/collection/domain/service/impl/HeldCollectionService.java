@@ -139,6 +139,12 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return retList.get(0);
     }
 
+    public long queryHeldCollectionCount(String userId){
+        QueryWrapper wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        return this.count(wrapper);
+    }
+
     public PageResponse<HeldCollection> pageQueryByState(HeldCollectionPageQueryRequest request) {
         Page<HeldCollection> page = new Page<>(request.getCurrentPage(), request.getPageSize());
         QueryWrapper<HeldCollection> wrapper = new QueryWrapper<>();

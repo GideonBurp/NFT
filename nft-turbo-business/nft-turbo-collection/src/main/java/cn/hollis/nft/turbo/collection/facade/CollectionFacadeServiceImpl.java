@@ -256,6 +256,11 @@ public class CollectionFacadeServiceImpl implements CollectionFacadeService {
     }
 
     @Override
+    public SingleResponse<Long> queryHeldCollectionCount(String userId) {
+        return SingleResponse.of(heldCollectionService.queryHeldCollectionCount(userId));
+    }
+
+    @Override
     public SingleResponse<HeldCollectionVO> queryHeldCollectionById(Long heldCollectionId) {
         HeldCollection transferCollection = heldCollectionService.queryById(heldCollectionId);
         return SingleResponse.of(HeldCollectionConvertor.INSTANCE.mapToVo(transferCollection));

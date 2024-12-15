@@ -253,6 +253,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         switch (orderEvent) {
             case PAY:
             case CANCEL:
+            case CREATE_AND_CONFIRM:
                 return existOrder.getBuyerId().equals(operator);
             case TIME_OUT:
             case CONFIRM:
