@@ -42,6 +42,9 @@ public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
         wrapper.eq("buyer_id", buyerId);
         if (state != null) {
             wrapper.eq("order_state", state);
+        } else {
+            //不查询 CREATE 的订单
+            wrapper.in("order_state", TradeOrderState.CONFIRM.name(), TradeOrderState.PAID.name(), TradeOrderState.FINISH.name(), TradeOrderState.CLOSED.name());
         }
         wrapper.orderBy(true, false, "gmt_create");
 
