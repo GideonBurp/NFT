@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.admin.param;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,12 +18,13 @@ public class AdminCollectionModifyParam {
     /**
      * '藏品id'
      */
+    @NotNull(message = "藏品id不能为空")
     private Long collectionId;
 
     /**
      * '藏品数量'
      */
-    private Long quantity;
+    private Integer quantity;
 
 
     /**

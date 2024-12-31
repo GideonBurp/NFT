@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static cn.hollis.nft.turbo.admin.infrastructure.exception.AdminErrorCode.ADMIN_UPLOAD_PICTURE_FAIL;
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.COMMON_TIME_PATTERN;
 
 /**
  * 藏品后台管理
@@ -82,7 +83,7 @@ public class CollectionAdminController {
         request.setCover(param.getCover());
         request.setCreatorId(userId);
         request.setCreateTime(new Date());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat(COMMON_TIME_PATTERN);
         request.setSaleTime(sdf.parse(param.getSaleTime()));
 
         CollectionChainResponse response = collectionManageFacadeService.create(request);
