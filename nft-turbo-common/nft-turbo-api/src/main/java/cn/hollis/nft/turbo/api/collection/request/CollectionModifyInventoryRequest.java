@@ -1,6 +1,6 @@
 package cn.hollis.nft.turbo.api.collection.request;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,11 +22,11 @@ public class CollectionModifyInventoryRequest extends BaseCollectionRequest {
     /**
      * '藏品数量'
      */
-    private Long quantity;
+    private Integer quantity;
 
 
     @Override
-    public CollectionEvent getEventType() {
-        return CollectionEvent.MODIFY_INVENTORY;
+    public GoodsEvent getEventType() {
+        return GoodsEvent.MODIFY_INVENTORY;
     }
 }

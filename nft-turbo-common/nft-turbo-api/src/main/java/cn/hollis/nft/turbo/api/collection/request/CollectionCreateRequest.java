@@ -3,7 +3,7 @@ package cn.hollis.nft.turbo.api.collection.request;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,7 +63,7 @@ public class CollectionCreateRequest extends BaseCollectionRequest {
     private String creatorId;
 
     @Override
-    public CollectionEvent getEventType() {
-        return CollectionEvent.CHAIN;
+    public GoodsEvent getEventType() {
+        return GoodsEvent.CHAIN;
     }
 }

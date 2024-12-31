@@ -4,6 +4,7 @@ package cn.hollis.nft.turbo.api.collection.constant;
  * 藏品展示状态
  *
  * @author Hollis
+ * @deprecated 请使用 GoodsState
  */
 public  enum CollectionVoState {
 

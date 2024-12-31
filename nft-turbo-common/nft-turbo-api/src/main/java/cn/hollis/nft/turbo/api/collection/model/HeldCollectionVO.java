@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.api.collection.model;
 
+import cn.hollis.nft.turbo.api.collection.constant.CollectionRarity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,6 +43,16 @@ public class HeldCollectionVO implements Serializable {
      * 购入价格
      */
     private BigDecimal purchasePrice;
+
+    /**
+     * 参考价格
+     */
+    private BigDecimal referencePrice;
+
+    /**
+     * 稀有度
+     */
+    private CollectionRarity rarity;
 
     /**
      * '藏品id'

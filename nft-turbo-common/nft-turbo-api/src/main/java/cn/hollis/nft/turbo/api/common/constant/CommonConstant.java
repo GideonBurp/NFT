@@ -21,4 +21,9 @@ public class CommonConstant {
      * 应用名称
      */
     public static final String APP_NAME = "NFTurbo";
+
+    /**
+     * 标准时间格式
+     */
+    public static final String COMMON_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 }

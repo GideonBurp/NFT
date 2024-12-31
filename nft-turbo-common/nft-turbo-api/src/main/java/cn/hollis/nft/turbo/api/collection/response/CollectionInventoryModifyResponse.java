@@ -20,5 +20,5 @@ public class CollectionInventoryModifyResponse extends CollectionModifyResponse 
     /**
      * 修改的数量
      */
-    private Long quantityModified;
+    private Integer quantityModified;
 }

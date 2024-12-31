@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.api.order.request;
 
+import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderEvent;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,14 +18,19 @@ public class OrderConfirmRequest extends BaseOrderUpdateRequest {
     private String buyerId;
 
     /**
-     * 藏品Id
+     * 商品Id
      */
-    private Long collectionId;
+    private String goodsId;
+
+    /**
+     * 商品类型
+     */
+    private GoodsType goodsType;
 
     /**
      * 数量
      */
-    private Long itemCount;
+    private Integer itemCount;
 
     @Override
     public TradeOrderEvent getOrderEvent() {

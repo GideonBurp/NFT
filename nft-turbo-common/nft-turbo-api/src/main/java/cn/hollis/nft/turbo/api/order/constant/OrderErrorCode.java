@@ -37,14 +37,24 @@ public enum OrderErrorCode implements ErrorCode {
     ORDER_STATE_TRANSFER_ILLEGAL("ORDER_STATE_TRANSFER_ILLEGAL", "订单状态转移非法"),
 
     /**
-     * 库存扣件失败
+     * 库存扣减失败
      */
-    INVENTORY_DEDUCT_FAILED("INVENTORY_DEDUCT_FAILED", "库存扣减失败"),
+    INVENTORY_DECREASE_FAILED("INVENTORY_DECREASE_FAILED", "库存扣减失败"),
+
+    /**
+     * 库存增加失败
+     */
+    INVENTORY_INCREASE_FAILED("INVENTORY_INCREASE_FAILED", "库存增加失败"),
 
     /**
      * 订单创建校验失败
      */
     ORDER_CREATE_VALID_FAILED("ORDER_CREATE_VALID_FAILED", "订单创建校验失败"),
+
+    /**
+     * 订单创建前置校验失败
+     */
+    ORDER_CREATE_PRE_VALID_FAILED("ORDER_CREATE_PRE_VALID_FAILED", "订单创建前置校验失败"),
     /**
      * 订单已过期
      */
@@ -73,6 +83,11 @@ public enum OrderErrorCode implements ErrorCode {
      * 商品不可用
      */
     GOODS_NOT_AVAILABLE("GOODS_NOT_AVAILABLE", "商品不可用"),
+
+    /**
+     * 重复下单
+     */
+    DUPLICATED_BUY("DUPLICATED_BUY", "重复下单"),
 
     /**
      * 商品价格发生变化

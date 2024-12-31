@@ -1,7 +1,6 @@
 package cn.hollis.nft.turbo.api.collection.request;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
-import lombok.AllArgsConstructor;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +18,7 @@ import lombok.ToString;
 public class CollectionRemoveRequest extends BaseCollectionRequest {
 
     @Override
-    public CollectionEvent getEventType() {
-        return CollectionEvent.REMOVE;
+    public GoodsEvent getEventType() {
+        return GoodsEvent.REMOVE;
     }
 }

@@ -15,6 +15,11 @@ public enum ChainOperateTypeEnum {
     COLLECTION_CHAIN,
 
     /**
+     * 盲盒藏品上链
+     */
+    BLIND_BOX_CHAIN,
+
+    /**
      * 藏品铸造
      */
     COLLECTION_MINT,

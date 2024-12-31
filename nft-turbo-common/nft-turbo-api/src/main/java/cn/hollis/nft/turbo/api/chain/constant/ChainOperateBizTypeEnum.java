@@ -19,6 +19,10 @@ public enum ChainOperateBizTypeEnum {
      * 藏品
      */
     COLLECTION,
+    /**
+     * 盲盒
+     */
+    BLIND_BOX,
 
     /**
      * 链操作

@@ -2,7 +2,7 @@ package cn.hollis.nft.turbo.api.collection.request;
 
 import java.math.BigDecimal;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +28,7 @@ public class CollectionModifyPriceRequest extends BaseCollectionRequest {
 
 
     @Override
-    public CollectionEvent getEventType() {
-        return CollectionEvent.MODIFY_PRICE;
+    public GoodsEvent getEventType() {
+        return GoodsEvent.MODIFY_PRICE;
     }
 }

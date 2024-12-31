@@ -1,7 +1,7 @@
 package cn.hollis.nft.turbo.api.collection.model;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
-import cn.hollis.nft.turbo.api.collection.constant.CollectionVoState;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsState;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,11 +57,6 @@ public class CollectionVO extends BaseGoodsVO {
     private Long inventory;
 
     /**
-     * '状态'
-     */
-    private CollectionVoState state;
-
-    /**
      * '藏品创建时间'
      */
     private Date createTime;
@@ -85,22 +80,22 @@ public class CollectionVO extends BaseGoodsVO {
 
     public void setState(CollectionStateEnum state, Date saleTime, Long saleableInventory) {
         if (state.equals(CollectionStateEnum.INIT) || state.equals(CollectionStateEnum.REMOVED)) {
-            this.setState(CollectionVoState.NOT_FOR_SALE);
+            super.setState(GoodsState.NOT_FOR_SALE);
         }
 
         Instant now = Instant.now();
 
         if (now.compareTo(saleTime.toInstant()) >= 0) {
             if (saleableInventory > 0) {
-                this.setState(CollectionVoState.SELLING);
+                super.setState(GoodsState.SELLING);
             } else {
-                this.setState(CollectionVoState.SOLD_OUT);
+                super.setState(GoodsState.SOLD_OUT);
             }
         } else {
             if (ChronoUnit.MINUTES.between(now, saleTime.toInstant()) > DEFAULT_MIN_SALE_TIME) {
-                this.setState(CollectionVoState.WAIT_FOR_SALE);
+                super.setState(GoodsState.WAIT_FOR_SALE);
             } else {
-                this.setState(CollectionVoState.COMING_SOON);
+                super.setState(GoodsState.COMING_SOON);
             }
         }
     }
@@ -124,11 +119,6 @@ public class CollectionVO extends BaseGoodsVO {
     @Override
     public Integer getVersion() {
         return version;
-    }
-
-    @Override
-    public Boolean available() {
-        return this.state == CollectionVoState.SELLING;
     }
 
     @Override

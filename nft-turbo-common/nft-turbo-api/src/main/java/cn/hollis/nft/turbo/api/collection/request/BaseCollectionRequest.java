@@ -1,6 +1,6 @@
 package cn.hollis.nft.turbo.api.collection.request;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionEvent;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import cn.hollis.nft.turbo.base.request.BaseRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -32,5 +32,5 @@ public abstract class BaseCollectionRequest extends BaseRequest {
      * 获取事件类型
      * @return
      */
-    public abstract CollectionEvent getEventType();
+    public abstract GoodsEvent getEventType();
 }

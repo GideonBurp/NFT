@@ -1,5 +1,7 @@
 package cn.hollis.nft.turbo.api.goods.model;
 
+import cn.hollis.nft.turbo.api.goods.constant.GoodsState;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -7,6 +9,20 @@ import java.math.BigDecimal;
  * @author Hollis
  */
 public abstract class BaseGoodsVO implements Serializable {
+
+    /**
+     * '状态'
+     */
+    private GoodsState state;
+
+    public GoodsState getState() {
+        return state;
+    }
+
+    public void setState(GoodsState state) {
+        this.state = state;
+    }
+
     /**
      * 商品名称
      *
@@ -40,7 +56,9 @@ public abstract class BaseGoodsVO implements Serializable {
      *
      * @return
      */
-    public abstract Boolean available();
+    public Boolean available() {
+        return this.state == GoodsState.SELLING;
+    }
 
     /**
      * 价格
