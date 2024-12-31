@@ -25,10 +25,10 @@ public class StreamProducer {
         MessageBody message = new MessageBody()
                 .setIdentifier(UUID.randomUUID().toString())
                 .setBody(msg);
-        logger.info("send message : {} , {}", bingingName, JSON.toJSONString(message));
+        logger.info("send message : {} , {} , {}", bingingName, tag, JSON.toJSONString(message));
         boolean result = streamBridge.send(bingingName, MessageBuilder.withPayload(message).setHeader("TAGS", tag)
                 .build());
-        logger.info("send result : {} , {}", bingingName, result);
+        logger.info("send result : {} , {} , {}", bingingName, tag, result);
         return result;
     }
 

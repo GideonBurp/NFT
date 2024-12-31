@@ -4,3 +4,5 @@ spring:
       rocketmq:
         binder:
           name-server: ${nft.turbo.rocketmq.url}
+rocketmq:
+  name-server: ${nft.turbo.rocketmq.url}
