@@ -6,6 +6,8 @@ import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
 import cn.hollis.nft.turbo.api.order.model.TradeOrderVO;
@@ -20,8 +22,10 @@ import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.base.utils.RemoteCallWrapper;
+import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.sharding.id.DistributeID;
 import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
+import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
 import cn.hollis.nft.turbo.trade.exception.TradeErrorCode;
 import cn.hollis.nft.turbo.trade.exception.TradeException;
 import cn.hollis.nft.turbo.trade.param.BuyParam;
@@ -44,6 +48,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
+import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_PRE_VALID_FAILED;
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
 import static cn.hollis.nft.turbo.web.filter.TokenFilter.tokenThreadLocal;
 
@@ -67,6 +72,12 @@ public class TradeController {
 
     @Autowired
     private StreamProducer streamProducer;
+
+    @Autowired
+    private InventoryFacadeService inventoryFacadeService;
+
+    @Autowired
+    private OrderCreateValidator orderPreValidatorChain;
 
     /**
      * 下单
@@ -97,13 +108,27 @@ public class TradeController {
     public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
+        try {
+            orderPreValidatorChain.validate(orderCreateRequest);
+        } catch (OrderException e) {
+            throw new TradeException(e.getErrorCode().getMessage(), ORDER_CREATE_PRE_VALID_FAILED);
+        }
+
         boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
 
         if (!result) {
             throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
         }
 
-        return Result.success(orderCreateRequest.getOrderId());
+        //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
+        InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+        SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
+
+        if (response.getSuccess() && response.getData() != null) {
+            return Result.success(orderCreateRequest.getOrderId());
+        }
+
+        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
 
     @NotNull
