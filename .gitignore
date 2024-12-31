@@ -24,3 +24,6 @@ dist/
 nbdist/
 .DS_Store
 rebel.xml
+
+### 避免本地配置推送到服务器
+base.yml
