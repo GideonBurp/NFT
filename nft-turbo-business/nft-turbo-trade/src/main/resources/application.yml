@@ -12,12 +12,17 @@ spring:
           newBuy-out-0:
             producer:
               producerType: Trans
-              transactionListener: inventoryDeductTransactionListener
+              transactionListener: inventoryDecreaseTransactionListener
       bindings:
         newBuy-out-0:
           content-type: application/json
           destination: new-buy-topic
           group: trade-group
+          binder: rocketmq
+        orderClose-in-0:
+          content-type: application/json
+          destination: order-close-topic
+          group: order-group
           binder: rocketmq
 
 server:
