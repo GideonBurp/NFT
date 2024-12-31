@@ -3,6 +3,7 @@ package cn.hollis.nft.turbo.web.filter;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.BooleanUtils;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * @author Hollis
@@ -19,6 +21,8 @@ public class TokenFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 
     public static final ThreadLocal<String> tokenThreadLocal = new ThreadLocal<>();
+
+    public static final ThreadLocal<Boolean> stressThreadLocal = new ThreadLocal<>();
 
     private RedissonClient redissonClient;
 
@@ -39,6 +43,7 @@ public class TokenFilter implements Filter {
 
             // 从请求头中获取Token
             String token = httpRequest.getHeader("Authorization");
+            Boolean isStress = BooleanUtils.toBoolean(httpRequest.getHeader("isStress"));
 
             if (token == null || "null".equals(token) || "undefined".equals(token)) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -48,7 +53,7 @@ public class TokenFilter implements Filter {
             }
 
             // 校验Token的有效性
-            boolean isValid = checkTokenValidity(token);
+            boolean isValid = checkTokenValidity(token, isStress);
 
             if (!isValid) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -61,10 +66,11 @@ public class TokenFilter implements Filter {
             chain.doFilter(request, response);
         } finally {
             tokenThreadLocal.remove();
+            stressThreadLocal.remove();
         }
     }
 
-    private boolean checkTokenValidity(String token) {
+    private boolean checkTokenValidity(String token, Boolean isStress) {
         String luaScript = """
                 local value = redis.call('GET', KEYS[1])
                 redis.call('DEL', KEYS[1])
@@ -78,6 +84,11 @@ public class TokenFilter implements Filter {
                 RScript.ReturnType.STATUS,
                 Arrays.asList(token));
 
+        if (isStress) {
+            //如果是压测，则生成一个随机数，模拟 token
+            result = UUID.randomUUID().toString();
+            stressThreadLocal.set(isStress);
+        }
         tokenThreadLocal.set(result);
         return result != null;
     }
