@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.chain.domain.service.impl;
 
+import cn.hollis.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
 import cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum;
 import cn.hollis.nft.turbo.api.chain.constant.ChainType;
 import cn.hollis.nft.turbo.api.chain.request.ChainProcessRequest;
@@ -14,6 +15,7 @@ import cn.hollis.nft.turbo.chain.domain.entity.ChainRequest;
 import cn.hollis.nft.turbo.chain.domain.response.ChainResponse;
 import cn.hollis.nft.turbo.chain.domain.service.AbstractChainService;
 import com.alibaba.fastjson2.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +45,13 @@ public class MockChainServiceImpl extends AbstractChainService {
 
     @Override
     public ChainProcessResponse<ChainOperationData> chain(ChainProcessRequest chainProcessRequest) {
-        return doPostExecute(chainProcessRequest, ChainOperateTypeEnum.COLLECTION_CHAIN, chainRequest -> {
-        });
+        if (StringUtils.equals(ChainOperateBizTypeEnum.BLIND_BOX.name(), chainProcessRequest.getBizType())) {
+            return doPostExecute(chainProcessRequest, ChainOperateTypeEnum.BLIND_BOX_CHAIN, chainRequest -> {
+            });
+        } else {
+            return doPostExecute(chainProcessRequest, ChainOperateTypeEnum.COLLECTION_CHAIN, chainRequest -> {
+            });
+        }
     }
 
     @Override

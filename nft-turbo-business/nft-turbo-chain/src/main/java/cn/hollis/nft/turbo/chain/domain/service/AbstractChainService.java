@@ -35,7 +35,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum.COLLECTION_DESTROY;
-import static cn.hollis.nft.turbo.api.chain.constant.ChainOperateTypeEnum.COLLECTION_MINT;
 import static java.util.Objects.requireNonNull;
 
 /**

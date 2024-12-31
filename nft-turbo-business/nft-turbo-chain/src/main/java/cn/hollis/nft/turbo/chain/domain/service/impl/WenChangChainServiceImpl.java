@@ -21,6 +21,7 @@ import cn.hollis.nft.turbo.chain.infrastructure.utils.WenChangChainUtils;
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,8 +78,14 @@ public class WenChangChainServiceImpl extends AbstractChainService {
         Long currentTime = System.currentTimeMillis();
         String signature = WenChangChainUtils.signRequest(path, body, currentTime,
                 wenChangChainConfiguration.apiSecret());
+        ChainOperateTypeEnum chainOperateTypeEnum;
+        if (StringUtils.equals(ChainOperateBizTypeEnum.BLIND_BOX.name(), chainProcessRequest.getBizType())) {
+            chainOperateTypeEnum = ChainOperateTypeEnum.BLIND_BOX_CHAIN;
+        } else {
+            chainOperateTypeEnum = ChainOperateTypeEnum.COLLECTION_CHAIN;
 
-        return doPostExecute(chainProcessRequest, ChainOperateTypeEnum.COLLECTION_CHAIN, chainRequest -> chainRequest.build(body, path, signature, wenChangChainConfiguration.host(), currentTime));
+        }
+        return doPostExecute(chainProcessRequest, chainOperateTypeEnum, chainRequest -> chainRequest.build(body, path, signature, wenChangChainConfiguration.host(), currentTime));
     }
 
     @Override
@@ -132,7 +139,7 @@ public class WenChangChainServiceImpl extends AbstractChainService {
 
         var operateInfoId = chainOperateInfoService.insertInfo(ChainType.WEN_CHANG.name(),
                 chainQueryRequest.getOperationInfoId(), ChainOperateBizTypeEnum.CHAIN_OPERATION.name(), ChainOperateTypeEnum.COLLECTION_QUERY.name(),
-                JSON.toJSONString(chainQueryRequest),chainQueryRequest.getOperationId());
+                JSON.toJSONString(chainQueryRequest), chainQueryRequest.getOperationId());
 
         String path = "/v3/native/tx/" + chainQueryRequest.getOperationId();
         Long currentTime = System.currentTimeMillis();
