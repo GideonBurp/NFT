@@ -22,7 +22,8 @@ public class WxPayRefundBody {
     private String channel;
     @JSONField(name = "create_time")
     private Date createTime;
-    private String funds_account;
+    @JSONField(name = "funds_account")
+    private String fundsAccount;
     @JSONField(name = "out_refund_no")
     private String outRefundNo;
     @JSONField(name = "out_trade_no")

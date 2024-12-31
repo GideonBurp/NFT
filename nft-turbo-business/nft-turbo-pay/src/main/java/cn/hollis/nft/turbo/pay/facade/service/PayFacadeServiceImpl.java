@@ -8,7 +8,6 @@ import cn.hollis.nft.turbo.api.pay.request.PayQueryByBizNo;
 import cn.hollis.nft.turbo.api.pay.request.PayQueryCondition;
 import cn.hollis.nft.turbo.api.pay.request.PayQueryRequest;
 import cn.hollis.nft.turbo.api.pay.response.PayCreateResponse;
-import cn.hollis.nft.turbo.api.pay.response.PayQueryResponse;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;

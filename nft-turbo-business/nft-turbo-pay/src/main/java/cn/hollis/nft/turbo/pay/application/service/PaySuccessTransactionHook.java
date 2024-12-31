@@ -3,9 +3,8 @@ package cn.hollis.nft.turbo.pay.application.service;
 import cn.hollis.nft.turbo.api.chain.constant.ChainOperateBizTypeEnum;
 import cn.hollis.nft.turbo.api.chain.request.ChainProcessRequest;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
-import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO;
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
 import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
@@ -27,7 +26,7 @@ public class PaySuccessTransactionHook implements TransactionHook {
     /**
      * 从 Spring 的上下文中获取到 Bean
      */
-    CollectionFacadeService collectionFacadeService = (CollectionFacadeService) SpringContextHolder.getBean("collectionFacadeService");
+    CollectionReadFacadeService collectionFacadeService = (CollectionReadFacadeService) SpringContextHolder.getBean("collectionReadFacadeService");
 
     UserFacadeService userFacadeService = (UserFacadeService) SpringContextHolder.getBean("userFacadeService");
 

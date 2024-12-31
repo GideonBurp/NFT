@@ -1,13 +1,13 @@
 package cn.hollis.nft.turbo.pay.application.service;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionSaleBizType;
+import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
-import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
 import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
 import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
+import cn.hollis.nft.turbo.api.goods.request.GoodsSaleRequest;
+import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.OrderErrorCode;
 import cn.hollis.nft.turbo.api.order.model.TradeOrderVO;
@@ -62,7 +62,7 @@ public class PayApplicationService {
     private OrderFacadeService orderFacadeService;
 
     @Autowired
-    private CollectionFacadeService collectionFacadeService;
+    private GoodsFacadeService goodsFacadeService;
 
     @Autowired
     private CollectionManageFacadeService collectionManageFacadeService;
@@ -154,7 +154,7 @@ public class PayApplicationService {
         TradeOrderVO tradeOrderVO = response.getData();
 
         OrderPayRequest orderPayRequest = getOrderPayRequest(paySuccessEvent, payOrder);
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.pay(req), orderPayRequest, "orderFacadeService.pay",false);
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.pay(req), orderPayRequest, "orderFacadeService.pay", false);
 
         //如果订单已经被其他支付推进到支付成功，或者已经关单，则启动退款流程
         if (needChargeBack(orderResponse)) {
@@ -162,7 +162,7 @@ public class PayApplicationService {
 
             Boolean result = payOrderService.paySuccess(paySuccessEvent);
             Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
-            doChargeBack(paySuccessEvent,tradeOrderVO);
+            doChargeBack(paySuccessEvent, tradeOrderVO);
 
             return true;
         }
@@ -172,10 +172,17 @@ public class PayApplicationService {
             return false;
         }
 
-        CollectionSaleRequest collectionSaleRequest = getCollectionSaleRequest(tradeOrderVO);
-        CollectionSaleResponse collectionSaleResponse = RemoteCallWrapper.call(req -> collectionFacadeService.confirmSale(req), collectionSaleRequest, "collectionFacadeService.confirmSale");
+        GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
+        GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.confirmSale(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
 
-        TransactionHookManager.registerHook(new PaySuccessTransactionHook(collectionSaleResponse.getHeldCollectionId()));
+        switch (tradeOrderVO.getGoodsType()) {
+            case COLLECTION:
+                //只有藏品需要在支付成功后立即上链
+                TransactionHookManager.registerHook(new PaySuccessTransactionHook(goodsSaleResponse.getHeldCollectionId()));
+                break;
+            default:
+                //do nothing
+        }
 
         Boolean result = payOrderService.paySuccess(paySuccessEvent);
         Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
@@ -204,19 +211,20 @@ public class PayApplicationService {
         return true;
     }
 
-    private static CollectionSaleRequest getCollectionSaleRequest(TradeOrderVO tradeOrderVO) {
-        CollectionSaleRequest collectionSaleRequest = new CollectionSaleRequest();
-        collectionSaleRequest.setCollectionId(Long.valueOf(tradeOrderVO.getGoodsId()));
-        collectionSaleRequest.setIdentifier(tradeOrderVO.getOrderId());
-        collectionSaleRequest.setUserId(tradeOrderVO.getBuyerId());
-        collectionSaleRequest.setQuantity((long) tradeOrderVO.getItemCount());
-        collectionSaleRequest.setBizNo(tradeOrderVO.getOrderId());
-        collectionSaleRequest.setBizType(CollectionSaleBizType.PRIMARY_TRADE.name());
-        collectionSaleRequest.setName(tradeOrderVO.getGoodsName());
-        collectionSaleRequest.setCover(tradeOrderVO.getGoodsPicUrl());
-        collectionSaleRequest.setPurchasePrice(tradeOrderVO.getItemPrice());
+    private static GoodsSaleRequest getGoodsSaleRequest(TradeOrderVO tradeOrderVO) {
+        GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest();
+        goodsSaleRequest.setGoodsId(Long.valueOf(tradeOrderVO.getGoodsId()));
+        goodsSaleRequest.setGoodsType(tradeOrderVO.getGoodsType().name());
+        goodsSaleRequest.setIdentifier(tradeOrderVO.getOrderId());
+        goodsSaleRequest.setUserId(tradeOrderVO.getBuyerId());
+        goodsSaleRequest.setQuantity(tradeOrderVO.getItemCount());
+        goodsSaleRequest.setBizNo(tradeOrderVO.getOrderId());
+        goodsSaleRequest.setBizType(GoodsSaleBizType.PRIMARY_TRADE.name());
+        goodsSaleRequest.setName(tradeOrderVO.getGoodsName());
+        goodsSaleRequest.setCover(tradeOrderVO.getGoodsPicUrl());
+        goodsSaleRequest.setPurchasePrice(tradeOrderVO.getItemPrice());
 
-        return collectionSaleRequest;
+        return goodsSaleRequest;
     }
 
     private static OrderPayRequest getOrderPayRequest(PaySuccessEvent paySuccessEvent, PayOrder payOrder) {
@@ -232,7 +240,7 @@ public class PayApplicationService {
         return orderPayRequest;
     }
 
-    private void doChargeBack(PaySuccessEvent paySuccessEvent,TradeOrderVO tradeOrderVO) {
+    private void doChargeBack(PaySuccessEvent paySuccessEvent, TradeOrderVO tradeOrderVO) {
         RefundCreateRequest refundCreateRequest = new RefundCreateRequest();
         refundCreateRequest.setIdentifier(paySuccessEvent.getChannelStreamId());
         refundCreateRequest.setMemo(REFUND_MEMO_PREFIX + tradeOrderVO.getOrderId());
