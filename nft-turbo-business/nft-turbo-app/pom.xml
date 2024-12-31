@@ -35,6 +35,21 @@
 
         <dependency>
             <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-box</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-goods-interface</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-inventory</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-notice</artifactId>
         </dependency>
 

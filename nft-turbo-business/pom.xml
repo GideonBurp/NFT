@@ -25,13 +25,13 @@
     <modules>
         <module>nft-turbo-notice</module>
         <module>nft-turbo-chain</module>
-        <module>nft-turbo-collection</module>
         <module>nft-turbo-pay</module>
         <module>nft-turbo-app</module>
         <module>nft-turbo-order</module>
         <module>nft-turbo-user</module>
         <module>nft-turbo-trade</module>
         <module>nft-turbo-goods</module>
+        <module>nft-turbo-inventory</module>
     </modules>
 
 </project>

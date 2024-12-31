@@ -1,7 +1,9 @@
 package cn.hollis.nft.turbo;
 
+import cn.hollis.nft.turbo.api.box.service.BlindBoxManageFacadeService;
+import cn.hollis.nft.turbo.api.box.service.BlindBoxReadFacadeService;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
@@ -32,15 +34,22 @@ public class BusinessDubboConfiguration {
     private UserFacadeService userFacadeService;
 
     @DubboReference(version = "1.0.0")
-    private CollectionFacadeService collectionFacadeService;
+    private CollectionReadFacadeService collectionReadFacadeService;
 
     @DubboReference(version = "1.0.0")
     private GoodsFacadeService goodsFacadeService;
 
+    @DubboReference(version = "1.0.0")
+    private BlindBoxManageFacadeService blindBoxManageFacadeService;
+
+    @DubboReference(version = "1.0.0")
+    private BlindBoxReadFacadeService blindBoxReadFacadeService;
+
+
     @Bean
     @ConditionalOnMissingBean(name = "collectionFacadeService")
-    public CollectionFacadeService collectionFacadeService() {
-        return collectionFacadeService;
+    public CollectionReadFacadeService collectionFacadeService() {
+        return collectionReadFacadeService;
     }
 
     @Bean
@@ -74,4 +83,17 @@ public class BusinessDubboConfiguration {
     public GoodsFacadeService goodsFacadeService() {
         return goodsFacadeService;
     }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "blindBoxManageFacadeService")
+    public BlindBoxManageFacadeService blindBoxManageFacadeService() {
+        return blindBoxManageFacadeService;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "blindBoxReadFacadeService")
+    public BlindBoxReadFacadeService blindBoxReadFacadeService() {
+        return blindBoxReadFacadeService;
+    }
+
 }

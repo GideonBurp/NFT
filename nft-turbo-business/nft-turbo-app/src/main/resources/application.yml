@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   chain:
     type: WEN_CHANG
   application:
@@ -17,7 +17,7 @@ spring:
           chain-in-0:
             consumer:
               subscription:
-                expression: 'COLLECTION_MINT || COLLECTION_CHAIN' # 这里设置你希望订阅的Tag
+                expression: 'COLLECTION || BLIND_BOX' # 这里设置你希望订阅的Tag
           orderClose-out-0:
             producer:
               producerType: Trans
@@ -29,7 +29,7 @@ spring:
           newBuy-out-0:
             producer:
               producerType: Trans
-              transactionListener: inventoryDeductTransactionListener
+              transactionListener: inventoryDecreaseTransactionListener
       bindings:
         heldCollection-out-0:
           content-type: application/json
@@ -66,11 +66,11 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
-        newBuy-in-0:
-          content-type: application/json
-          destination: new-buy-topic
-          group: trade-group
-          binder: rocketmq
+#        newBuy-in-0:
+#          content-type: application/json
+#          destination: new-buy-topic
+#          group: trade-group
+#          binder: rocketmq
   shardingsphere:
     rules:
       sharding:
@@ -130,3 +130,10 @@ dubbo:
 seata:
   use-jdk-proxy: true
   enable-auto-data-source-proxy: false
+
+rocketmq:
+  consumer:
+    group: trade-group
+    # 一次拉取消息最大值，注意是拉取消息的最大值而非消费最大值
+    pull-batch-size: 64
+    consume-message-batch-max-size: 32
