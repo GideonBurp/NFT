@@ -21,7 +21,7 @@ spring:
         - id: nfturbo-business
           uri: lb://nfturbo-business
           predicates:
-            - Path=/trade/**,/order/**,/user/**,/collection/**,/wxPay/**
+            - Path=/trade/**,/order/**,/user/**,/collection/**,/wxPay/**,/box/**
 #        - id: nfturbo-collection
 #          uri: lb://nfturbo-collection
 #          predicates:
