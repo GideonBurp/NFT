@@ -293,8 +293,9 @@ public class OrderJob {
         confirmRequest.setOperateTime(new Date());
         confirmRequest.setOrderId(tradeOrder.getOrderId());
         confirmRequest.setBuyerId(tradeOrder.getBuyerId());
-        confirmRequest.setItemCount((long)tradeOrder.getItemCount());
-
+        confirmRequest.setItemCount(tradeOrder.getItemCount());
+        confirmRequest.setGoodsId(tradeOrder.getGoodsId());
+        confirmRequest.setGoodsType(tradeOrder.getGoodsType());
         orderFacadeService.confirm(confirmRequest);
     }
 }

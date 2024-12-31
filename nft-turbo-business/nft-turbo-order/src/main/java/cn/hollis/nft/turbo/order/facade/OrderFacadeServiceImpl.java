@@ -1,8 +1,10 @@
 package cn.hollis.nft.turbo.order.facade;
 
-import cn.hollis.nft.turbo.api.collection.request.CollectionSaleRequest;
-import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.goods.request.GoodsSaleRequest;
+import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.OrderErrorCode;
 import cn.hollis.nft.turbo.api.order.model.TradeOrderVO;
@@ -13,16 +15,16 @@ import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
 import cn.hollis.nft.turbo.api.user.response.UserQueryResponse;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
+import cn.hollis.nft.turbo.base.response.BaseResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.lock.DistributeLock;
+import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.entity.convertor.TradeOrderConvertor;
-import cn.hollis.nft.turbo.order.domain.exception.OrderException;
 import cn.hollis.nft.turbo.order.domain.service.OrderManageService;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
-import cn.hollis.nft.turbo.order.domain.validator.OrderCreateValidator;
-import cn.hollis.nft.turbo.order.wrapper.InventoryWrapperService;
+import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import com.alibaba.fastjson.JSON;
@@ -48,7 +50,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     private OrderReadService orderReadService;
 
     @Autowired
-    private InventoryWrapperService inventoryWrapperService;
+    private InventoryFacadeService inventoryFacadeService;
 
     @Autowired
     private StreamProducer streamProducer;
@@ -57,7 +59,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     private UserFacadeService userFacadeService;
 
     @Autowired
-    private CollectionFacadeService collectionFacadeService;
+    private GoodsFacadeService goodsFacadeService;
 
     @Autowired
     private OrderCreateValidator orderValidatorChain;
@@ -72,11 +74,13 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
             return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
 
-        Boolean preDeductResult = inventoryWrapperService.preDeduct(request);
-        if (preDeductResult) {
+        InventoryRequest inventoryRequest = new InventoryRequest(request);
+        SingleResponse<Boolean> decreaseResult = inventoryFacadeService.decrease(inventoryRequest);
+
+        if (decreaseResult.getSuccess()) {
             return orderService.create(request);
         }
-        throw new OrderException(OrderErrorCode.INVENTORY_DEDUCT_FAILED);
+        throw new OrderException(OrderErrorCode.INVENTORY_DECREASE_FAILED);
     }
 
     @Override
@@ -94,12 +98,13 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @Override
     @Facade
     public OrderResponse confirm(OrderConfirmRequest request) {
-        CollectionSaleRequest collectionSaleRequest = new CollectionSaleRequest();
-        collectionSaleRequest.setUserId(request.getBuyerId());
-        collectionSaleRequest.setCollectionId(request.getCollectionId());
-        collectionSaleRequest.setIdentifier(request.getOrderId());
-        collectionSaleRequest.setQuantity(request.getItemCount());
-        CollectionSaleResponse response = collectionFacadeService.trySale(collectionSaleRequest);
+        GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest();
+        goodsSaleRequest.setUserId(request.getBuyerId());
+        goodsSaleRequest.setGoodsId(Long.valueOf(request.getGoodsId()));
+        goodsSaleRequest.setGoodsType(request.getGoodsType().name());
+        goodsSaleRequest.setIdentifier(request.getOrderId());
+        goodsSaleRequest.setQuantity(request.getItemCount());
+        BaseResponse response = goodsFacadeService.trySale(goodsSaleRequest);
 
         if (response.getSuccess()) {
             return orderService.confirm(request);
@@ -109,21 +114,21 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     }
 
     @Override
+    @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
     @Facade
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
         try {
             orderValidatorChain.validate(request);
         } catch (OrderException e) {
-            return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
+            return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
+        GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
 
-        CollectionSaleRequest collectionSaleRequest = new CollectionSaleRequest(request);
-        CollectionSaleResponse response = collectionFacadeService.trySaleWithoutHint(collectionSaleRequest);
+        GoodsSaleResponse response = goodsFacadeService.trySaleWithoutHint(goodsSaleRequest);
 
         if (!response.getSuccess()) {
             return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
         }
-
         return orderService.createAndConfirm(request);
     }
 

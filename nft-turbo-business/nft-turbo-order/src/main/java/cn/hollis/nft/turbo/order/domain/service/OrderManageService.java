@@ -10,7 +10,7 @@ import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.base.utils.BeanValidator;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrderStream;
-import cn.hollis.nft.turbo.order.domain.exception.OrderException;
+import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.listener.event.OrderCreateEvent;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderMapper;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderStreamMapper;

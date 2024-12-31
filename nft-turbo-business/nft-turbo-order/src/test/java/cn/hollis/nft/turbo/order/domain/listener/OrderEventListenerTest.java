@@ -1,7 +1,7 @@
 package cn.hollis.nft.turbo.order.domain.listener;
 
-import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.order.domain.OrderBaseTest;
@@ -31,13 +31,13 @@ public class OrderEventListenerTest extends OrderBaseTest {
     OrderReadService orderReadService;
 
     @MockBean
-    public CollectionFacadeService collectionFacadeService;
+    public GoodsFacadeService goodsFacadeService;
 
     @Test
     public void testOnApplicationEvent() {
-        CollectionSaleResponse response = new CollectionSaleResponse();
+        GoodsSaleResponse response = new GoodsSaleResponse();
         response.setSuccess(true);
-        when(collectionFacadeService.trySale(any())).thenReturn(response);
+        when(goodsFacadeService.trySale(any())).thenReturn(response);
 
         OrderCreateRequest orderCreateRequest = orderCreateRequest();
 

@@ -6,7 +6,6 @@ import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.listener.event.OrderCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -35,9 +34,9 @@ public class OrderEventListener {
         confirmRequest.setOperateTime(new Date());
         confirmRequest.setOrderId(tradeOrder.getOrderId());
         confirmRequest.setBuyerId(tradeOrder.getBuyerId());
-        confirmRequest.setItemCount((long)tradeOrder.getItemCount());
-        confirmRequest.setCollectionId(Long.valueOf(tradeOrder.getGoodsId()));
-
+        confirmRequest.setItemCount(tradeOrder.getItemCount());
+        confirmRequest.setGoodsType(tradeOrder.getGoodsType());
+        confirmRequest.setGoodsId(tradeOrder.getGoodsId());
         orderFacadeService.confirm(confirmRequest);
     }
 }

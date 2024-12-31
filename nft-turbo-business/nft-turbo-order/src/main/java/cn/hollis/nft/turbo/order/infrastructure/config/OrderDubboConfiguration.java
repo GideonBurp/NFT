@@ -1,7 +1,8 @@
 package cn.hollis.nft.turbo.order.infrastructure.config;
 
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -16,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 public class OrderDubboConfiguration {
 
     @DubboReference(version = "1.0.0")
-    private CollectionFacadeService collectionFacadeService;
+    private CollectionReadFacadeService collectionReadFacadeService;
 
     @DubboReference(version = "1.0.0")
     private UserFacadeService userFacadeService;
@@ -27,10 +28,13 @@ public class OrderDubboConfiguration {
     @DubboReference(version = "1.0.0")
     private GoodsFacadeService goodsFacadeService;
 
+    @DubboReference(version = "1.0.0")
+    InventoryFacadeService inventoryFacadeService;
+
     @Bean
     @ConditionalOnMissingBean(name = "collectionFacadeService")
-    public CollectionFacadeService collectionFacadeService() {
-        return this.collectionFacadeService;
+    public CollectionReadFacadeService collectionFacadeService() {
+        return this.collectionReadFacadeService;
     }
 
     @Bean
@@ -49,5 +53,11 @@ public class OrderDubboConfiguration {
     @ConditionalOnMissingBean(name = "goodsFacadeService")
     public GoodsFacadeService goodsFacadeService() {
         return this.goodsFacadeService;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "inventoryFacadeService")
+    public InventoryFacadeService inventoryFacadeService() {
+        return inventoryFacadeService;
     }
 }

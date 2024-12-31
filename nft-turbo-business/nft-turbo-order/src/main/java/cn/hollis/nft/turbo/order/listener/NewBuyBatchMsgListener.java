@@ -12,27 +12,28 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
-import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
+import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
+import org.apache.rocketmq.spring.core.RocketMQListener;
+import org.apache.rocketmq.spring.core.RocketMQPushConsumerLifecycleListener;
+import org.locationtech.jts.util.Assert;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
-/**
- * @author Hollis
- */
 @Component
 @Slf4j
-public class NewBuyMsgListener {
+@RocketMQMessageListener(topic = "new-buy-topic", consumerGroup = "trade-group")
+public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, RocketMQPushConsumerLifecycleListener {
 
     @Autowired
     private OrderFacadeService orderFacadeService;
@@ -43,18 +44,28 @@ public class NewBuyMsgListener {
     @Autowired
     private InventoryFacadeService inventoryFacadeService;
 
-    @Bean
-    Consumer<Message<List<MessageBody>>> newBuy() {
-        return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-            log.info("Received NewBuy Message messageId:{},msgCoung:{}，tag:{}", messageId, msg.getPayload().size());
-            msg.getPayload().parallelStream().forEach(messageBody -> {
-                OrderCreateRequest orderCreateRequest = JSON.parseObject(messageBody.getBody(), OrderCreateRequest.class);
-                log.info("Received NewBuy Message messageId:{},orderCreateRequest:{}", messageId, orderCreateRequest);
+    @Override
+    public void onMessage(List<Object> strings) {
+        log.info("NewBuyBatchMsgListener receive message: {}", strings);
+    }
+
+    @Override
+    public void prepareStart(DefaultMQPushConsumer consumer) {
+        consumer.setPullInterval(1000);
+//        consumer.setConsumeThreadMin(1);
+//        consumer.setConsumeThreadMax(1);
+        consumer.setConsumeMessageBatchMaxSize(128);
+        consumer.setPullBatchSize(64);
+        consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
+            log.info("NewBuyBatchMsgListener receive message size: {}", msgs.size());
+            msgs.stream().forEach(messageExt -> {
+                log.info("NewBuyBatchMsgListener receive message: {}", messageExt);
+                OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
                 doNewBuyExecute(orderCreateRequest);
             });
 
-        };
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+        });
     }
 
     public void doNewBuyExecute(OrderCreateRequest orderCreateRequest) {
@@ -87,5 +98,6 @@ public class NewBuyMsgListener {
                 }
             }
         }
+        Assert.isTrue(orderResponse.getSuccess(), "create order failed");
     }
 }

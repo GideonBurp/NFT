@@ -1,5 +1,9 @@
 package cn.hollis.nft.turbo.order.domain.validator;
 
+import cn.hollis.nft.turbo.order.validator.GoodsValidator;
+import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
+import cn.hollis.nft.turbo.order.validator.StockValidator;
+import cn.hollis.nft.turbo.order.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,13 +1,13 @@
 package cn.hollis.nft.turbo.order.domain.service;
 
-import cn.hollis.nft.turbo.api.collection.response.CollectionSaleResponse;
-import cn.hollis.nft.turbo.api.collection.service.CollectionFacadeService;
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
+import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
 import cn.hollis.nft.turbo.api.order.request.*;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.api.pay.constant.PayChannel;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
-import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.order.domain.OrderBaseTest;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderMapper;
@@ -41,13 +41,13 @@ public class OrderManageServiceTest extends OrderBaseTest {
     OrderReadService orderReadService;
 
     @MockBean
-    public CollectionFacadeService collectionFacadeService;
+    public GoodsFacadeService goodsFacadeService;
 
     @Before
     public void init() {
-        CollectionSaleResponse response = new CollectionSaleResponse();
+        GoodsSaleResponse response = new GoodsSaleResponse();
         response.setSuccess(true);
-        when(collectionFacadeService.trySale(any())).thenReturn(response);
+        when(goodsFacadeService.trySale(any())).thenReturn(response);
     }
 
     @Test
