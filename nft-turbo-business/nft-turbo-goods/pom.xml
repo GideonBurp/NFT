@@ -3,6 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>cn.hollis</groupId>
@@ -22,66 +23,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependencies>
+    <modules>
+        <module>nft-turbo-interface</module>
+        <module>nft-turbo-collection</module>
+        <module>nft-turbo-box</module>
+    </modules>
 
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-api</artifactId>
-        </dependency>
 
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-base</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-rpc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-es</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-config</artifactId>
-        </dependency>
-
-        <!--  TEST  -->
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.200</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
