@@ -128,7 +128,6 @@ public class BlindBoxItem extends BaseEntity {
         blindBoxItem.setCollectionCover(request.getCollectionCover());
         blindBoxItem.setReferencePrice(request.getReferencePrice());
         blindBoxItem.setRarity(request.getRarity());
-        blindBoxItem.setState(BlindBoxItemStateEnum.INIT);
         blindBoxItem.setLockVersion(1);
         return blindBoxItem;
     }

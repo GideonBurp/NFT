@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
  * @author Hollis
  */
 @Service
-@ConditionalOnProperty(name = "spring.elasticsearch.enable", havingValue = "false", matchIfMissing = true)
 public class BlindBoxDbService extends BaseBlindBoxService {
 
     @Override
