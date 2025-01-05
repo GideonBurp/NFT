@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author hollis
  */
 @SpringBootApplication(scanBasePackages = {"cn.hollis.nft.turbo.goods","cn.hollis.nft.turbo.collection","cn.hollis.nft.turbo.box"})
-@EnableDubbo
+@EnableDubbo(scanBasePackages = {"cn.hollis.nft.turbo.goods","cn.hollis.nft.turbo.collection","cn.hollis.nft.turbo.box"})
 public class NfTurboGoodsApplication {
 
     public static void main(String[] args) {
