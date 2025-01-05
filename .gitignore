@@ -26,4 +26,4 @@ nbdist/
 rebel.xml
 
 ### 避免本地配置推送到服务器
-base.yml
+nft-turbo-common/nft-turbo-base/src/main/resources/base.yml
