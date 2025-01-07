@@ -3,6 +3,7 @@ package cn.hollis.nft.turbo.pay.infrastructure;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
 import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
+import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -59,5 +60,14 @@ public class PayDubboConfiguration {
     @ConditionalOnMissingBean(name = "collectionManageFacadeService")
     public CollectionManageFacadeService collectionManageFacadeService() {
         return collectionManageFacadeService;
+    }
+
+    @DubboReference(version = "1.0.0")
+    private GoodsFacadeService goodsFacadeService;
+
+    @Bean
+    @ConditionalOnMissingBean(name = "goodsFacadeService")
+    public GoodsFacadeService goodsFacadeService() {
+        return goodsFacadeService;
     }
 }
