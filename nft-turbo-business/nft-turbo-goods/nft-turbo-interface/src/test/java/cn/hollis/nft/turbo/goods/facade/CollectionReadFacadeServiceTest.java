@@ -1,4 +1,4 @@
-package cn.hollis.nft.turbo.collection.facade;
+package cn.hollis.nft.turbo.goods.facade;
 
 import cn.hollis.nft.turbo.api.chain.response.ChainProcessResponse;
 import cn.hollis.nft.turbo.api.chain.response.data.ChainOperationData;
@@ -16,19 +16,15 @@ import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
-import cn.hollis.nft.turbo.collection.NfTurboCollectionApplication;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
+import cn.hollis.nft.turbo.goods.GoodsBaseTest;
 import cn.hollis.nft.turbo.limiter.SlidingWindowRateLimiter;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -36,10 +32,7 @@ import java.util.Date;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {NfTurboCollectionApplication.class})
-@ActiveProfiles("test")
-public class CollectionReadFacadeServiceTest {
+public class CollectionReadFacadeServiceTest extends GoodsBaseTest {
 
     @MockBean
     private RedissonClient redissonClient;
@@ -78,7 +71,7 @@ public class CollectionReadFacadeServiceTest {
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
         chainProcessResponse.setSuccess(true);
         when(chainFacadeService.chain(any())).thenReturn(chainProcessResponse);
-        SingleResponse<Boolean> collectionInventoryResponse=new SingleResponse<Boolean>();
+        SingleResponse<Boolean> collectionInventoryResponse = new SingleResponse<Boolean>();
         collectionInventoryResponse.setSuccess(true);
         collectionInventoryResponse.setData(true);
         when(inventoryFacadeService.init(any())).thenReturn(collectionInventoryResponse);
@@ -100,7 +93,7 @@ public class CollectionReadFacadeServiceTest {
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
         chainProcessResponse.setSuccess(true);
         when(chainFacadeService.chain(any())).thenReturn(chainProcessResponse);
-        SingleResponse<Boolean> collectionInventoryResponse=new SingleResponse<Boolean>();
+        SingleResponse<Boolean> collectionInventoryResponse = new SingleResponse<Boolean>();
         collectionInventoryResponse.setSuccess(true);
         collectionInventoryResponse.setData(true);
         when(inventoryFacadeService.init(any())).thenReturn(collectionInventoryResponse);
@@ -129,7 +122,7 @@ public class CollectionReadFacadeServiceTest {
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
         chainProcessResponse.setSuccess(true);
         when(chainFacadeService.chain(any())).thenReturn(chainProcessResponse);
-        SingleResponse<Boolean> collectionInventoryResponse=new SingleResponse<Boolean>();
+        SingleResponse<Boolean> collectionInventoryResponse = new SingleResponse<Boolean>();
         collectionInventoryResponse.setSuccess(true);
         collectionInventoryResponse.setData(true);
         when(inventoryFacadeService.init(any())).thenReturn(collectionInventoryResponse);
@@ -168,7 +161,7 @@ public class CollectionReadFacadeServiceTest {
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
         chainProcessResponse.setSuccess(true);
         when(chainFacadeService.chain(any())).thenReturn(chainProcessResponse);
-        SingleResponse<Boolean> collectionInventoryResponse=new SingleResponse<Boolean>();
+        SingleResponse<Boolean> collectionInventoryResponse = new SingleResponse<Boolean>();
         collectionInventoryResponse.setSuccess(true);
         collectionInventoryResponse.setData(true);
         when(inventoryFacadeService.init(any())).thenReturn(collectionInventoryResponse);

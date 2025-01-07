@@ -1,9 +1,11 @@
-package cn.hollis.nft.turbo.collection;
+package cn.hollis.nft.turbo.goods;
 
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
 import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
+import cn.hollis.nft.turbo.collection.facade.CollectionReadFacadeServiceImpl;
 import cn.hollis.nft.turbo.limiter.SlidingWindowRateLimiter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,27 +16,30 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {NfTurboCollectionApplication.class})
+@SpringBootTest(classes = {NfTurboGoodsApplication.class})
 @ActiveProfiles("test")
-public class CollectionBaseTest {
+public class GoodsBaseTest {
 
     @MockBean
-    private RedissonClient redissonClient;
+    protected RedissonClient redissonClient;
 
     @MockBean
     protected SlidingWindowRateLimiter slidingWindowRateLimiter;
 
     @MockBean
-    private ChainFacadeService chainFacadeService;
+    protected ChainFacadeService chainFacadeService;
 
     @MockBean
-    private UserFacadeService userFacadeService;
+    protected UserFacadeService userFacadeService;
 
     @MockBean
-    private CollectionReadFacadeService collectionReadFacadeService;
+    protected CollectionReadFacadeServiceImpl collectionReadFacadeService;
 
     @MockBean
-    private OrderFacadeService orderFacadeService;
+    protected OrderFacadeService orderFacadeService;
+
+    @MockBean
+    protected HeldCollectionService heldCollectionService;
 
     @Test
     public void test(){

@@ -1,8 +1,8 @@
-package cn.hollis.nft.turbo.collection.infrastructure.repo;
+package cn.hollis.nft.turbo.goods.infrastructure.repo;
 
-import cn.hollis.nft.turbo.collection.CollectionBaseTest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.infrastructure.es.mapper.CollectionEsMapper;
+import cn.hollis.nft.turbo.goods.GoodsBaseTest;
 import com.alibaba.fastjson.JSON;
 import org.dromara.easyes.core.biz.EsPageInfo;
 import org.dromara.easyes.core.biz.SAPageInfo;
@@ -19,7 +19,7 @@ import org.springframework.data.elasticsearch.core.query.Query;
 
 import java.util.List;
 
-public class EsCollectionRepositoryTest extends CollectionBaseTest {
+public class EsCollectionRepositoryTest extends GoodsBaseTest {
 
     @Autowired
     private DocumentOperations documentOperations;

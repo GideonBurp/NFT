@@ -1,13 +1,13 @@
-package cn.hollis.nft.turbo.collection.domain.service;
+package cn.hollis.nft.turbo.goods.domain.service;
 
 import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
+import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
 import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
-import cn.hollis.nft.turbo.collection.CollectionBaseTest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
-import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
+import cn.hollis.nft.turbo.goods.GoodsBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class CollectionServiceTest extends CollectionBaseTest {
+public class CollectionServiceTest extends GoodsBaseTest {
 
     @Autowired
     private CollectionService collectionService;
