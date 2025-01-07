@@ -79,6 +79,8 @@ public class PayApplicationService {
 
     /**
      * 用于测试Seata+ShardingJDBC
+     *
+     * 注意：如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上，否则无法回滚
      */
     @GlobalTransactional(rollbackFor = Exception.class)
     public void test() {
@@ -103,6 +105,7 @@ public class PayApplicationService {
         orderCreateRequest.setItemPrice(new BigDecimal("10.000000"));
         orderCreateRequest.setItemCount(1);
 
+        //注意：如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上，否则无法回滚
         OrderResponse response = orderFacadeService.create(orderCreateRequest);
         Assert.isTrue(response.getSuccess(), () -> new BizException(OrderErrorCode.UPDATE_ORDER_FAILED));
 
