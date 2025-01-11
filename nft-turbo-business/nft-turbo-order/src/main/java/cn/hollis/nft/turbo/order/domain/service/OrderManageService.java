@@ -122,8 +122,8 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
      */
     @Transactional(rollbackFor = Exception.class)
     @ShardingSphereTransactionType(TransactionType.BASE)
-    public OrderResponse pay(OrderPayRequest request) {
-        return doExecuteWithOutTrans(request, tradeOrder -> tradeOrder.pay(request));
+    public OrderResponse paySuccess(OrderPayRequest request) {
+        return doExecuteWithOutTrans(request, tradeOrder -> tradeOrder.paySuccess(request));
     }
 
     /**

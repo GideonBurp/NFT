@@ -10,6 +10,7 @@ import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBoxInventoryStream;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBoxItem;
+import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.box.domain.request.BlindBoxBindMatchRequest;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxItemService;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxRuleServiceFactory;
@@ -122,8 +123,10 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
         return true;
     }
 
+    @SuppressWarnings("AliDeprecation")
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @Deprecated
     public GoodsSaleResponse confirmSale(GoodsConfirmSaleRequest request) {
         //流水校验
         BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
@@ -166,6 +169,25 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
         GoodsSaleResponse blindBoxConfirmSaleResponse = new GoodsSaleResponse();
         blindBoxConfirmSaleResponse.setSuccess(true);
         return blindBoxConfirmSaleResponse;
+    }
+
+    @Override
+    public Boolean assign(BlindBoxAssignRequest request) {
+        BlindBox blindBox = this.getById(request.getBlindBoxId());
+        //调用分配的规则进行分配
+        BlindAllotBoxRule ruleName = blindBox.getAllocateRule();
+        BlindBoxBindMatchRequest matchRequest = new BlindBoxBindMatchRequest();
+        matchRequest.setBlindBoxId(request.getBlindBoxId());
+        Long blindBoxItemId = blindBoxRuleServiceFactory.get(ruleName).match(matchRequest);
+        Assert.notNull(blindBoxItemId, () -> new BlindBoxException(BLIND_BOX_ITEM_ALLOCATE_FAILED));
+
+        //更新blindBoxItem状态
+        BlindBoxItem blindBoxItem = new BlindBoxItem();
+        blindBoxItem.setId(blindBoxItemId);
+        blindBoxItem.assign(request, blindBox);
+        boolean updateResult = blindBoxItemService.updateById(blindBoxItem);
+        Assert.isTrue(updateResult, () -> new BlindBoxException(BLIND_BOX_UPDATE_FAILED));
+        return true;
     }
 
     @Transactional(rollbackFor = Exception.class)

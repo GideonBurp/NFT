@@ -65,7 +65,9 @@ public class CollectionInventoryStream extends BaseEntity {
 
     /**
      * '已占库存'
+     * @deprecated 这个字段不再使用，详见 CollecitonSerivce.confirmSale
      */
+    @Deprecated
     private Long occupiedInventory;
 
     /**
@@ -78,6 +80,7 @@ public class CollectionInventoryStream extends BaseEntity {
      */
     private String extendInfo;
 
+    @SuppressWarnings("AliDeprecation")
     public CollectionInventoryStream(Collection collection, String identifier, GoodsEvent streamType, Integer quantity) {
         this.collectionId = collection.getId();
         this.price = collection.getPrice();

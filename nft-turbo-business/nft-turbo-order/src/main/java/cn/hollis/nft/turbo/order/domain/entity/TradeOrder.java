@@ -194,7 +194,7 @@ public class TradeOrder extends BaseEntity {
         return this;
     }
 
-    public TradeOrder pay(OrderPayRequest request) {
+    public TradeOrder paySuccess(OrderPayRequest request) {
         this.setPayStreamId(request.getPayStreamId());
         this.setPaySucceedTime(request.getOperateTime());
         this.setPayChannel(request.getPayChannel());

@@ -148,8 +148,8 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
 
     @Override
     @Facade
-    public OrderResponse pay(OrderPayRequest request) {
-        OrderResponse response = orderService.pay(request);
+    public OrderResponse paySuccess(OrderPayRequest request) {
+        OrderResponse response = orderService.paySuccess(request);
         if (!response.getSuccess()) {
             TradeOrder existOrder = orderReadService.getOrder(request.getOrderId());
             if (existOrder != null && existOrder.isClosed()) {

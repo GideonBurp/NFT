@@ -4,6 +4,7 @@ import cn.hollis.nft.turbo.api.box.constant.BlindBoxItemStateEnum;
 import cn.hollis.nft.turbo.api.box.request.BlindBoxItemCreateRequest;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionRarity;
 import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
+import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -96,12 +97,21 @@ public class BlindBoxItem extends BaseEntity {
      */
     private String orderId;
 
+    @Deprecated
     public BlindBoxItem assign(GoodsConfirmSaleRequest request, BlindBox blindBox) {
         this.setState(BlindBoxItemStateEnum.ASSIGNED);
         this.setUserId(request.userId());
         this.setOrderId(request.bizNo());
         this.setAssignTime(new Date());
         this.setCollectionSerialNo(String.valueOf(blindBox.getOccupiedInventory() + 1));
+        return this;
+    }
+
+    public BlindBoxItem assign(BlindBoxAssignRequest request, BlindBox blindBox) {
+        this.setState(BlindBoxItemStateEnum.ASSIGNED);
+        this.setUserId(request.getUserId());
+        this.setOrderId(request.getOrderId());
+        this.setAssignTime(new Date());
         return this;
     }
 

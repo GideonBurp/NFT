@@ -44,19 +44,32 @@ public class HeldCollectionCreateRequest extends BaseHeldCollectionRequest {
     private CollectionRarity rarity;
 
     /**
-     * '藏品id'
+     * 商品 id
      */
-    private Long collectionId;
+    private Long goodsId;
+
+    /**
+     * @see cn.hollis.nft.turbo.api.goods.constant.GoodsType
+     */
+    private String goodsType;
 
     /**
      * '持有人id'
      */
-    private Long userId;
+    private String userId;
 
     /**
      * '藏品编号'
+     *
+     * @deprecated 外部不要在传入这个值了，不再使用，改为内部自己计算
      */
+    @Deprecated
     private String serialNo;
+
+    /**
+     * 序列号生成的 baseId，在商品为藏品时，该 id 为藏品 id，在商品为盲盒时，该 id 为盲盒 id
+     */
+    private String serialNoBaseId;
 
     /**
      * '业务Id'
@@ -68,9 +81,10 @@ public class HeldCollectionCreateRequest extends BaseHeldCollectionRequest {
      */
     private String bizType;
 
+    @Deprecated
     public HeldCollectionCreateRequest(GoodsConfirmSaleRequest goodsConfirmSaleRequest, String serialNo) {
-        this.collectionId = goodsConfirmSaleRequest.goodsId();
-        this.userId = Long.valueOf(goodsConfirmSaleRequest.userId());
+        this.goodsId = goodsConfirmSaleRequest.goodsId();
+        this.userId = goodsConfirmSaleRequest.userId();
         this.bizNo = goodsConfirmSaleRequest.bizNo();
         this.bizType = goodsConfirmSaleRequest.bizType();
         this.name = goodsConfirmSaleRequest.name();

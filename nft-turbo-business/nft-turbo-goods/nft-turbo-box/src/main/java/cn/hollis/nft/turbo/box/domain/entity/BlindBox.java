@@ -66,7 +66,9 @@ public class BlindBox extends BaseEntity {
 
     /**
      * '已占库存'
+     * @deprecated 这个字段不再使用，详见 CollecitonSerivce.confirmSale
      */
+    @Deprecated
     private Long occupiedInventory;
 
 

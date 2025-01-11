@@ -79,7 +79,7 @@ public class PayApplicationService {
 
     /**
      * 用于测试Seata+ShardingJDBC
-     *
+     * <p>
      * 注意：如果要测试这个方法，需要把orderService.create(request)方法上的 @ShardingSphereTransactionType(TransactionType.BASE) 注解加上，否则无法回滚
      */
     @GlobalTransactional(rollbackFor = Exception.class)
@@ -157,7 +157,7 @@ public class PayApplicationService {
         TradeOrderVO tradeOrderVO = response.getData();
 
         OrderPayRequest orderPayRequest = getOrderPayRequest(paySuccessEvent, payOrder);
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.pay(req), orderPayRequest, "orderFacadeService.pay", false);
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.paySuccess(req), orderPayRequest, "orderFacadeService.pay", false);
 
         //如果订单已经被其他支付推进到支付成功，或者已经关单，则启动退款流程
         if (needChargeBack(orderResponse)) {
@@ -175,8 +175,12 @@ public class PayApplicationService {
             return false;
         }
 
+        //confirmSale 被废弃，详Service.confirmSale
+        //GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
+        //GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.confirmSale(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
+
         GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
-        GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.confirmSale(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
+        GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.paySuccess(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
 
         switch (tradeOrderVO.getGoodsType()) {
             case COLLECTION:

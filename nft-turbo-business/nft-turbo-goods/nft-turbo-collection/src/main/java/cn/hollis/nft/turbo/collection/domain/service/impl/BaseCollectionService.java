@@ -244,8 +244,10 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         return true;
     }
 
+    @SuppressWarnings("AliDeprecation")
     @Transactional(rollbackFor = Exception.class)
     @Override
+    @Deprecated
     public GoodsSaleResponse confirmSale(GoodsConfirmSaleRequest request) {
 
         //流水校验

@@ -13,9 +13,14 @@ import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
+import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
+import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
+import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
+import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -37,6 +42,9 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     @Autowired
     private BlindBoxReadFacadeService blindBoxReadFacadeService;
+
+    @Autowired
+    private HeldCollectionService heldCollectionService;
 
     @Override
     public BaseGoodsVO getGoods(String goodsId, GoodsType goodsType) {
@@ -93,7 +101,9 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         return response;
     }
 
+
     @Override
+    @Deprecated
     public GoodsSaleResponse confirmSale(GoodsSaleRequest request) {
         GoodsConfirmSaleRequest confirmSaleRequest = new GoodsConfirmSaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity(), request.getBizNo(), request.getBizType(), request.getUserId(), request.getName(), request.getCover(), request.getPurchasePrice());
 
@@ -102,6 +112,36 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         return switch (goodsType) {
             case BLIND_BOX -> blindBoxService.confirmSale(confirmSaleRequest);
             case COLLECTION -> collectionService.confirmSale(confirmSaleRequest);
+            default -> throw new UnsupportedOperationException("unsupport goods type");
+        };
+    }
+
+    @Override
+    public GoodsSaleResponse paySuccess(GoodsSaleRequest request) {
+        GoodsSaleResponse response = new GoodsSaleResponse();
+        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+        return switch (goodsType) {
+            case BLIND_BOX -> {
+                BlindBoxAssignRequest blindBoxAssignRequest = new BlindBoxAssignRequest();
+                blindBoxAssignRequest.setBlindBoxId(request.getGoodsId());
+                blindBoxAssignRequest.setUserId(request.getUserId());
+                blindBoxAssignRequest.setOrderId(request.getBizNo());
+                blindBoxService.assign(blindBoxAssignRequest);
+                response.setSuccess(true);
+                yield response;
+            }
+            case COLLECTION -> {
+                HeldCollectionCreateRequest heldCollectionCreateRequest = new HeldCollectionCreateRequest();
+                BeanUtils.copyProperties(request, heldCollectionCreateRequest);
+                heldCollectionCreateRequest.setReferencePrice(request.getPurchasePrice());
+                heldCollectionCreateRequest.setSerialNoBaseId(request.getGoodsId().toString());
+
+                HeldCollection heldCollection = heldCollectionService.create(heldCollectionCreateRequest);
+                response.setSuccess(true);
+                response.setHeldCollectionId(heldCollection.getId());
+                yield response;
+            }
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };
     }

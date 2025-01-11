@@ -4,6 +4,7 @@ import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionDTO;
 import cn.hollis.nft.turbo.api.collection.request.HeldCollectionPageQueryRequest;
 import cn.hollis.nft.turbo.base.response.PageResponse;
+import cn.hollis.nft.turbo.cache.constant.CacheConstant;
 import cn.hollis.nft.turbo.collection.domain.constant.HeldCollectionEventType;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.HeldCollectionConvertor;
@@ -21,6 +22,7 @@ import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,16 +45,38 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
     @Autowired
     private StreamProducer streamProducer;
 
-    public HeldCollection create(HeldCollectionCreateRequest request) {
-        HeldCollection heldCollection = new HeldCollection();
-        heldCollection.init(request);
-        var saveResult = this.save(heldCollection);
-        if (!saveResult) {
-            throw new CollectionException(HELD_COLLECTION_SAVE_FAILED);
-        }
-        return heldCollection;
-    }
+    @Autowired
+    private RedissonClient redissonClient;
 
+    private static final String HELD_COLLECTION_BIND_BOX_PREFIX = "HC:SALES:";
+
+    public HeldCollection create(HeldCollectionCreateRequest request) {
+        HeldCollection existHeldCollection = queryByCollectionIdAndBizNo(request.getGoodsId(), request.getBizNo());
+        if (existHeldCollection != null) {
+            return existHeldCollection;
+        }
+
+        //HC:SALES:COLLECTION:1234 or HC:SALES:BIND_BOX:1234
+        HeldCollection heldCollection = new HeldCollection();
+        Long serialNo = redissonClient.getAtomicLong(HELD_COLLECTION_BIND_BOX_PREFIX + request.getGoodsType() + CacheConstant.CACHE_KEY_SEPARATOR + request.getSerialNoBaseId()).incrementAndGet();
+
+        try {
+            heldCollection.init(request, serialNo.toString());
+            var saveResult = this.save(heldCollection);
+            if (!saveResult) {
+                throw new CollectionException(HELD_COLLECTION_SAVE_FAILED);
+            }
+            return heldCollection;
+        } catch (Throwable throwable) {
+            //如果抛了异常，并且数据库未更新成功过，则回滚销量
+            heldCollection = queryByCollectionIdAndBizNo(request.getGoodsId(), request.getBizNo());
+            if (heldCollection == null) {
+                redissonClient.getAtomicLong(HELD_COLLECTION_BIND_BOX_PREFIX + request.getGoodsType() + CacheConstant.CACHE_KEY_SEPARATOR + request.getSerialNoBaseId()).decrementAndGet();
+                return null;
+            }
+            return heldCollection;
+        }
+    }
 
     public Boolean active(HeldCollectionActiveRequest request) {
         HeldCollection heldCollection = getById(request.getHeldCollectionId());
@@ -117,6 +141,17 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return getById(heldCollectionId);
     }
 
+    public HeldCollection queryByCollectionIdAndBizNo(Long collectionId, String bizNo) {
+        QueryWrapper<HeldCollection> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("collection_id", collectionId);
+        queryWrapper.eq("biz_no", bizNo);
+        List<HeldCollection> retList = list(queryWrapper);
+        if (CollectionUtils.isEmpty(retList)) {
+            return null;
+        }
+        return retList.get(0);
+    }
+
     public HeldCollection queryByCollectionIdAndSerialNo(Long collectionId, String serialNo) {
         QueryWrapper<HeldCollection> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("collection_id", collectionId);
@@ -139,7 +174,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return retList.get(0);
     }
 
-    public long queryHeldCollectionCount(String userId){
+    public long queryHeldCollectionCount(String userId) {
         QueryWrapper wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         return this.count(wrapper);

@@ -38,10 +38,10 @@ public class HeldCollectionServiceTest extends GoodsBaseTest {
 
         //create
         HeldCollectionCreateRequest mintRequest = new HeldCollectionCreateRequest();
-        mintRequest.setCollectionId(collection.getId());
+        mintRequest.setGoodsId(collection.getId());
         mintRequest.setIdentifier("123");
         mintRequest.setSerialNo("12345");
-        mintRequest.setUserId(1L);
+        mintRequest.setUserId("1");
         var heldCollection = heldCollectionService.create(mintRequest);
         Assert.assertTrue(heldCollection.getId() != null);
         Assert.assertTrue(heldCollection.getState() == HeldCollectionState.INIT);

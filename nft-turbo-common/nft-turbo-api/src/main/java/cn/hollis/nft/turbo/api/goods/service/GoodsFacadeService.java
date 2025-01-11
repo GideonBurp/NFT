@@ -42,8 +42,19 @@ public interface GoodsFacadeService {
      *
      * @param request
      * @return
+     * @deprecated 废弃，这个方法之前是依赖数据库做的藏品的序号的生成，但是这里存在并发问题。
+     * 当然也可以基于乐观锁/悲观锁的方式解决，但是会影响吞吐量，所以改用其他方式实现
      */
+    @Deprecated
     GoodsSaleResponse confirmSale(GoodsSaleRequest request);
+
+    /**
+     * 支付成功
+     *
+     * @param request
+     * @return
+     */
+    GoodsSaleResponse paySuccess(GoodsSaleRequest request);
 
     /**
      * 藏品出售的cancel阶段，做库存退还

@@ -58,7 +58,7 @@ public interface OrderFacadeService {
      * @param request
      * @return
      */
-    public OrderResponse pay(OrderPayRequest request);
+    public OrderResponse paySuccess(OrderPayRequest request);
 
     /**
      * 订单详情

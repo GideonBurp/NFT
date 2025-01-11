@@ -108,10 +108,10 @@ public class HeldCollection extends BaseEntity {
      */
     private String bizNo;
 
-    public HeldCollection init(HeldCollectionCreateRequest request) {
-        this.collectionId = request.getCollectionId();
-        this.serialNo = request.getSerialNo();
-        this.userId = request.getUserId().toString();
+    public HeldCollection init(HeldCollectionCreateRequest request,String serialNo) {
+        this.collectionId = request.getGoodsId();
+        this.serialNo = serialNo;
+        this.userId = request.getUserId();
         this.state = HeldCollectionState.INIT;
         this.holdTime = new Date();
         this.bizNo = request.getBizNo();

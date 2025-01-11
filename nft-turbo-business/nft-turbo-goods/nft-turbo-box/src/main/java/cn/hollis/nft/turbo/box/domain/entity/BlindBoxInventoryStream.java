@@ -65,7 +65,9 @@ public class BlindBoxInventoryStream extends BaseEntity {
 
     /**
      * '已占库存'
+     * @deprecated 这个字段不再使用，详见 CollecitonSerivce.confirmSale
      */
+    @Deprecated
     private Long occupiedInventory;
 
     /**
@@ -78,6 +80,7 @@ public class BlindBoxInventoryStream extends BaseEntity {
      */
     private String extendInfo;
 
+    @SuppressWarnings("AliDeprecation")
     public BlindBoxInventoryStream(BlindBox blindBox, String identifier, GoodsEvent streamType, Integer quantity) {
         this.blindBoxId = blindBox.getId();
         this.price = blindBox.getPrice();

@@ -7,6 +7,7 @@ import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
+import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -44,8 +45,19 @@ public interface BlindBoxService extends IService<BlindBox> {
      *
      * @param request
      * @return
+     * @deprecated 废弃，这个方法之前是依赖数据库做的藏品的序号的生成，但是这里存在并发问题。
+     * 当然也可以基于乐观锁/悲观锁的方式解决，但是会影响吞吐量，所以改用其他方式实现
      */
+    @Deprecated
     public GoodsSaleResponse confirmSale(GoodsConfirmSaleRequest request);
+
+    /**
+     * 盲盒分配
+     *
+     * @param request
+     * @return
+     */
+    public Boolean assign(BlindBoxAssignRequest request);
 
 
     /**

@@ -5,13 +5,13 @@ import cn.hollis.nft.turbo.api.collection.request.CollectionModifyInventoryReque
 import cn.hollis.nft.turbo.api.collection.request.CollectionModifyPriceRequest;
 import cn.hollis.nft.turbo.api.collection.request.CollectionRemoveRequest;
 import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
+import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
+import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
 import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
-import cn.hollis.nft.turbo.collection.domain.response.CollectionConfirmSaleResponse;
-import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
+import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -81,7 +81,11 @@ public interface CollectionService extends IService<Collection> {
      *
      * @param request
      * @return
+     * @deprecated 废弃，这个方法之前是依赖数据库做的藏品的序号的生成，但是这里存在并发问题。
+     * 当然也可以基于乐观锁/悲观锁的方式解决，但是会影响吞吐量，所以改用其他方式实现
+     * 新的实现方式见 {@link cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService#create(HeldCollectionCreateRequest)}
      */
+    @Deprecated
     public GoodsSaleResponse confirmSale(GoodsConfirmSaleRequest request);
 
     /**
