@@ -12,6 +12,7 @@ import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
 import cn.hollis.nft.turbo.api.order.model.TradeOrderVO;
 import cn.hollis.nft.turbo.api.order.request.OrderCancelRequest;
+import cn.hollis.nft.turbo.api.order.request.OrderCreateAndConfirmRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderTimeoutRequest;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
@@ -80,7 +81,7 @@ public class TradeController {
     private OrderCreateValidator orderPreValidatorChain;
 
     /**
-     * 下单
+     * 秒杀下单，热点商品
      *
      * @param
      * @return 订单号
@@ -99,7 +100,7 @@ public class TradeController {
     }
 
     /**
-     * 下单（不基于inventory hint的实现）
+     * 秒杀下单（不基于inventory hint的实现），热点商品
      *
      * @param
      * @return 幂等号
@@ -131,6 +132,33 @@ public class TradeController {
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
     }
 
+    /**
+     * 普通下单，非热点商品
+     *
+     * @param
+     * @return 订单号
+     */
+    @PostMapping("/normalBuy")
+    public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
+        OrderCreateAndConfirmRequest orderCreateRequest = getOrderCreateAndConfirmRequest(buyParam);
+
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.createAndConfirm(req), orderCreateRequest, "createOrder");
+
+        if (orderResponse.getSuccess()) {
+            //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
+            try {
+                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+                inventoryFacadeService.decrease(inventoryRequest);
+            } catch (Exception e) {
+                log.error("decrease inventory from redis failed", e);
+            }
+
+            return Result.success(orderCreateRequest.getOrderId());
+        }
+
+        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+    }
+
     @NotNull
     private OrderCreateRequest getOrderCreateRequest(BuyParam buyParam) {
         String userId = (String) StpUtil.getLoginId();
@@ -153,7 +181,36 @@ public class TradeController {
         orderCreateRequest.setGoodsPicUrl(goodsVO.getGoodsPicUrl());
         orderCreateRequest.setSnapshotVersion(goodsVO.getVersion());
         orderCreateRequest.setOrderAmount(orderCreateRequest.getItemPrice().multiply(new BigDecimal(orderCreateRequest.getItemCount())));
+
         return orderCreateRequest;
+    }
+
+    @NotNull
+    private OrderCreateAndConfirmRequest getOrderCreateAndConfirmRequest(BuyParam buyParam) {
+        String userId = (String) StpUtil.getLoginId();
+        String orderId = DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, userId);
+        //创建订单
+        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
+        orderCreateAndConfirmRequest.setOrderId(orderId);
+        orderCreateAndConfirmRequest.setIdentifier(tokenThreadLocal.get());
+        orderCreateAndConfirmRequest.setBuyerId(userId);
+        orderCreateAndConfirmRequest.setGoodsId(buyParam.getGoodsId());
+        orderCreateAndConfirmRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));
+        orderCreateAndConfirmRequest.setItemCount(buyParam.getItemCount());
+        BaseGoodsVO goodsVO = goodsFacadeService.getGoods(buyParam.getGoodsId(), GoodsType.valueOf(buyParam.getGoodsType()));
+        if (goodsVO == null || !goodsVO.available()) {
+            throw new TradeException(TradeErrorCode.GOODS_NOT_FOR_SALE);
+        }
+        orderCreateAndConfirmRequest.setItemPrice(goodsVO.getPrice());
+        orderCreateAndConfirmRequest.setSellerId(goodsVO.getSellerId());
+        orderCreateAndConfirmRequest.setGoodsName(goodsVO.getGoodsName());
+        orderCreateAndConfirmRequest.setGoodsPicUrl(goodsVO.getGoodsPicUrl());
+        orderCreateAndConfirmRequest.setSnapshotVersion(goodsVO.getVersion());
+        orderCreateAndConfirmRequest.setOrderAmount(orderCreateAndConfirmRequest.getItemPrice().multiply(new BigDecimal(orderCreateAndConfirmRequest.getItemCount())));
+        orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
+        orderCreateAndConfirmRequest.setOperatorType(UserType.PLATFORM);
+        orderCreateAndConfirmRequest.setOperateTime(new Date());
+        return orderCreateAndConfirmRequest;
     }
 
     /**
