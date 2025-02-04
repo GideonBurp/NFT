@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.order.listener;
 
+import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionDTO;
 import cn.hollis.nft.turbo.api.order.request.OrderFinishRequest;
@@ -36,7 +37,7 @@ public class HeldCollectionMsgListener {
             HeldCollectionDTO heldCollectionDTO = JSON.parseObject(msg.getPayload().getBody(), HeldCollectionDTO.class);
             log.info("Received HeldCollection Message messageId:{},heldCollectionDTO:{}，tag:{}", messageId, heldCollectionDTO, tag);
 
-            if (heldCollectionDTO.getState().equals(HeldCollectionState.ACTIVED.name())) {
+            if (heldCollectionDTO.getState().equals(HeldCollectionState.ACTIVED.name()) && !GoodsSaleBizType.AIR_DROP.name().equals(heldCollectionDTO.getBizType())) {
                 String orderId = heldCollectionDTO.getBizNo();
                 OrderFinishRequest orderFinishRequest = new OrderFinishRequest();
                 orderFinishRequest.setIdentifier("order_confirm_" + heldCollectionDTO.getId());

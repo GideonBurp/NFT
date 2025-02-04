@@ -40,11 +40,13 @@ public class CollectionEsService extends BaseCollectionService {
         Criteria criteria = null;
         if (StringUtils.isNotBlank(name)) {
             criteria = new Criteria("name").is(name).and(new Criteria("state").is(state), new Criteria("deleted").is("0"));
-        } else {
+        } else if ((StringUtils.isNotBlank(state))) {
             criteria = new Criteria("state").is(state).and(new Criteria("deleted").is("0"));
+        } else {
+            criteria = new Criteria("deleted").is("0");
         }
         PageRequest pageRequest = PageRequest.of(currentPage - 1, pageSize);
-        Query query = new CriteriaQuery(criteria).setPageable(pageRequest).addSort(Sort.by(Sort.Order.asc("create_time")));
+        Query query = new CriteriaQuery(criteria).setPageable(pageRequest).addSort(Sort.by(Sort.Order.desc("create_time")));
         SearchHits<Collection> searchHits = elasticsearchOperations.search(query, Collection.class);
 
         return PageResponse.of(searchHits.getSearchHits().stream().map(SearchHit::getContent).toList(), (int) searchHits.getTotalHits(), pageSize, currentPage);

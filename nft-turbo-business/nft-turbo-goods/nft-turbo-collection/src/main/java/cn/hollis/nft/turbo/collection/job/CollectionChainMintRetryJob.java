@@ -31,9 +31,6 @@ public class CollectionChainMintRetryJob {
     private HeldCollectionService heldCollectionService;
 
     @Autowired
-    private CollectionService collectionService;
-
-    @Autowired
     private ChainFacadeService chainFacadeService;
 
     @Autowired

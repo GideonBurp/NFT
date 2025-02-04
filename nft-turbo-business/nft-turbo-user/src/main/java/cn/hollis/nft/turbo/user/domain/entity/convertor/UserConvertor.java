@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.user.domain.entity.convertor;
 
+import cn.hollis.nft.turbo.api.user.response.data.BasicUserInfo;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.user.domain.entity.User;
 import org.mapstruct.Mapper;
@@ -26,6 +27,14 @@ public interface UserConvertor {
     @Mapping(target = "userId", source = "request.id")
     @Mapping(target = "createTime", source = "request.gmtCreate")
     public UserInfo mapToVo(User request);
+
+    /**
+     * 转换为简单的VO
+     * @param request
+     * @return
+     */
+    @Mapping(target = "userId", source = "request.id")
+    public BasicUserInfo mapToBasicVo(User request);
 
     /**
      * 转换为实体

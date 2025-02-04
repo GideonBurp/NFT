@@ -53,7 +53,7 @@ public interface OrderFacadeService {
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request);
 
     /**
-     * 订单支付
+     * 订单支付成功
      *
      * @param request
      * @return

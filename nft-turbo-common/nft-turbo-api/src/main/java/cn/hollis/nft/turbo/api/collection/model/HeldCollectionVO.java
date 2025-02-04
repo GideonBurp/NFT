@@ -27,7 +27,7 @@ public class HeldCollectionVO implements Serializable {
     /**
      * id
      */
-    private Long id;
+    private String id;
 
     /**
      * 藏品名称

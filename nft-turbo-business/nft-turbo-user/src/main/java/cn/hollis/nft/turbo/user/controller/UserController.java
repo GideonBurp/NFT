@@ -8,8 +8,8 @@ import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
 import cn.hollis.nft.turbo.api.user.request.UserActiveRequest;
 import cn.hollis.nft.turbo.api.user.request.UserAuthRequest;
 import cn.hollis.nft.turbo.api.user.request.UserModifyRequest;
-import cn.hollis.nft.turbo.api.user.request.UserQueryRequest;
 import cn.hollis.nft.turbo.api.user.response.UserOperatorResponse;
+import cn.hollis.nft.turbo.api.user.response.data.BasicUserInfo;
 import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.file.FileService;
 import cn.hollis.nft.turbo.user.domain.entity.User;
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.UUID;
 
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.APP_NAME_UPPER;
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
@@ -64,6 +63,15 @@ public class UserController {
             throw new UserException(USER_NOT_EXIST);
         }
         return Result.success(UserConvertor.INSTANCE.mapToVo(user));
+    }
+
+    @GetMapping("/queryUserByTel")
+    public Result<BasicUserInfo> queryUserByTel(String telephone) {
+        User user = userService.findByTelephone(telephone);
+        if (user == null) {
+            throw new UserException(USER_NOT_EXIST);
+        }
+        return Result.success(UserConvertor.INSTANCE.mapToBasicVo(user));
     }
 
     @PostMapping("/modifyNickName")
