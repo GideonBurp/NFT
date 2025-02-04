@@ -21,6 +21,11 @@ public enum PayOrderState {
     PAID,
 
     /**
+     * 支付失败
+     */
+    FAILED,
+
+    /**
      * 支付超时
      */
     EXPIRED,

@@ -197,6 +197,29 @@ public class PayApplicationService {
         return true;
     }
 
+    /**
+     * 支付失败（明确的支付失败，而不是处理中、系统异常等）处理：
+     * 1、订单状态不需要做任何操作
+     * 2、支付单状态关闭
+     * 3、藏品、链不需要任何操作
+     *
+     * @param payOrderId
+     * @return
+     */
+    @GlobalTransactional(rollbackFor = Exception.class)
+    public boolean payFailed(String payOrderId) {
+        PayOrder payOrder = payOrderService.queryByOrderId(payOrderId);
+
+        if (payOrder.isPayFailed()) {
+            return true;
+        }
+
+        Boolean result = payOrderService.payFailed(payOrderId);
+        Assert.isTrue(result, () -> new BizException(PayErrorCode.PAY_SUCCESS_NOTICE_FAILED));
+
+        return true;
+    }
+
     private static boolean needChargeBack(OrderResponse orderResponse) {
         return orderResponse.getResponseCode() != null
                 && (orderResponse.getResponseCode().equals(OrderErrorCode.ORDER_ALREADY_PAID.getCode())

@@ -18,6 +18,7 @@ CREATE TABLE `pay_order` (
  `memo` varchar(512) DEFAULT NULL COMMENT '备注',
  `order_state` varchar(64)  NOT NULL COMMENT '单据类型',
  `pay_succeed_time` datetime DEFAULT NULL COMMENT '支付成功时间',
+ `pay_failed_time` datetime DEFAULT NULL COMMENT '支付失败时间',
  `pay_expire_time` datetime DEFAULT NULL COMMENT '支付超时时间',
  `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',

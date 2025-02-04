@@ -27,6 +27,11 @@ public enum PayErrorCode implements ErrorCode {
     REFUND_CREATE_FAILED("REFUND_CREATE_FAILED", "退款创建失败"),
 
     /**
+     * 支付单状态校验失败
+     */
+    PAY_ORDER_STATUS_CHECK_FAILED("PAY_ORDER_STATUS_CHECK_FAILED", "支付单状态校验失败"),
+
+    /**
      * 退款成功回调处理失败
      */
     REFUND_SUCCESS_NOTICE_FAILED("REFUND_SUCCESS_NOTICE_FAILED", "退款成功回调处理失败");

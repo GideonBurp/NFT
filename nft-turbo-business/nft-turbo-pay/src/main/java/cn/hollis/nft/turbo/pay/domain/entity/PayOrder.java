@@ -119,13 +119,26 @@ public class PayOrder extends BaseEntity {
     private Date paySucceedTime;
 
     /**
+     * 支付失败时间
+     */
+    private Date payFailedTime;
+
+    /**
      * 支付超时时间
      */
     private Date payExpireTime;
 
     @JSONField(serialize = false)
     public boolean isPaid() {
-        return paidAmount.compareTo(BigDecimal.ZERO) > 0 && orderState == PayOrderState.PAID && channelStreamId != null && paySucceedTime != null;
+        return paidAmount.compareTo(BigDecimal.ZERO) > 0
+                && (orderState == PayOrderState.PAID  || orderState == PayOrderState.REFUNDED)
+                && channelStreamId != null
+                && paySucceedTime != null;
+    }
+
+    @JSONField(serialize = false)
+    public boolean isPayFailed() {
+        return orderState == PayOrderState.FAILED;
     }
 
     public static PayOrder create(PayCreateRequest payCreateRequest) {
@@ -156,6 +169,13 @@ public class PayOrder extends BaseEntity {
         Assert.equals(this.getOrderState(), PayOrderState.PAYING);
         this.setOrderState(PayOrderState.EXPIRED);
         this.payExpireTime = new Date();
+        return this;
+    }
+
+    public PayOrder payFailed() {
+        Assert.equals(this.getOrderState(), PayOrderState.PAYING);
+        this.setOrderState(PayOrderState.FAILED);
+        this.payFailedTime = new Date();
         return this;
     }
 

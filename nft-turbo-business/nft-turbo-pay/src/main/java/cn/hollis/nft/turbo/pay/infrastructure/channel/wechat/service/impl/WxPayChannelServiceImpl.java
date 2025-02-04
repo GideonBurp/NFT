@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
+import static cn.hollis.nft.turbo.pay.infrastructure.channel.wechat.constant.WxTradeState.PAYERROR;
 
 /**
  * @author hollis
@@ -83,7 +84,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                     //附加数据，暂时先设置为与商品信息一致
                     .setAttach(payChannelRequest.getAttach())
                     .setNotify_url(wxPayBean.getDomain().concat("/wxPay/payNotify"))
-                    .setAmount(new Amount().setTotal(Integer.valueOf(String.valueOf(payChannelRequest.getAmount()))));
+                    .setAmount(new Amount().setTotal(Integer.parseInt(String.valueOf(payChannelRequest.getAmount()))));
 
             log.info("request {}", JSONUtil.toJsonStr(unifiedOrderModel));
             IJPayHttpResponse response = WxPayApi.v3(
@@ -137,7 +138,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                 map.put("message", "签名错误");
             } else {
                 WxPayNotifyEntity wxPayNotifyEntity = JSON.parseObject(plainText, WxPayNotifyEntity.class);
-                if(wxPayNotifyEntity.getTradeState().equals(SUCCESS.name())){
+                if (wxPayNotifyEntity.getTradeState().equals(SUCCESS.name())) {
                     PaySuccessEvent paySuccessEvent = new PaySuccessEvent();
                     paySuccessEvent.setChannelStreamId(wxPayNotifyEntity.getTransactionId());
                     paySuccessEvent.setPaidAmount(MoneyUtils.centToYuan(Long.valueOf(wxPayNotifyEntity.getAmount().getTotal())));
@@ -156,8 +157,19 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                         map.put("code", "ERROR");
                         map.put("message", "内部处理失败");
                     }
-                }else{
-                    //todo 支付失败处理
+                } else if (wxPayNotifyEntity.getTradeState().equals(PAYERROR.name())) {
+                    //这里只针对明确的支付失败做处理，其他状态均不涉及或不处理，等最终状态通知
+                    boolean payFailedResult = payApplicationService.payFailed(wxPayNotifyEntity.getOutTradeNo());
+
+                    if (payFailedResult) {
+                        response.setStatus(200);
+                        map.put("code", SUCCESS.name());
+                        map.put("message", SUCCESS.name());
+                    } else {
+                        response.setStatus(500);
+                        map.put("code", "ERROR");
+                        map.put("message", "内部处理失败");
+                    }
                 }
             }
 

@@ -52,7 +52,6 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(payOrderId);
         payOrder.paying(payUrl);
 
-        //fixme 改成按照支付单号更新
         boolean saveResult = saveOrUpdate(payOrder);
         Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
 
@@ -72,6 +71,15 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     public Boolean payExpired(String payOrderId) {
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(payOrderId);
         payOrder.payExpired();
+
+        boolean saveResult = saveOrUpdate(payOrder);
+        Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));
+
+        return true;
+    }
+    public Boolean payFailed(String payOrderId) {
+        PayOrder payOrder = payOrderMapper.selectByPayOrderId(payOrderId);
+        payOrder.payFailed();
 
         boolean saveResult = saveOrUpdate(payOrder);
         Assert.isTrue(saveResult, () -> new BizException(RepoErrorCode.UPDATE_FAILED));

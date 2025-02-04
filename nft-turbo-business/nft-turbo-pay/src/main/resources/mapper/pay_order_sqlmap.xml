@@ -24,6 +24,7 @@
         <result property="memo" column="memo"/>
         <result property="orderState" column="order_state"/>
         <result property="paySucceedTime" column="pay_succeed_time"/>
+        <result property="payFailedTime" column="pay_failed_time"/>
         <result property="payExpireTime" column="pay_expire_time"/>
         <result property="deleted" column="deleted"/>
         <result property="lockVersion" column="lock_version"/>
