@@ -43,6 +43,9 @@ CREATE TABLE `collection` (
   `create_time` datetime DEFAULT NULL COMMENT '藏品创建时间',
   `sale_time` datetime DEFAULT NULL COMMENT '藏品发售时间',
   `sync_chain_time` datetime DEFAULT NULL COMMENT '藏品上链时间',
+  `book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间',
+  `book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间',
+  `can_book` int DEFAULT NULL COMMENT '是否可以预约',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
@@ -112,6 +115,24 @@ CREATE TABLE `held_collection` (
 ) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品持有表'
 ;
 
+CREATE TABLE `held_collection_stream` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+  `held_collection_id` bigint NOT NULL COMMENT '持有藏品的id',
+  `stream_type` varchar(64) NOT NULL COMMENT '流水类型',
+  `operator` varchar(64) NOT NULL COMMENT '操作者',
+  `identifier` varchar(128) NOT NULL COMMENT '幂等号',
+  `deleted` tinyint NULL COMMENT ' 逻辑删除',
+  `lock_version` int NULL COMMENT ' 版本号',
+  PRIMARY KEY (`id`),
+  KEY `idx_held_id`(`held_collection_id`) USING BTREE,
+  Unique KEY `uk_held_id_type_iden`(`held_collection_id`,`stream_type`,`identifier`) USING BTREE
+) ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8
+COMMENT='持有藏品流水表';
+
+
 /******************************************/
 /*   DatabaseName = nfturbo   */
 /*   TableName = notice   */
@@ -157,6 +178,7 @@ CREATE TABLE `pay_order` (
   `memo` varchar(512) DEFAULT NULL COMMENT '备注',
   `order_state` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '单据类型',
   `pay_succeed_time` datetime DEFAULT NULL COMMENT '支付成功时间',
+  `pay_failed_time` datetime DEFAULT NULL COMMENT '支付失败时间',
   `pay_expire_time` datetime DEFAULT NULL COMMENT '支付超时时间',
   `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
@@ -694,6 +716,9 @@ CREATE TABLE `blind_box` (
   `sync_chain_time` datetime DEFAULT NULL COMMENT '上链时间',
   `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
   `collection_configs` text COMMENT '藏品配置',
+  `book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间',
+  `book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间',
+  `can_book` int DEFAULT NULL COMMENT '是否可以预约',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
@@ -756,4 +781,44 @@ CREATE TABLE `blind_box_item` (
   KEY `idx_user` (`order_id`),
   KEY `idx_order` (`order_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4011 DEFAULT CHARSET=utf8mb3 COMMENT='盲盒条目表'
+;
+
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = collection_airdrop_stream   */
+/******************************************/
+CREATE TABLE `collection_airdrop_stream` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
+  `collection_id` bigint DEFAULT NULL COMMENT '藏品id',
+  `recipient_user_id` varchar(128) DEFAULT NULL COMMENT '接收用户ID',
+  `quantity` bigint DEFAULT NULL COMMENT '藏品空投数量',
+  `stream_type` varchar(128) DEFAULT NULL COMMENT '流水类型',
+  `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '幂等号',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品空投流水表'
+;
+
+
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = goods_book   */
+/******************************************/
+CREATE TABLE `goods_book` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT NULL COMMENT '最后更新时间',
+  `goods_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '商品名称',
+  `goods_type` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '商品类型',
+  `buyer_id` varchar(128) DEFAULT NULL COMMENT '买家id',
+  `buyer_type` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '买家类型',
+  `identifier` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '幂等号',
+  `book_succeed_time` datetime DEFAULT NULL COMMENT '预定成功时间',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 AVG_ROW_LENGTH=2340 ROW_FORMAT=DYNAMIC COMMENT='商品预定表'
 ;

@@ -1,3 +1,95 @@
+# 2025-02-04 新增预约记录表
+
+CREATE TABLE `goods_book` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT NULL COMMENT '最后更新时间',
+  `goods_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '商品名称',
+  `goods_type` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '商品类型',
+  `buyer_id` varchar(128) DEFAULT NULL COMMENT '买家id',
+  `buyer_type` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '买家类型',
+  `identifier` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '幂等号',
+  `book_succeed_time` datetime DEFAULT NULL COMMENT '预定成功时间',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 AVG_ROW_LENGTH=2340 ROW_FORMAT=DYNAMIC COMMENT='商品预定表'
+;
+
+# 2025-02-04 新增持有藏品流水表
+
+CREATE TABLE `held_collection_stream` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+  `held_collection_id` bigint NOT NULL COMMENT '持有藏品的id',
+  `stream_type` varchar(64) NOT NULL COMMENT '流水类型',
+  `operator` varchar(64) NOT NULL COMMENT '操作者',
+  `identifier` varchar(128) NOT NULL COMMENT '幂等号',
+  `deleted` tinyint NULL COMMENT ' 逻辑删除',
+  `lock_version` int NULL COMMENT ' 版本号',
+  PRIMARY KEY (`id`),
+  KEY `idx_held_id`(`held_collection_id`) USING BTREE,
+  Unique KEY `uk_held_id_type_iden`(`held_collection_id`,`stream_type`,`identifier`) USING BTREE
+) ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8
+COMMENT='持有藏品流水表';
+
+
+# 2025-02-04 新增空投表
+
+CREATE TABLE `collection_airdrop_stream` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
+  `collection_id` bigint DEFAULT NULL COMMENT '藏品id',
+  `recipient_user_id` varchar(128) DEFAULT NULL COMMENT '接收用户ID',
+  `quantity` bigint DEFAULT NULL COMMENT '藏品空投数量',
+  `stream_type` varchar(128) DEFAULT NULL COMMENT '流水类型',
+  `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '幂等号',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=111880 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品空投流水表'
+;
+
+# 2025-02-02 藏品&盲盒增加预约配置
+-- 如果你开启了 es 查询藏品的话，需要在es 和 canal 上增加相关配置，详见文档: https://thoughts.aliyun.com/workspaces/6655879cf459b7001ba42f1b/docs/67a1a63d3fb9180001ce6e2c
+
+ALTER TABLE `collection`
+  ADD COLUMN `book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间' AFTER `sync_chain_time`,
+  ADD COLUMN `book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间' AFTER `book_start_time`,
+  ADD COLUMN `can_book` int DEFAULT NULL COMMENT '是否可以预约' AFTER `book_end_time`,
+
+ALTER TABLE `blind_box`
+  ADD COLUMN `book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间' AFTER `collection_configs`,
+  ADD COLUMN `book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间' AFTER `book_start_time`,
+  ADD COLUMN `can_book` int DEFAULT NULL COMMENT '是否可以预约' AFTER `book_end_time`,
+
+#  2025-01-21 支付单增加支付失败时间
+ALTER TABLE `pay_order`
+    ADD COLUMN `pay_failed_time` datetime NULL COMMENT '支付失败时间' AFTER `refund_channel_stream_id`
+;
+
+#  2025-01-21 增加held_collection_stream表
+CREATE TABLE `held_collection_stream` (
+  `id` bigint NOT NULL COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+  `held_collection_id` bigint NOT NULL COMMENT '持有藏品的id',
+  `stream_type` varchar(64) NOT NULL COMMENT '流水类型',
+  `operator` varchar(64) NOT NULL COMMENT '操作者',
+  `identifier` varchar(128) NOT NULL COMMENT '幂等号',
+  `deleted` tinyint NULL COMMENT ' 逻辑删除',
+  `lock_version` int NULL COMMENT ' 版本号',
+  PRIMARY KEY (`id`),
+  KEY `idx_held_id`(`held_collection_id`) USING BTREE,
+  Unique KEY `uk_held_id_type_iden`(`held_collection_id`,`stream_type`,`identifier`) USING BTREE
+) ENGINE=InnoDB
+DEFAULT CHARACTER SET=utf8
+COMMENT='持有藏品流水表';
+
+
 # 2024-12-31 held_collection 增加参考价格和稀有度
 
 ALTER TABLE `held_collection`
@@ -30,6 +122,9 @@ CREATE TABLE `blind_box` (
   `sync_chain_time` datetime DEFAULT NULL COMMENT '上链时间',
   `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
   `collection_configs` text COMMENT '藏品配置',
+  `book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间',
+  `book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间',
+  `can_book` int DEFAULT NULL COMMENT '是否可以预约',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
