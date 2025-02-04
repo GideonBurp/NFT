@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -61,6 +62,23 @@ public class CollectionCreateRequest extends BaseCollectionRequest {
      * '藏品创建者id'
      */
     private String creatorId;
+
+
+    /**
+     * '藏品是否预约'
+     */
+    @NotNull(message = "藏品是否预约不能为空")
+    private Integer canBook;
+
+    /**
+     * '藏品预约开始时间'
+     */
+    private Date bookStartTime;
+
+    /**
+     * '藏品预约结束时间'
+     */
+    private Date bookEndTime;
 
     @Override
     public GoodsEvent getEventType() {

@@ -110,6 +110,11 @@ public class BlindBoxAdminController {
         request.setCreateTime(new Date());
         SimpleDateFormat sdf = new SimpleDateFormat(COMMON_TIME_PATTERN);
         request.setSaleTime(sdf.parse(param.getSaleTime()));
+        if (param.isCanBook()) {
+            request.setBookStartTime(sdf.parse(param.getBookStartTime()));
+            request.setBookEndTime(sdf.parse(param.getBookEndTime()));
+        }
+        request.setCanBook(param.isCanBook());
         List<BlindBoxItemCreateRequest> blindBoxItemCreateRequests = new ArrayList<>();
         // 使用 Stream API 进行转换
         param.getCollectionBoxParams().stream()

@@ -22,6 +22,9 @@
         <result property="allocateRule" column="ALLOCATE_RULE"/>
         <result property="collectionConfigs" column="COLLECTION_CONFIGS"/>
         <result property="creatorId" column="CREATOR_ID"/>
+        <result property="canBook" column="CAN_BOOK"/>
+        <result property="bookStartTime" column="BOOK_START_TIME"/>
+        <result property="bookEndTime" column="BOOK_END_TIME"/>
         <result property="deleted" column="DELETED"/>
         <result property="lockVersion" column="LOCK_VERSION"/>
     </resultMap>

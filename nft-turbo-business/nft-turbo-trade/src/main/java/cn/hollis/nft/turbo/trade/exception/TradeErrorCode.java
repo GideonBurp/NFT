@@ -40,6 +40,11 @@ public enum TradeErrorCode implements ErrorCode {
     ORDER_CANCEL_FAILED("ORDER_CANCEL_FAILED", "订单取消失败"),
 
     /**
+     * 商品预约失败
+     */
+    GOODS_BOOK_FAILED("GOODS_BOOK_FAILED", "商品预约失败"),
+
+    /**
      * 库存回滚失败
      */
     INVENTORY_ROLLBACK_FAILED("INVENTORY_ROLLBACK_FAILED", "库存回滚失败");

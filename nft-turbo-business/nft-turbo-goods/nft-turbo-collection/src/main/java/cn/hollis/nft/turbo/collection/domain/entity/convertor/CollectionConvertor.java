@@ -1,7 +1,9 @@
 package cn.hollis.nft.turbo.collection.domain.entity.convertor;
 
+import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsState;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionSnapshot;
 import org.mapstruct.Mapper;
@@ -9,6 +11,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,8 +22,6 @@ public interface CollectionConvertor {
 
     CollectionConvertor INSTANCE = Mappers.getMapper(CollectionConvertor.class);
 
-    public static final int DEFAULT_MIN_SALE_TIME = 60;
-
     /**
      * 转换为VO
      *
@@ -28,12 +29,20 @@ public interface CollectionConvertor {
      * @return
      */
     @Mapping(target = "inventory", source = "request.saleableInventory")
-    @Mapping(target = "state", ignore = true)
+    @Mapping(target = "state", expression = "java(setState(request.getState(), request.getSaleTime(), request.getSaleableInventory()))")
     public CollectionVO mapToVo(Collection request);
 
+    @Mapping(target = "saleableInventory", source = "request.inventory")
+    @Mapping(target = "state", ignore = true)
+    public Collection mapToEntity(CollectionVO request);
+
+    public default GoodsState setState(CollectionStateEnum state, Date saleTime, Long saleableInventory) {
+        return CollectionVO.getState(state, saleTime, saleableInventory);
+    }
 
     /**
      * 创建快照
+     *
      * @param request
      * @return
      */

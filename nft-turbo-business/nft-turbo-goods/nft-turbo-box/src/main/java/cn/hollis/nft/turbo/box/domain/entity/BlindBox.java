@@ -102,6 +102,22 @@ public class BlindBox extends BaseEntity {
      */
     private String collectionConfigs;
 
+    /**
+     * 预约开始时间
+     */
+    private Date bookStartTime;
+
+    /**
+     * 预约结束时间
+     */
+    private Date bookEndTime;
+
+    /**
+     * 是否预约
+     */
+    private Integer canBook;
+
+
     public static BlindBox create(BlindBoxCreateRequest request) {
         BlindBox blindBox = BlindBoxConvertor.INSTANCE.mapToEntity(request);
         blindBox.setOccupiedInventory(0L);

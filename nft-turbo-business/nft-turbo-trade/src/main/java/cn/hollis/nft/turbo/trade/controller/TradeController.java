@@ -5,6 +5,8 @@ import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
 import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
+import cn.hollis.nft.turbo.api.goods.request.GoodsBookRequest;
+import cn.hollis.nft.turbo.api.goods.response.GoodsBookResponse;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
 import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
@@ -29,6 +31,7 @@ import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
 import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
 import cn.hollis.nft.turbo.trade.exception.TradeErrorCode;
 import cn.hollis.nft.turbo.trade.exception.TradeException;
+import cn.hollis.nft.turbo.trade.param.BookParam;
 import cn.hollis.nft.turbo.trade.param.BuyParam;
 import cn.hollis.nft.turbo.trade.param.CancelParam;
 import cn.hollis.nft.turbo.trade.param.PayParam;
@@ -81,6 +84,30 @@ public class TradeController {
     private OrderCreateValidator orderPreValidatorChain;
 
     /**
+     * 预定
+     *
+     * @param
+     * @return 预定id
+     */
+    @PostMapping("/book")
+    public Result<Long> book(@Valid @RequestBody BookParam bookParam) {
+        String userId = (String) StpUtil.getLoginId();
+
+        GoodsBookRequest goodsBookRequest = new GoodsBookRequest();
+        goodsBookRequest.setGoodsId(bookParam.getGoodsId());
+        goodsBookRequest.setGoodsType(GoodsType.valueOf(bookParam.getGoodsType()));
+        //数藏比较特殊，一个商品只能预定一次，所以这里直接用userId+goodsType+goodsId作为标识了，如果支持多次预定的话，需要在再有个活动的概念，基于活动做预约
+        goodsBookRequest.setIdentifier(userId + "_" + bookParam.getGoodsType() + "_" + bookParam.getGoodsId());
+        goodsBookRequest.setBuyerId(userId);
+        GoodsBookResponse goodsBookResponse = goodsFacadeService.book(goodsBookRequest);
+        if (goodsBookResponse.getSuccess()) {
+            return Result.success(goodsBookResponse.getBookId());
+        }
+        throw new TradeException(TradeErrorCode.GOODS_BOOK_FAILED);
+    }
+
+    /**
+     * 下单
      * 秒杀下单，热点商品
      *
      * @param

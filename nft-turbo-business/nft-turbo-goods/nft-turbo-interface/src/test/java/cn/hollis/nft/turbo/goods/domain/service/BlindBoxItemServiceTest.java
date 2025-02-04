@@ -96,7 +96,7 @@ public class BlindBoxItemServiceTest extends GoodsBaseTest {
 //        when(collectionFacadeService.blindBoxCollectionSale(any())).thenReturn(blindBoxCollectionSaleResponse);
         SingleResponse<HeldCollectionVO> heldCollectionVOSingleResponse = new SingleResponse<>();
         HeldCollectionVO heldCollectionVO = new HeldCollectionVO();
-        heldCollectionVO.setId(1L);
+        heldCollectionVO.setId("1");
         heldCollectionVOSingleResponse.setData(heldCollectionVO);
         when(collectionReadFacadeService.queryHeldCollectionById(any())).thenReturn(heldCollectionVOSingleResponse);
         UserQueryResponse<UserInfo> userQueryResponse = new UserQueryResponse<>();

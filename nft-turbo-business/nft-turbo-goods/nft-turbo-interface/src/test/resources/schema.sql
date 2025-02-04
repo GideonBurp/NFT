@@ -1,3 +1,24 @@
+
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = goods_book   */
+/******************************************/
+CREATE TABLE IF NOT EXISTS `goods_book` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT NULL COMMENT '最后更新时间',
+  `goods_id` varchar(128) DEFAULT NULL COMMENT '商品名称',
+  `goods_type` varchar(128)  DEFAULT NULL COMMENT '商品类型',
+  `buyer_id` varchar(128) DEFAULT NULL COMMENT '买家id',
+  `buyer_type` varchar(128)  DEFAULT NULL COMMENT '买家类型',
+  `identifier` varchar(128)  DEFAULT NULL COMMENT '幂等号',
+  `book_succeed_time` datetime DEFAULT NULL COMMENT '预定成功时间',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`)
+) ;
+
+
 /******************************************/
 /*   DatabaseName = nfturbo   */
 /*   TableName = collection   */
@@ -21,6 +42,9 @@ CREATE TABLE IF NOT EXISTS  `collection` (
   `create_time` datetime DEFAULT NULL COMMENT '藏品创建时间',
   `sale_time` datetime DEFAULT NULL COMMENT '藏品发售时间',
   `sync_chain_time` datetime DEFAULT NULL COMMENT '藏品上链时间',
+  `book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间',
+  `book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间',
+   `can_book` int DEFAULT NULL COMMENT '是否可以预约',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
@@ -51,6 +75,8 @@ CREATE TABLE IF NOT EXISTS  `held_collection` (
    `delete_time` datetime DEFAULT NULL COMMENT '藏品销毁时间',
    `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
    `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+    `reference_price` decimal(18,6) DEFAULT NULL COMMENT ' 参考价格',
+    `rarity` varchar(64) DEFAULT NULL COMMENT ' 稀有度',
    PRIMARY KEY (`id`)
 )
 ;
@@ -109,6 +135,46 @@ CREATE TABLE IF NOT EXISTS  `collection_snapshot` (
        PRIMARY KEY (`id`)
 ) ;
 
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = collection_inventory_stream   */
+/******************************************/
+CREATE TABLE IF NOT EXISTS  `collection_inventory_stream` (
+   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+   `gmt_create` datetime NOT NULL COMMENT '创建时间',
+   `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
+   `collection_id` bigint DEFAULT NULL COMMENT '藏品id',
+   `changed_quantity` bigint DEFAULT NULL COMMENT '本次变更的数量',
+   `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
+   `quantity` bigint DEFAULT NULL COMMENT '藏品数量',
+   `state` varchar(128)  DEFAULT NULL COMMENT '状态',
+   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
+   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
+   `stream_type` varchar(128)  DEFAULT NULL COMMENT '流水类型',
+   `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
+   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+   `extend_info` varchar(512) DEFAULT NULL COMMENT '扩展信息',
+   PRIMARY KEY (`id`)
+) ;
+
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = collection_airdrop_stream   */
+/******************************************/
+CREATE TABLE IF NOT EXISTS `collection_airdrop_stream` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
+  `collection_id` bigint DEFAULT NULL COMMENT '藏品id',
+  `recipient_user_id` varchar(128) DEFAULT NULL COMMENT '接收用户ID',
+  `quantity` bigint DEFAULT NULL COMMENT '藏品空投数量',
+  `stream_type` varchar(128) DEFAULT NULL COMMENT '流水类型',
+  `identifier` varchar(128)  DEFAULT NULL COMMENT '幂等号',
+  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  PRIMARY KEY (`id`)
+) ;
 
 /******************************************/
 /*   DatabaseName = nfturbo   */
@@ -137,6 +203,7 @@ CREATE TABLE IF NOT EXISTS  `blind_box` (
  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
  PRIMARY KEY (`id`)
 ) ;
+
 
 /******************************************/
 /*   DatabaseName = nfturbo   */

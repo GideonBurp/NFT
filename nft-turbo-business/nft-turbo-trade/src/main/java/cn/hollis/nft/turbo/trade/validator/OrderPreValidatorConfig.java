@@ -1,8 +1,6 @@
 package cn.hollis.nft.turbo.trade.validator;
 
-import cn.hollis.nft.turbo.order.validator.GoodsValidator;
-import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
-import cn.hollis.nft.turbo.order.validator.UserValidator;
+import cn.hollis.nft.turbo.order.validator.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +19,17 @@ public class OrderPreValidatorConfig {
     @Autowired
     private UserValidator userValidator;
 
+    @Autowired
+    private GoodsBookValidator goodsBookValidator;
+
+    @Autowired
+    private StockValidator stockValidator;
+
     @Bean
     public OrderCreateValidator orderPreValidatorChain() {
         userValidator.setNext(goodsValidator);
+        goodsValidator.setNext(stockValidator);
+        stockValidator.setNext(goodsBookValidator);
         return userValidator;
     }
 

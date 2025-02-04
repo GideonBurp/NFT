@@ -1,17 +1,18 @@
 package cn.hollis.nft.turbo.box.domain.entity.convertor;
 
 import cn.hollis.nft.turbo.api.box.constant.BlindBoxStateEnum;
-import cn.hollis.nft.turbo.api.box.constant.BlindBoxVoState;
 import cn.hollis.nft.turbo.api.box.model.BlindBoxVO;
 import cn.hollis.nft.turbo.api.box.request.BlindBoxCreateRequest;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsState;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
+import org.apache.commons.lang3.BooleanUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,8 +23,6 @@ public interface BlindBoxConvertor {
 
     BlindBoxConvertor INSTANCE = Mappers.getMapper(BlindBoxConvertor.class);
 
-    public static final int DEFAULT_MIN_SALE_TIME = 60;
-
     /**
      * 转换为VO
      *
@@ -31,10 +30,12 @@ public interface BlindBoxConvertor {
      * @return
      */
     @Mapping(target = "inventory", source = "request.saleableInventory")
-    @Mapping(target = "state", ignore = true)
+    @Mapping(target = "state", expression = "java(setState(request.getState(), request.getSaleTime(), request.getSaleableInventory()))")
     public BlindBoxVO mapToVo(BlindBox request);
 
-
+    public default GoodsState setState(BlindBoxStateEnum state, Date saleTime, Long saleableInventory) {
+        return BlindBoxVO.getState(state, saleTime, saleableInventory);
+    }
 
     /**
      * 转换为实体
@@ -42,6 +43,7 @@ public interface BlindBoxConvertor {
      * @param request
      * @return
      */
+    @Mapping(target = "canBook", source = "canBook", qualifiedByName = "mapBooleanToInteger")
     public BlindBox mapToEntity(BlindBoxCreateRequest request);
 
     /**
@@ -52,31 +54,8 @@ public interface BlindBoxConvertor {
      */
     public List<BlindBoxVO> mapToVo(List<BlindBox> request);
 
-    /**
-     * 状态映射
-     *
-     * @param blindBox
-     * @return
-     */
-    default BlindBoxVoState transState(BlindBox blindBox) {
-
-        if (blindBox.getState().equals(BlindBoxStateEnum.INIT) || blindBox.getState().equals(BlindBoxStateEnum.REMOVED)) {
-            return BlindBoxVoState.NOT_FOR_SALE;
-        }
-
-        Instant now = Instant.now();
-
-        if (now.compareTo(blindBox.getSaleTime().toInstant()) >= 0) {
-            if (blindBox.getSaleableInventory() > 0) {
-                return BlindBoxVoState.SELLING;
-            } else {
-                return BlindBoxVoState.SOLD_OUT;
-            }
-        } else {
-            if (ChronoUnit.MINUTES.between(now, blindBox.getSaleTime().toInstant()) > DEFAULT_MIN_SALE_TIME) {
-                return BlindBoxVoState.WAIT_FOR_SALE;
-            }
-            return BlindBoxVoState.COMING_SOON;
-        }
+    @Named("mapBooleanToInteger")
+    default Integer mapBooleanToInteger(Boolean value) {
+        return BooleanUtils.toInteger(value);
     }
 }

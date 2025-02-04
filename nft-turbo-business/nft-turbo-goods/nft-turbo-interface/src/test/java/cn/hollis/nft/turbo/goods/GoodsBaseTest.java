@@ -1,9 +1,10 @@
 package cn.hollis.nft.turbo.goods;
 
+
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
-import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
+import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.facade.CollectionReadFacadeServiceImpl;
 import cn.hollis.nft.turbo.limiter.SlidingWindowRateLimiter;
@@ -21,10 +22,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class GoodsBaseTest {
 
     @MockBean
-    protected RedissonClient redissonClient;
+    private RedissonClient redissonClient;
+
 
     @MockBean
     protected SlidingWindowRateLimiter slidingWindowRateLimiter;
+
+    @MockBean
+    private CollectionService collectionService;
 
     @MockBean
     protected ChainFacadeService chainFacadeService;
@@ -42,7 +47,7 @@ public class GoodsBaseTest {
     protected HeldCollectionService heldCollectionService;
 
     @Test
-    public void test(){
+    public void test() {
 
     }
 }

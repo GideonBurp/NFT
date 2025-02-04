@@ -1,6 +1,5 @@
 package cn.hollis.nft.turbo.collection.domain.entity;
 
-import cn.hollis.nft.turbo.api.collection.constant.CollectionRarity;
 import cn.hollis.nft.turbo.api.collection.constant.CollectionStateEnum;
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
@@ -62,6 +61,7 @@ public class Collection extends BaseEntity {
     /**
      * '可售库存'
      */
+    @Field(name = "saleable_inventory", type = FieldType.Long)
     private Long saleableInventory;
 
     /**
@@ -79,6 +79,7 @@ public class Collection extends BaseEntity {
     /**
      * '藏品创建时间'
      */
+    @Field(name = "create_time", type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd HH:mm:ss || strict_date_optional_time || epoch_millis")
     private Date createTime;
 
     /**
@@ -90,6 +91,7 @@ public class Collection extends BaseEntity {
     /**
      * '藏品上链时间'
      */
+    @Field(name = "sync_chain_time", type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd HH:mm:ss || strict_date_optional_time || epoch_millis")
     private Date syncChainTime;
 
     /**
@@ -101,6 +103,24 @@ public class Collection extends BaseEntity {
      * 版本
      */
     private Integer version;
+
+    /**
+     * 预约开始时间
+     */
+    @Field(name = "book_start_time", type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd HH:mm:ss || strict_date_optional_time || epoch_millis")
+    private Date bookStartTime;
+
+    /**
+     * 预约结束时间
+     */
+    @Field(name = "book_end_time", type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd HH:mm:ss || strict_date_optional_time || epoch_millis")
+    private Date bookEndTime;
+
+    /**
+     * 是否预约
+     */
+    @Field(name = "can_book", type = FieldType.Integer)
+    private Integer canBook;
 
     public static Collection create(CollectionCreateRequest request) {
         Collection collection = CollectionConvertor.INSTANCE.mapToEntity(request);

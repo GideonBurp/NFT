@@ -4,6 +4,7 @@ import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
+import cn.hollis.nft.turbo.order.validator.GoodsBookValidator;
 import cn.hollis.nft.turbo.order.validator.GoodsValidator;
 import cn.hollis.nft.turbo.order.validator.StockValidator;
 import cn.hollis.nft.turbo.order.validator.UserValidator;
@@ -35,5 +36,10 @@ public class OrderClientConfiguration {
     @Bean
     public UserValidator userValidator(UserFacadeService userFacadeService) {
         return new UserValidator(userFacadeService);
+    }
+
+    @Bean
+    public GoodsBookValidator goodsBookValidator(GoodsFacadeService goodsFacadeService) {
+        return new GoodsBookValidator(goodsFacadeService);
     }
 }

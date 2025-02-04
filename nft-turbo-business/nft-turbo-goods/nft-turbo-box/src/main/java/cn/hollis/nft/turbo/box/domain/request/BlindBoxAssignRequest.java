@@ -5,6 +5,7 @@ import lombok.*;
 
 /**
  * @author Hollis
+ * 盲盒分配入参
  * @date 2025/01/11
  */
 

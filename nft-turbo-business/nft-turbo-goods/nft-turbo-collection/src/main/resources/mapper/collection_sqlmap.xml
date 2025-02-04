@@ -19,6 +19,9 @@
         <result property="createTime" column="CREATE_TIME"/>
         <result property="saleTime" column="SALE_TIME"/>
         <result property="syncChainTime" column="SYNC_CHAIN_TIME"/>
+        <result property="canBook" column="CAN_BOOK"/>
+        <result property="bookStartTime" column="BOOK_START_TIME"/>
+        <result property="bookEndTime" column="BOOK_END_TIME"/>
         <result property="deleted" column="DELETED"/>
         <result property="lockVersion" column="LOCK_VERSION"/>
     </resultMap>
@@ -48,6 +51,14 @@
     <update id="confirmSale">
         UPDATE /*+ COMMIT_ON_SUCCESS ROLLBACK_ON_FAIL TARGET_AFFECT_ROW 1 */ collection
         SET occupied_inventory = occupied_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
+        WHERE id = #{id} and <![CDATA[occupied_inventory + #{quantity} <= quantity ]]>
+    </update>
+
+
+    <!--  空投  -->
+    <update id="airDrop">
+        UPDATE  collection
+        SET saleable_inventory = saleable_inventory - #{quantity}, occupied_inventory = occupied_inventory + #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
         WHERE id = #{id} and <![CDATA[occupied_inventory + #{quantity} <= quantity ]]>
     </update>
 </mapper>

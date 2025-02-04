@@ -51,4 +51,19 @@ public class AdminCollectionCreateParam {
     @NotNull(message = "藏品发售时间不能为空")
     private String saleTime;
 
+    /**
+     * '藏品是否预约'
+     */
+    @NotNull(message = "藏品是否预约不能为空")
+    private Integer canBook;
+
+    /**
+     * '藏品预约开始时间'
+     */
+    private String bookStartTime;
+
+    /**
+     * '藏品预约结束时间'
+     */
+    private String bookEndTime;
 }

@@ -6,7 +6,6 @@ import cn.hollis.nft.turbo.box.domain.service.impl.BaseBlindBoxService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 /**
  * 盲盒数据库服务实现

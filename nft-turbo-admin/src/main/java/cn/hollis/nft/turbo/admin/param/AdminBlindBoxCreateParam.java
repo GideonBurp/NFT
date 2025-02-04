@@ -55,6 +55,21 @@ public class AdminBlindBoxCreateParam {
     private String saleTime;
 
     /**
+     * '盲盒是否预约'
+     */
+    private boolean canBook;
+
+    /**
+     * '盲盒预约开始时间'
+     */
+    private String bookStartTime;
+
+    /**
+     * '盲盒预约结束时间'
+     */
+    private String bookEndTime;
+
+    /**
      * 藏品列表
      */
     private List<AdminBlindBoxCollectionCreateParam> collectionBoxParams;

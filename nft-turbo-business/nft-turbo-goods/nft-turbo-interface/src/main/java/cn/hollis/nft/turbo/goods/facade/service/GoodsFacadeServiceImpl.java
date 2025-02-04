@@ -6,10 +6,8 @@ import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
-import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
+import cn.hollis.nft.turbo.api.goods.request.*;
+import cn.hollis.nft.turbo.api.goods.response.GoodsBookResponse;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
@@ -19,6 +17,9 @@ import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
+import cn.hollis.nft.turbo.goods.service.GoodsBookService;
+import cn.hollis.nft.turbo.goods.service.HotGoodsService;
+import cn.hollis.nft.turbo.rpc.facade.Facade;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,12 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     @Autowired
     private BlindBoxReadFacadeService blindBoxReadFacadeService;
+
+    @Autowired
+    private GoodsBookService goodsBookService;
+
+    @Autowired
+    private HotGoodsService hotGoodsService;
 
     @Autowired
     private HeldCollectionService heldCollectionService;
@@ -161,5 +168,35 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         GoodsSaleResponse response = new GoodsSaleResponse();
         response.setSuccess(result);
         return response;
+    }
+
+    @Override
+    @Facade
+    public GoodsBookResponse book(GoodsBookRequest request) {
+        BaseGoodsVO goodsVO = this.getGoods(request.getGoodsId(), request.getGoodsType());
+        if (goodsVO.canBookNow()) {
+            return goodsBookService.book(request);
+        }
+        throw new RuntimeException("GOODS_CAN_NOT_BOOK_NOW");
+    }
+
+    @Override
+    @Facade
+    public Boolean isGoodsBooked(String goodsId, GoodsType goodsType, String buyerId) {
+        return goodsBookService.isBooked(goodsId, goodsType, buyerId);
+    }
+
+    @Override
+    @Facade
+    public Boolean addHotGoods(String goodsId, String goodsType) {
+        hotGoodsService.addHotGoods(goodsId, goodsType);
+        //不抛异常就视为成功
+        return true;
+    }
+
+    @Override
+    @Facade
+    public Boolean isHotGoods(String goodsId, String goodsType) {
+        return hotGoodsService.isHotGoods(goodsId, goodsType);
     }
 }

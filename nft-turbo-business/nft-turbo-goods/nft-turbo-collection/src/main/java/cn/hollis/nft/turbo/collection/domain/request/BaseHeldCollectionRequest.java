@@ -21,7 +21,7 @@ public abstract class BaseHeldCollectionRequest extends BaseRequest {
     /**
      * '持有藏品id'
      */
-    private Long heldCollectionId;
+    private String heldCollectionId;
 
     /**
      * 事件类型

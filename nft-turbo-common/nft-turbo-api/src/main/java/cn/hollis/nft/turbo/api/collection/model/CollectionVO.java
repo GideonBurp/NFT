@@ -76,28 +76,52 @@ public class CollectionVO extends BaseGoodsVO {
      */
     private Integer version;
 
-    public static final int DEFAULT_MIN_SALE_TIME = 60;
+    /**
+     * 预约开始时间
+     */
+    private Date bookStartTime;
 
-    public void setState(CollectionStateEnum state, Date saleTime, Long saleableInventory) {
+    /**
+     * 预约结束时间
+     */
+    private Date bookEndTime;
+
+    /**
+     * 是否预约
+     */
+    private Integer canBook;
+
+    /**
+     * 是否已预约过
+     */
+    private Boolean hasBooked;
+
+    public static final int DEFAULT_MIN_SALE_TIME = 60 * 24;
+
+    public static GoodsState getState(CollectionStateEnum state, Date saleTime, Long saleableInventory) {
         if (state.equals(CollectionStateEnum.INIT) || state.equals(CollectionStateEnum.REMOVED)) {
-            super.setState(GoodsState.NOT_FOR_SALE);
+            return GoodsState.NOT_FOR_SALE;
         }
 
         Instant now = Instant.now();
 
         if (now.compareTo(saleTime.toInstant()) >= 0) {
             if (saleableInventory > 0) {
-                super.setState(GoodsState.SELLING);
+                return GoodsState.SELLING;
             } else {
-                super.setState(GoodsState.SOLD_OUT);
+                return GoodsState.SOLD_OUT;
             }
         } else {
             if (ChronoUnit.MINUTES.between(now, saleTime.toInstant()) > DEFAULT_MIN_SALE_TIME) {
-                super.setState(GoodsState.WAIT_FOR_SALE);
+                return GoodsState.WAIT_FOR_SALE;
             } else {
-                super.setState(GoodsState.COMING_SOON);
+                return GoodsState.COMING_SOON;
             }
         }
+    }
+
+    public void setState(CollectionStateEnum state, Date saleTime, Long saleableInventory) {
+        super.setState(getState(state, saleTime, saleableInventory));
     }
 
     @Override
@@ -125,4 +149,32 @@ public class CollectionVO extends BaseGoodsVO {
     public BigDecimal getPrice() {
         return this.price;
     }
+
+    @Override
+    public Boolean canBook() {
+        if (canBook == null) {
+            return false;
+        }
+
+        if (canBook.intValue() == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean canBookNow() {
+        //当前时间是否在 bookStartTime 和 bookEndTime 之间
+        if (canBook()) {
+            Instant now = Instant.now();
+            return now.compareTo(bookStartTime.toInstant()) >= 0 && now.compareTo(bookEndTime.toInstant()) <= 0;
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean hasBooked() {
+        return hasBooked;
+    }
+
 }

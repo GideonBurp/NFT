@@ -64,6 +64,21 @@ public class BlindBoxCreateRequest extends BaseBlindBoxRequest {
     private String creatorId;
 
     /**
+     * '盲盒是否预约'
+     */
+    private Boolean canBook;
+
+    /**
+     * '盲盒预约开始时间'
+     */
+    private Date bookStartTime;
+
+    /**
+     * '盲盒预约结束时间'
+     */
+    private Date bookEndTime;
+
+    /**
      * 藏品列表
      */
     private List<BlindBoxItemCreateRequest> blindBoxItemCreateRequests;

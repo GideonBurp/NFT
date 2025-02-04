@@ -66,6 +66,11 @@ public enum OrderErrorCode implements ErrorCode {
     BUYER_IS_PLATFORM_USER("BUYER_IS_PLATFORM_USER", "买家不能是平台用户"),
 
     /**
+     * 买家不存在
+     */
+    USER_NOT_EXIST("USER_NOT_EXIST", "买家不存在"),
+
+    /**
      * 买家状态异常
      */
     BUYER_STATUS_ABNORMAL("BUYER_STATUS_ABNORMAL", "买家状态异常"),
@@ -90,9 +95,24 @@ public enum OrderErrorCode implements ErrorCode {
     DUPLICATED_BUY("DUPLICATED_BUY", "重复下单"),
 
     /**
+     * 商品未进行预约
+     */
+    GOODS_NOT_BOOKED("GOODS_NOT_BOOKED", "未预约无法购买该商品"),
+
+    /**
+     * 商品还未开放购买
+     */
+    GOODS_NOT_BOOKED_BUY("GOODS_NOT_BOOKED_BUY", "商品还未开放购买"),
+
+    /**
      * 商品价格发生变化
      */
-    GOODS_PRICE_CHANGED("GOODS_PRICE_CHANGED", "商品价格发生变化");
+    GOODS_PRICE_CHANGED("GOODS_PRICE_CHANGED", "商品价格发生变化"),
+
+    /**
+     * 藏品不存在
+     */
+    COLLECTION_NO_EXIST("COLLECTION_NO_EXIST","藏品不存在" );
 
 
     private String code;

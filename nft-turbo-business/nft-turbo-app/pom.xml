@@ -75,11 +75,6 @@
 
         <dependency>
             <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-goods</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-trade</artifactId>
         </dependency>
 
