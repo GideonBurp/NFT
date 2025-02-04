@@ -22,6 +22,17 @@ public enum CollectionErrorCode implements ErrorCode {
      * 藏品持有相关错误
      */
     HELD_COLLECTION_SAVE_FAILED("HELD_COLLECTION_SAVE_FAILED", "藏品持有信息保存失败"),
+
+    /**
+     * 藏品持有用户校验错误
+     */
+    HELD_COLLECTION_OWNER_CHECK_ERROR("HELD_COLLECTION_OWNER_CHECK_ERROR", "藏品持有用户校验错误"),
+
+    /**
+     * 藏品状态校验错误
+     */
+    HELD_COLLECTION_STATE_CHECK_ERROR("HELD_COLLECTION_STATE_CHECK_ERROR", "藏品状态校验错误"),
+
     /**
      * 藏品相关错误
      */
@@ -42,10 +53,19 @@ public enum CollectionErrorCode implements ErrorCode {
      * 藏品快照信息保存失败
      */
     COLLECTION_SNAPSHOT_SAVE_FAILED("COLLECTION_SNAPSHOT_SAVE_FAILED", "藏品快照信息保存失败"),
+
+    /**
+     * 藏品持有流水信息保存失败
+     */
+    HELD_COLLECTION_STREAM_SAVE_FAILED("HELD_COLLECTION_STREAM_SAVE_FAILED", "藏品持有流水信息保存失败"),
     /**
      * 藏品流水信息已存在
      */
-    COLLECTION_STREAM_EXIST("COLLECTION_STREAM_EXIST", "藏品流水信息已存在");
+    COLLECTION_STREAM_EXIST("COLLECTION_STREAM_EXIST", "藏品流水信息已存在"),
+    /**
+     * 藏品空投流水更新失败
+     */
+    COLLECTION_AIRDROP_STREAM_UPDATE_FAILED("COLLECTION_AIRDROP_STREAM_UPDATE_FAILED", "藏品空投流水更新失败");
 
 
     private String code;

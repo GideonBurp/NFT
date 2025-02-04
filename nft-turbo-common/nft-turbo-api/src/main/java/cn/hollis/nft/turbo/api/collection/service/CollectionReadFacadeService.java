@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.api.collection.service;
 
+import cn.hollis.nft.turbo.api.collection.model.AirDropStreamVO;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO;
 import cn.hollis.nft.turbo.api.collection.request.*;
@@ -36,6 +37,14 @@ public interface CollectionReadFacadeService {
      * @return
      */
     public PageResponse<HeldCollectionVO> pageQueryHeldCollection(HeldCollectionPageQueryRequest request);
+
+
+    /**
+     * 空投列表分页查询
+     * @param request
+     * @return
+     */
+    public PageResponse<AirDropStreamVO> pageQueryAirDropList(AirDropPageQueryRequest request);
 
 
     /**

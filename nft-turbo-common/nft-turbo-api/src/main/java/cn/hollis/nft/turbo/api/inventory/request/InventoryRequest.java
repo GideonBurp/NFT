@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.api.inventory.request;
 
+import cn.hollis.nft.turbo.api.collection.request.CollectionAirDropRequest;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.order.model.TradeOrderVO;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
@@ -45,6 +46,14 @@ public class InventoryRequest extends BaseRequest {
         this.identifier = orderCreateRequest.getOrderId();
         this.inventory = orderCreateRequest.getItemCount();
     }
+
+    public InventoryRequest(CollectionAirDropRequest request) {
+        this.goodsId = request.getCollectionId().toString();
+        this.goodsType = GoodsType.COLLECTION;
+        this.identifier = request.getIdentifier();
+        this.inventory = request.getQuantity();
+    }
+
     public InventoryRequest(TradeOrderVO tradeOrderVO) {
         this.setGoodsId(tradeOrderVO.getGoodsId());
         this.setInventory(tradeOrderVO.getItemCount());

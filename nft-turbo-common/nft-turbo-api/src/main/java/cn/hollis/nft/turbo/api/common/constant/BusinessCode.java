@@ -16,7 +16,12 @@ public enum BusinessCode {
     /**
      * 退款单
      */
-    REFUND_ORDER(12, 1);
+    REFUND_ORDER(12, 1),
+
+    /**
+     * 持有藏品
+     */
+    HELD_COLLECTION(13, 1);
 
     private static final int MAX_CODE = 99;
 

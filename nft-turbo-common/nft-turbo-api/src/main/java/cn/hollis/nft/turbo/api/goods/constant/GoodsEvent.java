@@ -25,6 +25,11 @@ public enum GoodsEvent {
     BLIND_BOX_SALE,
 
     /**
+     * 空投
+     */
+    AIR_DROP,
+
+    /**
      * 转移事件
      */
     TRANSFER,

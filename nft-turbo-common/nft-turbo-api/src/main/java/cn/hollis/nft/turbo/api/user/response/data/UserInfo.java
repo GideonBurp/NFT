@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -16,19 +15,9 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserInfo implements Serializable {
+public class UserInfo extends BasicUserInfo {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 用户Id
-     */
-    private Long userId;
-
-    /**
-     * 昵称
-     */
-    private String nickName;
 
     /**
      * 手机号
@@ -42,11 +31,6 @@ public class UserInfo implements Serializable {
      * @see UserStateEnum
      */
     private String state;
-
-    /**
-     * 头像地址
-     */
-    private String profilePhotoUrl;
 
     /**
      * 区块链地址
@@ -77,4 +61,20 @@ public class UserInfo implements Serializable {
      * 注册时间
      */
     private Date createTime;
+
+    public boolean userCanBuy() {
+
+        if (this.getUserRole() != null && !this.getUserRole().equals(UserRole.CUSTOMER)) {
+            return false;
+        }
+        //判断买家状态
+        if (this.getState() != null && !this.getState().equals(UserStateEnum.ACTIVE.name())) {
+            return false;
+        }
+        //判断买家状态
+        if (this.getState() != null && !this.getCertification()) {
+            return false;
+        }
+        return true;
+    }
 }

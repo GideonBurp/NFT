@@ -1,9 +1,7 @@
 package cn.hollis.nft.turbo.collection.domain.service;
 
-import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionModifyInventoryRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionModifyPriceRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionRemoveRequest;
+import cn.hollis.nft.turbo.api.collection.request.*;
+import cn.hollis.nft.turbo.api.collection.response.CollectionAirdropResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
 import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
 import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
@@ -52,6 +50,7 @@ public interface CollectionService extends IService<Collection> {
      */
     public Boolean remove(CollectionRemoveRequest request);
 
+
     /**
      * 尝试售卖
      *
@@ -87,6 +86,15 @@ public interface CollectionService extends IService<Collection> {
      */
     @Deprecated
     public GoodsSaleResponse confirmSale(GoodsConfirmSaleRequest request);
+
+
+    /**
+     * 空投
+     *
+     * @param request
+     * @return
+     */
+    public CollectionAirdropResponse airDrop(CollectionAirDropRequest request,Collection collection);
 
     /**
      * 查询

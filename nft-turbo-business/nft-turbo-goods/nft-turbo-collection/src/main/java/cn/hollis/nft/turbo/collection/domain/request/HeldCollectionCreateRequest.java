@@ -1,8 +1,12 @@
 package cn.hollis.nft.turbo.collection.domain.request;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionRarity;
+import cn.hollis.nft.turbo.api.collection.request.CollectionAirDropRequest;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
 import cn.hollis.nft.turbo.collection.domain.constant.HeldCollectionEventType;
+import cn.hollis.nft.turbo.collection.domain.entity.Collection;
+import cn.hollis.nft.turbo.collection.domain.entity.CollectionAirdropStream;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -90,8 +94,19 @@ public class HeldCollectionCreateRequest extends BaseHeldCollectionRequest {
         this.name = goodsConfirmSaleRequest.name();
         this.cover = goodsConfirmSaleRequest.cover();
         this.purchasePrice = goodsConfirmSaleRequest.purchasePrice();
-        this.referencePrice = goodsConfirmSaleRequest.purchasePrice();
         this.serialNo = serialNo;
+    }
+
+    public HeldCollectionCreateRequest(CollectionAirDropRequest airDropRequest, Collection collection, CollectionAirdropStream airdropStream) {
+        this.goodsId = airDropRequest.getCollectionId();
+        this.userId = airDropRequest.getRecipientUserId();
+        this.name = collection.getName();
+        this.cover = collection.getCover();
+        this.purchasePrice = collection.getPrice();
+        this.bizType = airDropRequest.getBizType().name();
+        this.bizNo = airdropStream.getId().toString();
+        this.serialNoBaseId = String.valueOf(collection.getId());
+        this.goodsType = GoodsType.COLLECTION.name();
     }
 
     @Override

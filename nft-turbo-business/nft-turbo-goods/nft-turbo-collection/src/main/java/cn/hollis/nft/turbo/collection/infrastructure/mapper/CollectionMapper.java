@@ -66,4 +66,13 @@ public interface CollectionMapper extends BaseMapper<Collection> {
      * @return
      */
     int cancelSale(Long id, Integer quantity);
+
+    /**
+     * 空投
+     *
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int airDrop(Long id, Integer quantity);
 }
