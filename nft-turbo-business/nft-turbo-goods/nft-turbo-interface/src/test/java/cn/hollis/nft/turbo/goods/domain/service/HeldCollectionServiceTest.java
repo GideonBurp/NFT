@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.goods.domain.service;
 
+import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
@@ -25,7 +26,7 @@ public class HeldCollectionServiceTest extends GoodsBaseTest {
 
     @Test
     public void serviceTest() {
-        CollectionCreateRequest request =new CollectionCreateRequest();
+        CollectionCreateRequest request = new CollectionCreateRequest();
         request.setIdentifier("123456");
         request.setName("name");
         request.setCover("cover");
@@ -41,16 +42,17 @@ public class HeldCollectionServiceTest extends GoodsBaseTest {
         mintRequest.setGoodsId(collection.getId());
         mintRequest.setIdentifier("123");
         mintRequest.setSerialNo("12345");
+        mintRequest.setBizType(GoodsSaleBizType.PRIMARY_TRADE.name());
         mintRequest.setUserId("1");
         var heldCollection = heldCollectionService.create(mintRequest);
         Assert.assertTrue(heldCollection.getId() != null);
         Assert.assertTrue(heldCollection.getState() == HeldCollectionState.INIT);
         //transfer
         HeldCollectionTransferRequest transferRequest = new HeldCollectionTransferRequest();
-        transferRequest.setHeldCollectionId(heldCollection.getId());
+        transferRequest.setHeldCollectionId(heldCollection.getId().toString());
         transferRequest.setIdentifier("345");
-        transferRequest.setBuyerId(2L);
-        transferRequest.setSellerId(1L);
+        transferRequest.setRecipientUserId("2");
+        transferRequest.setOperatorId("1");
         var newHeldCollection = heldCollectionService.transfer(transferRequest);
         Assert.assertTrue(newHeldCollection.getId() != null);
         Assert.assertTrue(newHeldCollection.getState() == HeldCollectionState.INIT);
@@ -59,7 +61,7 @@ public class HeldCollectionServiceTest extends GoodsBaseTest {
         Assert.assertTrue(oldHeldCollection.getState() == HeldCollectionState.INACTIVED);
         //destroy
         HeldCollectionDestroyRequest destroyRequest = new HeldCollectionDestroyRequest();
-        destroyRequest.setHeldCollectionId(newHeldCollection.getId());
+        destroyRequest.setHeldCollectionId(newHeldCollection.getId().toString());
         destroyRequest.setIdentifier("456");
         var destroyHeldCollection = heldCollectionService.destroy(destroyRequest);
         Assert.assertTrue(destroyHeldCollection.getId() != null);

@@ -86,7 +86,7 @@ public class CollectionInventoryStream extends BaseEntity {
         this.price = collection.getPrice();
         this.quantity = collection.getQuantity();
         this.saleableInventory = collection.getSaleableInventory();
-        this.occupiedInventory = collection.getOccupiedInventory();
+//        this.occupiedInventory = collection.getOccupiedInventory();
         this.state = collection.getState();
         this.streamType = streamType;
         this.identifier = identifier;

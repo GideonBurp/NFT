@@ -1,27 +1,20 @@
 package cn.hollis.nft.turbo.collection.domain.service.impl;
 
 import cn.hollis.nft.turbo.api.collection.constant.CollectionInventoryModifyType;
-import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionModifyInventoryRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionModifyPriceRequest;
-import cn.hollis.nft.turbo.api.collection.request.CollectionRemoveRequest;
+import cn.hollis.nft.turbo.api.collection.request.*;
+import cn.hollis.nft.turbo.api.collection.response.CollectionAirdropResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
 import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
 import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
 import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
-import cn.hollis.nft.turbo.collection.domain.entity.Collection;
-import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
-import cn.hollis.nft.turbo.collection.domain.entity.CollectionSnapshot;
-import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
+import cn.hollis.nft.turbo.collection.domain.entity.*;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
+import cn.hollis.nft.turbo.collection.domain.entity.convertor.HeldCollectionConvertor;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
-import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionInventoryStreamMapper;
-import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionMapper;
-import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionSnapshotMapper;
-import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionStreamMapper;
+import cn.hollis.nft.turbo.collection.infrastructure.mapper.*;
 import cn.hutool.core.lang.Assert;
 import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheRefresh;
@@ -31,9 +24,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
+import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.*;
 
 /**
@@ -57,6 +53,9 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
 
     @Autowired
     private CollectionInventoryStreamMapper collectionInventoryStreamMapper;
+
+    @Autowired
+    private CollectionAirdropStreamMapper collectionAirdropStreamMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -245,6 +244,50 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
     }
 
     @SuppressWarnings("AliDeprecation")
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public CollectionAirdropResponse airDrop(CollectionAirDropRequest request,Collection collection) {
+        CollectionAirdropStream existStream = collectionAirdropStreamMapper.selectByIdentifier(request.getIdentifier(), request.getEventType().name(), request.getCollectionId(), request.getRecipientUserId());
+        CollectionAirdropResponse response = new CollectionAirdropResponse();
+        if (existStream != null) {
+            response.setSuccess(true);
+            response.setResponseCode(DUPLICATED.name());
+            response.setAirDropStreamId(existStream.getId());
+            return response;
+        }
+
+        //新增流水
+        CollectionInventoryStream stream = new CollectionInventoryStream(collection, request.getIdentifier(), request.getEventType(), request.getQuantity());
+        int result = collectionInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
+
+        //新增空投流水
+        CollectionAirdropStream airdropStream = new CollectionAirdropStream(collection, request.getIdentifier(), request.getEventType(), request.getQuantity(), request.getRecipientUserId());
+        boolean saveResult = collectionAirdropStreamMapper.insert(airdropStream) == 1;
+        Assert.isTrue(saveResult, () -> new CollectionException(COLLECTION_AIRDROP_STREAM_UPDATE_FAILED));
+
+        List<HeldCollectionCreateRequest> heldCollectionCreateRequests = new ArrayList<>();
+        for (int i = 1; i <= request.getQuantity(); i++) {
+
+            HeldCollectionCreateRequest heldCollectionCreateRequest = new HeldCollectionCreateRequest(request, collection, airdropStream);
+            heldCollectionCreateRequest.setSerialNoBaseId(request.getCollectionId().toString());
+
+            heldCollectionCreateRequests.add(heldCollectionCreateRequest);
+        }
+
+        List<HeldCollection> heldCollections = heldCollectionService.batchCreate(heldCollectionCreateRequests);
+
+        //扣减藏品库存
+        result = collectionMapper.airDrop(request.getCollectionId(), request.getQuantity());
+        Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+
+        response.setSuccess(true);
+        response.setResponseCode(SUCCESS.name());
+        response.setAirDropStreamId(airdropStream.getId());
+        response.setHeldCollections(HeldCollectionConvertor.INSTANCE.mapToVo(heldCollections));
+        return response;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     @Deprecated

@@ -2,24 +2,36 @@ package cn.hollis.nft.turbo.admin.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hollis.nft.turbo.admin.infrastructure.exception.AdminException;
+import cn.hollis.nft.turbo.admin.param.AdminCollectionAirDropParam;
 import cn.hollis.nft.turbo.admin.param.AdminCollectionCreateParam;
 import cn.hollis.nft.turbo.admin.param.AdminCollectionModifyParam;
 import cn.hollis.nft.turbo.admin.param.AdminCollectionRemoveParam;
+import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
+import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
+import cn.hollis.nft.turbo.api.collection.model.AirDropStreamVO;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.request.*;
+import cn.hollis.nft.turbo.api.collection.response.CollectionAirdropResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionChainResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionModifyResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionRemoveResponse;
 import cn.hollis.nft.turbo.api.collection.service.CollectionManageFacadeService;
+import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
+import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
+import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.file.FileService;
 import cn.hollis.nft.turbo.web.util.MultiResultConvertor;
 import cn.hollis.nft.turbo.web.vo.MultiResult;
 import cn.hollis.nft.turbo.web.vo.Result;
+import cn.hutool.crypto.digest.MD5;
+import com.alibaba.fastjson.JSON;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -48,8 +61,23 @@ public class CollectionAdminController {
     @DubboReference(version = "1.0.0")
     private CollectionManageFacadeService collectionManageFacadeService;
 
+    @DubboReference(version = "1.0.0")
+    private GoodsFacadeService goodsFacadeService;
+
+    @DubboReference(version = "1.0.0")
+    private CollectionReadFacadeService collectionReadFacadeService;
+
+    @DubboReference(version = "1.0.0")
+    private ChainFacadeService chainFacadeService;
+
+    @DubboReference(version = "1.0.0")
+    private UserFacadeService userFacadeService;
+
     @Autowired
     private FileService fileService;
+
+    @DubboReference(version = "1.0.0")
+    private InventoryFacadeService inventoryFacadeService;
 
     @PostMapping("/uploadCollection")
     public Result<String> uploadCollection(@RequestParam("file_data") MultipartFile file) throws Exception {
@@ -85,7 +113,11 @@ public class CollectionAdminController {
         request.setCreateTime(new Date());
         SimpleDateFormat sdf = new SimpleDateFormat(COMMON_TIME_PATTERN);
         request.setSaleTime(sdf.parse(param.getSaleTime()));
-
+        if (param.getCanBook() == 1) {
+            request.setBookStartTime(sdf.parse(param.getBookStartTime()));
+            request.setBookEndTime(sdf.parse(param.getBookEndTime()));
+        }
+        request.setCanBook(param.getCanBook());
         CollectionChainResponse response = collectionManageFacadeService.create(request);
         if (response.getSuccess()) {
             return Result.success(response.getCollectionId());
@@ -143,14 +175,47 @@ public class CollectionAdminController {
      * @return 结果
      */
     @GetMapping("/collectionList")
-    public MultiResult<CollectionVO> collectionList(@NotBlank String state, String keyWord, int pageSize, int currentPage) {
+    public MultiResult<CollectionVO> collectionList(String state, String keyWord, int pageSize, int currentPage) {
         CollectionPageQueryRequest collectionPageQueryRequest = new CollectionPageQueryRequest();
         collectionPageQueryRequest.setState(state);
         collectionPageQueryRequest.setKeyword(keyWord);
         collectionPageQueryRequest.setCurrentPage(currentPage);
         collectionPageQueryRequest.setPageSize(pageSize);
-        PageResponse<CollectionVO> pageResponse = collectionManageFacadeService.pageQuery(collectionPageQueryRequest);
+        PageResponse<CollectionVO> pageResponse = collectionReadFacadeService.pageQuery(collectionPageQueryRequest);
         return MultiResultConvertor.convert(pageResponse);
     }
 
+    @PostMapping("/airDrop")
+    public Result<String> airDrop(@Valid @RequestBody AdminCollectionAirDropParam param) {
+        CollectionAirDropRequest request = new CollectionAirDropRequest(param.getRecipientUserId(), param.getQuantity(), GoodsSaleBizType.valueOf(param.getBizType()));
+        // 防止重复提交的幂等号生成策略：入参的md5+时间戳(精确到分钟），一分钟内同一个参数只能提交一次
+        request.setIdentifier(MD5.create().digestHex(JSON.toJSONString(param)) + DateUtils.truncate(new Date(), Calendar.MINUTE).getTime());
+        request.setCollectionId(param.getCollectionId());
+        CollectionAirdropResponse airdropResponse = collectionManageFacadeService.airDrop(request);
+
+        if (airdropResponse.getSuccess()) {
+            //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
+            try {
+                InventoryRequest inventoryRequest = new InventoryRequest(request);
+                inventoryFacadeService.decrease(inventoryRequest);
+            } catch (Exception e) {
+                log.error("decrease inventory from redis failed", e);
+            }
+
+            return Result.success(airdropResponse.getAirDropStreamId().toString());
+        } else {
+            return Result.error(airdropResponse.getResponseCode(), airdropResponse.getResponseMessage());
+        }
+    }
+
+    @GetMapping("/airDropList")
+    public MultiResult<AirDropStreamVO> airDropList(String collectionId, String userId, int pageSize, int currentPage) {
+        AirDropPageQueryRequest request = new AirDropPageQueryRequest();
+        request.setCollectionId(collectionId);
+        request.setUserId(userId);
+        request.setPageSize(pageSize);
+        request.setCurrentPage(currentPage);
+        PageResponse<AirDropStreamVO> pageResponse = collectionReadFacadeService.pageQueryAirDropList(request);
+        return MultiResultConvertor.convert(pageResponse);
+    }
 }

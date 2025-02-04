@@ -20,6 +20,11 @@ public enum HeldCollectionState {
     INACTIVED,
 
     /**
+     * 销毁中
+     */
+    DESTROYING,
+
+    /**
      * 已销毁
      */
     DESTROYED;

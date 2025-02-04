@@ -1,13 +1,13 @@
 package cn.hollis.nft.turbo.collection.domain.entity.convertor;
 
-import java.util.List;
-
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionDTO;
 import cn.hollis.nft.turbo.api.collection.model.HeldCollectionVO;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 /**
  * @author Hollis
@@ -39,5 +39,13 @@ public interface HeldCollectionConvertor {
      * @return
      */
     public List<HeldCollectionVO> mapToVo(List<HeldCollection> request);
+
+    /**
+     * 转换为实体
+     *
+     * @param request
+     * @return
+     */
+    public HeldCollection mapToEntity(HeldCollectionVO request);
 
 }
