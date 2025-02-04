@@ -14,7 +14,10 @@ public enum GoodsSaleBizType {
 
     /**
      * 二级市场交易
+     *
+     * ！！！ 不做二级市场 ！！！
      */
+    @Deprecated
     SECONDARY_TRADE,
 
     /**
@@ -25,5 +28,10 @@ public enum GoodsSaleBizType {
     /**
      * 空投
      */
-    AIR_DROP;
+    AIR_DROP,
+
+    /**
+     * 转赠
+     */
+    TRANSFER;
 }

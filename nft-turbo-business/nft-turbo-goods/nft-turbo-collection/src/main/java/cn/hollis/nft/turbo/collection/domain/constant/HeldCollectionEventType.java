@@ -22,5 +22,5 @@ public enum HeldCollectionEventType {
     /**
      * 销毁
      */
-    DESTORY;
+    DESTROY;
 }

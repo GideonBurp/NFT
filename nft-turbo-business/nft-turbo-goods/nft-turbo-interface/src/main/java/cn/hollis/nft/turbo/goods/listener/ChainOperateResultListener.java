@@ -64,6 +64,7 @@ public class ChainOperateResultListener {
             log.info("Received Chain Message messageId:{},chainOperateBody:{}，tag:{}", messageId, JSON.toJSONString(chainOperateBody), tag);
             //更新相关业务表
             ChainResultData chainResultData = chainOperateBody.getChainResultData();
+            boolean result;
             //成功情况处理
             switch (chainOperateBody.getOperateType()) {
                 case COLLECTION_CHAIN:
@@ -78,7 +79,8 @@ public class ChainOperateResultListener {
                     //更新状态
                     collection.setState(CollectionStateEnum.SUCCEED);
                     collection.setSyncChainTime(new Date());
-                    collectionService.updateById(collection);
+                    result = collectionService.updateById(collection);
+                    Assert.isTrue(result, "collection chain failed");
                     break;
                 case BLIND_BOX_CHAIN:
                     BlindBox blindBox = blindBoxService.queryById(Long.valueOf(chainOperateBody.getBizId()));
@@ -89,36 +91,47 @@ public class ChainOperateResultListener {
                     //更新状态
                     blindBox.setState(BlindBoxStateEnum.SUCCEED);
                     blindBox.setSyncChainTime(new Date());
-                    blindBoxService.updateById(blindBox);
+                    result = blindBoxService.updateById(blindBox);
+                    Assert.isTrue(result, "blind box chain failed");
                     break;
                 case COLLECTION_MINT:
                     HeldCollectionActiveRequest request = new HeldCollectionActiveRequest();
-                    request.setHeldCollectionId(Long.valueOf(chainOperateBody.getBizId()));
+                    request.setHeldCollectionId(chainOperateBody.getBizId());
                     request.setIdentifier(chainOperateBody.getOperateInfoId().toString());
                     request.setNftId(chainResultData.getNftId());
                     request.setTxHash(chainResultData.getTxHash());
-                    boolean result = heldCollectionService.active(request);
+                    result = heldCollectionService.active(request);
                     Assert.isTrue(result, "active held collection failed");
                     break;
                 case COLLECTION_TRANSFER:
                     //藏品铸造成功有nftId和txHash
-                    HeldCollection transferCollection = heldCollectionService.queryByNftIdAndState(chainOperateBody.getBizId(),
-                            HeldCollectionState.INIT.name());
-                    if (null == transferCollection) {
+                    HeldCollection transferCollection = heldCollectionService.queryById(Long.valueOf(chainOperateBody.getBizId()));
+                    if (null == transferCollection || !transferCollection.getState().equals(HeldCollectionState.INIT)) {
                         throw new CollectionException(HELD_COLLECTION_QUERY_FAIL);
                     }
                     transferCollection.actived(chainResultData.getNftId(), chainResultData.getTxHash());
-                    heldCollectionService.updateById(transferCollection);
+                    result = heldCollectionService.updateById(transferCollection);
+                    Assert.isTrue(result, "collection transfer failed");
                     break;
                 case COLLECTION_DESTROY:
                     //藏品铸造成功有nftId和txHash
-                    HeldCollection destroyCollection = heldCollectionService.queryByNftIdAndState(chainOperateBody.getBizId(),
-                            HeldCollectionState.ACTIVED.name());
+                    HeldCollection destroyCollection = heldCollectionService.queryById(Long.valueOf(chainOperateBody.getBizId()));
+
                     if (null == destroyCollection) {
                         throw new CollectionException(HELD_COLLECTION_QUERY_FAIL);
                     }
-                    destroyCollection.destroy();
-                    heldCollectionService.updateById(destroyCollection);
+
+                    if (destroyCollection.getState().equals(HeldCollectionState.DESTROYED)) {
+                        return;
+                    }
+
+                    if (!destroyCollection.getState().equals(HeldCollectionState.DESTROYING)) {
+                        throw new CollectionException(HELD_COLLECTION_QUERY_FAIL);
+                    }
+
+                    destroyCollection.destroyed();
+                    result = heldCollectionService.updateById(destroyCollection);
+                    Assert.isTrue(result, "collection destroy failed");
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + chainOperateBody.getBizType().name());

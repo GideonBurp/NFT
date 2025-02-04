@@ -95,7 +95,9 @@ public class WenChangChainServiceImplTest extends ChainBaseTest {
         ChainProcessRequest request = new ChainProcessRequest();
         request.setIdentifier(identifier);
         request.setRecipient("iaa1mrkyyn4slya8x3rw7qez5ujdaemtxl6kyymqjf");
+        request.setClassName("id1707124288146");
         request.setClassId("id1707124288146");
+        request.setSerialNo(identifier);
         var res = wenChangChainService.mint(request);
         Assert.assertTrue(res.getSuccess());
         Thread.sleep(6000);

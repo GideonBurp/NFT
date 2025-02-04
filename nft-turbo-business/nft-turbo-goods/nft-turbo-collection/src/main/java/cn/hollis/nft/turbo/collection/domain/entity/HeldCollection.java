@@ -1,15 +1,17 @@
 package cn.hollis.nft.turbo.collection.domain.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import cn.hollis.nft.turbo.api.collection.constant.CollectionRarity;
 import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.datasource.domain.entity.BaseEntity;
+import cn.hutool.core.util.IdUtil;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * <p>
@@ -109,6 +111,9 @@ public class HeldCollection extends BaseEntity {
     private String bizNo;
 
     public HeldCollection init(HeldCollectionCreateRequest request,String serialNo) {
+        //ShardingJDBC 不支持批量插入时获取并返回主键 ID，详见：https://github.com/bigcoder84/study-notes/blob/master/%E5%9F%BA%E7%A1%80%E7%AC%94%E8%AE%B0/%E9%A1%B9%E7%9B%AE%E8%B8%A9%E5%9D%91/subfile/_6MyBatisPlus+ShardingJDBC%E6%89%B9%E9%87%8F%E6%8F%92%E5%85%A5%E4%B8%8D%E8%BF%94%E5%9B%9EID.md
+        //为了解决批量生成持有藏品的场景（空投）中，batchCreate 之后无法立刻拿到主键 ID的问你题，这里单独使用雪花算法生成id
+        super.setId(IdUtil.getSnowflake(BusinessCode.HELD_COLLECTION.code()).nextId());
         this.collectionId = request.getGoodsId();
         this.serialNo = serialNo;
         this.userId = request.getUserId();
@@ -148,7 +153,31 @@ public class HeldCollection extends BaseEntity {
         return this;
     }
 
-    public HeldCollection destroy() {
+    public HeldCollection transfer(HeldCollection heldCollection, String recipientUserId) {
+        this.collectionId = heldCollection.getCollectionId();
+        this.serialNo = heldCollection.getSerialNo();
+        this.preId = heldCollection.getUserId();
+        this.userId = recipientUserId;
+        this.nftId = heldCollection.getNftId();
+        this.state = HeldCollectionState.INIT;
+        this.holdTime = new Date();
+        this.name = heldCollection.getName();
+        this.cover = heldCollection.getCover();
+        this.bizType = GoodsSaleBizType.TRANSFER;
+        this.bizNo = heldCollection.getId().toString();
+        this.purchasePrice = heldCollection.getPurchasePrice();
+        this.referencePrice = heldCollection.getReferencePrice();
+        this.rarity = heldCollection.getRarity();
+        return this;
+    }
+
+    public HeldCollection destroying() {
+        this.state = HeldCollectionState.DESTROYING;
+        this.deleteTime = new Date();
+        return this;
+    }
+
+    public HeldCollection destroyed() {
         this.state = HeldCollectionState.DESTROYED;
         this.deleteTime = new Date();
         return this;

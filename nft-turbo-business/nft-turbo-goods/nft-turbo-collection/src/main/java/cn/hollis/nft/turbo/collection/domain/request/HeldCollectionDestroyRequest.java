@@ -12,10 +12,16 @@ import lombok.*;
 @Getter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class HeldCollectionDestroyRequest extends BaseHeldCollectionRequest {
+
+    /**
+     * 操作人Id
+     */
+    private String operatorId;
 
     @Override
     public HeldCollectionEventType getEventType() {
-        return HeldCollectionEventType.DESTORY;
+        return HeldCollectionEventType.DESTROY;
     }
 }

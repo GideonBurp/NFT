@@ -4,7 +4,7 @@ import cn.hollis.nft.turbo.collection.domain.constant.HeldCollectionEventType;
 import lombok.*;
 
 /**
- * @author wswyb001
+ * @author Hollis
  * @date 2024/01/17
  */
 
@@ -18,12 +18,12 @@ public class HeldCollectionTransferRequest extends BaseHeldCollectionRequest {
     /**
      * '买家id'
      */
-    private Long buyerId;
+    private String recipientUserId;
 
     /**
-     * '卖家id'
+     * 操作人Id
      */
-    private Long sellerId;
+    private String operatorId;
 
     @Override
     public HeldCollectionEventType getEventType() {

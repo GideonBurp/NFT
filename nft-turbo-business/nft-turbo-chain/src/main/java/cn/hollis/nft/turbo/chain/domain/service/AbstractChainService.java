@@ -169,7 +169,30 @@ public abstract class AbstractChainService implements ChainService {
                 throw new SystemException(RepoErrorCode.UPDATE_FAILED);
             }
 
-            return buildResult(result, chainProcessRequest, COLLECTION_DESTROY);
+            ChainProcessResponse response =  buildResult(result, chainProcessRequest, COLLECTION_DESTROY);
+
+            if (response.getSuccess() ) {
+                //延迟5秒钟之后查询状态并发送 MQ 消息通知上游
+                scheduler.schedule(() -> {
+                    try {
+                        ChainOperateInfo operateInfo = chainOperateInfoService.queryByOutBizId(chainProcessRequest.getBizId(), chainProcessRequest.getBizType(),
+                                chainProcessRequest.getIdentifier());
+                        ChainProcessResponse<ChainResultData> queryChainResult = queryChainResult(
+                                new ChainQueryRequest(chainProcessRequest.getIdentifier(), operateInfoId.toString()));
+                        if (queryChainResult.getSuccess() && queryChainResult.getData() != null) {
+                            if (StringUtils.equals(queryChainResult.getData().getState(), ChainOperateStateEnum.SUCCEED.name())) {
+                                this.sendMsg(operateInfo, queryChainResult.getData());
+
+                                chainOperateInfoService.updateResult(operateInfoId,
+                                        ChainOperateStateEnum.SUCCEED, null);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("query chain result failed,", e);
+                    }
+                }, 5, TimeUnit.SECONDS);
+            }
+            return response;
         });
     }
 

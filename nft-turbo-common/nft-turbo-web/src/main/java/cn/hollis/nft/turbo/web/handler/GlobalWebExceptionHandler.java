@@ -56,7 +56,11 @@ public class GlobalWebExceptionHandler {
         log.error("bizException occurred.", bizException);
         Result result = new Result();
         result.setCode(bizException.getErrorCode().getCode());
-        result.setMessage(bizException.getErrorCode().getMessage());
+        if (bizException.getMessage() == null) {
+            result.setMessage(bizException.getErrorCode().getMessage());
+        } else {
+            result.setMessage(bizException.getMessage());
+        }
         result.setSuccess(false);
         return result;
     }
@@ -74,7 +78,11 @@ public class GlobalWebExceptionHandler {
         log.error("systemException occurred.", systemException);
         Result result = new Result();
         result.setCode(systemException.getErrorCode().getCode());
-        result.setMessage(systemException.getErrorCode().getMessage());
+        if (systemException.getMessage() == null) {
+            result.setMessage(systemException.getErrorCode().getMessage());
+        } else {
+            result.setMessage(systemException.getMessage());
+        }
         result.setSuccess(false);
         return result;
     }
