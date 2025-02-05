@@ -149,6 +149,7 @@ public class TradeController {
         }
 
         //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
+        //因为上面是用了MQ的事务消息，Redis的库存扣减是在事务消息的本地事务中同步执行的（InventoryDecreaseTransactionListener#executeLocalTransaction），所以只要成功了，这里一定能查到
         InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
         SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
 
