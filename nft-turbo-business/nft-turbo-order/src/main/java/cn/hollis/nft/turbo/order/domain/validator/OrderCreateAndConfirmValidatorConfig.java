@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * @author hollis
  */
 @Configuration
-public class OrderCreateValidatorConfig {
+public class OrderCreateAndConfirmValidatorConfig {
 
     @Autowired
     private GoodsValidator goodsValidator;
@@ -22,13 +22,9 @@ public class OrderCreateValidatorConfig {
     @Autowired
     private UserValidator userValidator;
 
-    @Autowired
-    private GoodsBookValidator goodsBookValidator;
-
     @Bean
-    public OrderCreateValidator orderValidatorChain() {
+    public OrderCreateValidator orderConfirmValidatorChain() {
         userValidator.setNext(goodsValidator);
-        goodsValidator.setNext(goodsBookValidator);
         return userValidator;
     }
 }

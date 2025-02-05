@@ -24,6 +24,7 @@ import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.entity.convertor.TradeOrderConvertor;
 import cn.hollis.nft.turbo.order.domain.service.OrderManageService;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
+import cn.hollis.nft.turbo.order.domain.validator.OrderCreateAndConfirmValidatorConfig;
 import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.turbo.stream.producer.StreamProducer;
@@ -63,6 +64,9 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
 
     @Autowired
     private OrderCreateValidator orderValidatorChain;
+
+    @Autowired
+    private OrderCreateValidator orderConfirmValidatorChain;
 
     @Override
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
@@ -118,7 +122,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @Facade
     public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
         try {
-            orderValidatorChain.validate(request);
+            orderConfirmValidatorChain.validate(request);
         } catch (OrderException e) {
             return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }

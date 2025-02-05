@@ -48,26 +48,6 @@
             <artifactId>nft-turbo-rpc</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-cache</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-es</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hollis</groupId>
-            <artifactId>nft-turbo-datasource</artifactId>
-        </dependency>
-
         <!--  TEST  -->
 
         <dependency>
