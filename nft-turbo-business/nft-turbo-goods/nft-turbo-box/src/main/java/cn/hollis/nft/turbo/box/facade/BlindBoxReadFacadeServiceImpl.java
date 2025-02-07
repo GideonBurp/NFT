@@ -49,7 +49,8 @@ public class BlindBoxReadFacadeServiceImpl implements BlindBoxReadFacadeService 
         request.setGoodsType(GoodsType.BLIND_BOX);
         SingleResponse<Integer> response = inventoryFacadeService.queryInventory(request);
 
-        Integer inventory = 0;
+        //没查到的情况下，默认用数据库里面的库存做兜底
+        Integer inventory = blindBox.getSaleableInventory().intValue();
         if (response.getSuccess()) {
             inventory = response.getData();
         }

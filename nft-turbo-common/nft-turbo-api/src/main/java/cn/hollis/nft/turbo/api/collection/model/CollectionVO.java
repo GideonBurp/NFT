@@ -37,11 +37,6 @@ public class CollectionVO extends BaseGoodsVO {
     private String cover;
 
     /**
-     * '藏品类目id'
-     */
-    private String classId;
-
-    /**
      * '价格'
      */
     private BigDecimal price;
@@ -57,19 +52,9 @@ public class CollectionVO extends BaseGoodsVO {
     private Long inventory;
 
     /**
-     * '藏品创建时间'
-     */
-    private Date createTime;
-
-    /**
      * '藏品发售时间'
      */
     private Date saleTime;
-
-    /**
-     * '藏品上链时间'
-     */
-    private Date syncChainTime;
 
     /**
      * 版本
