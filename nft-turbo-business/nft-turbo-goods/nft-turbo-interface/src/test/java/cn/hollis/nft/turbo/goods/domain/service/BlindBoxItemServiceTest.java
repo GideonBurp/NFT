@@ -22,10 +22,12 @@ import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxItemService;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
+import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.goods.GoodsBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,6 +45,8 @@ public class BlindBoxItemServiceTest extends GoodsBaseTest {
     private BlindBoxManageFacadeService blindBoxManageFacadeService;
     @Autowired
     private BlindBoxService blindBoxService;
+    @MockBean
+    private HeldCollectionService heldCollectionService;
 
     @Test
     public void openTest() {

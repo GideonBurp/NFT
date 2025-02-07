@@ -34,20 +34,6 @@ import static org.mockito.Mockito.when;
 
 public class CollectionReadFacadeServiceTest extends GoodsBaseTest {
 
-    @MockBean
-    private RedissonClient redissonClient;
-
-    @MockBean
-    protected SlidingWindowRateLimiter slidingWindowRateLimiter;
-
-    @MockBean
-    private ChainFacadeService chainFacadeService;
-
-    @MockBean
-    private UserFacadeService userFacadeService;
-
-    @MockBean
-    private OrderFacadeService orderFacadeService;
 
     @MockBean
     private InventoryFacadeService inventoryFacadeService;
@@ -66,6 +52,7 @@ public class CollectionReadFacadeServiceTest extends GoodsBaseTest {
         request.setName("测试藏品");
         request.setQuantity(100L);
         request.setSaleTime(new Date());
+        request.setCanBook(0);
         request.setPrice(BigDecimal.TEN);
         request.setCover("https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF");
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
@@ -88,6 +75,7 @@ public class CollectionReadFacadeServiceTest extends GoodsBaseTest {
         request.setName("测试藏品");
         request.setQuantity(100L);
         request.setSaleTime(new Date());
+        request.setCanBook(0);
         request.setPrice(BigDecimal.TEN);
         request.setCover("https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF");
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
@@ -117,6 +105,7 @@ public class CollectionReadFacadeServiceTest extends GoodsBaseTest {
         request.setName("测试藏品");
         request.setQuantity(100L);
         request.setSaleTime(new Date());
+        request.setCanBook(0);
         request.setPrice(BigDecimal.TEN);
         request.setCover("https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF");
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
@@ -157,6 +146,7 @@ public class CollectionReadFacadeServiceTest extends GoodsBaseTest {
         request.setQuantity(100L);
         request.setSaleTime(new Date());
         request.setPrice(BigDecimal.TEN);
+        request.setCanBook(0);
         request.setCover("https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF");
         ChainProcessResponse<ChainOperationData> chainProcessResponse = new ChainProcessResponse<>();
         chainProcessResponse.setSuccess(true);

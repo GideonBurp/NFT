@@ -189,17 +189,10 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
     @Transactional(rollbackFor = Exception.class)
     public HeldCollection destroy(HeldCollectionDestroyRequest request) {
         HeldCollection heldCollection = this.getById(request.getHeldCollectionId());
-
-        if (heldCollection == null) {
-            throw new CollectionException(CollectionErrorCode.HELD_COLLECTION_QUERY_FAIL);
-        }
+        preCheckForDestroy(request, heldCollection);
 
         if (heldCollection.getState() == HeldCollectionState.DESTROYING || heldCollection.getState() == HeldCollectionState.DESTROYED) {
             return heldCollection;
-        }
-
-        if (!heldCollection.getUserId().equals(request.getOperatorId())) {
-            throw new CollectionException(CollectionErrorCode.HELD_COLLECTION_OWNER_CHECK_ERROR);
         }
 
         heldCollection.destroying();
@@ -211,6 +204,16 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         Assert.isTrue(saveResult, () -> new CollectionException(HELD_COLLECTION_STREAM_SAVE_FAILED));
 
         return heldCollection;
+    }
+
+    private static void preCheckForDestroy(HeldCollectionDestroyRequest request, HeldCollection oldHeldCollection) {
+        if (oldHeldCollection == null) {
+            throw new CollectionException(CollectionErrorCode.HELD_COLLECTION_QUERY_FAIL);
+        }
+
+        if (!oldHeldCollection.getUserId().equals(request.getOperatorId())) {
+            throw new CollectionException(CollectionErrorCode.HELD_COLLECTION_OWNER_CHECK_ERROR);
+        }
     }
 
     @Cached(name = ":held_collection:cache:id:", expire = 60, localExpire = 10, timeUnit = TimeUnit.MINUTES, cacheType = CacheType.BOTH, key = "#heldCollectionId", cacheNullValue = true)
