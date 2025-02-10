@@ -30,9 +30,9 @@ public abstract class AbstraceInventoryRedisService implements InventoryService 
     @Autowired
     private RedissonClient redissonClient;
 
-    private static final String ERROR_CODE_INVENTORY_NOT_ENOUGH = "INVENTORY_NOT_ENOUGH";
-    private static final String ERROR_CODE_KEY_NOT_FOUND = "KEY_NOT_FOUND";
-    private static final String ERROR_CODE_OPERATION_ALREADY_EXECUTED = "OPERATION_ALREADY_EXECUTED";
+    public static final String ERROR_CODE_INVENTORY_NOT_ENOUGH = "INVENTORY_NOT_ENOUGH";
+    public static final String ERROR_CODE_KEY_NOT_FOUND = "KEY_NOT_FOUND";
+    public static final String ERROR_CODE_OPERATION_ALREADY_EXECUTED = "OPERATION_ALREADY_EXECUTED";
 
     @Override
     public InventoryResponse init(InventoryRequest request) {
