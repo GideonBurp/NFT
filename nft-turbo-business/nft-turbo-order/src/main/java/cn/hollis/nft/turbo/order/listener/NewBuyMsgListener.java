@@ -17,6 +17,7 @@ import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -29,9 +30,12 @@ import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE
 
 /**
  * @author Hollis
+ *
+ * 单条消费MQ的newBuy消息，这个Bean和NewBuyBatchMsgListener只启动一个。本Bean对RocketMQ的Brocker部署不强依赖，即不部署也不到会导致应用无法启动，但是消息会无法发送和消费
  */
 @Component
 @Slf4j
+@ConditionalOnProperty(name = "rocketmq.broker.check", havingValue = "false", matchIfMissing = true)
 public class NewBuyMsgListener {
 
     @Autowired
