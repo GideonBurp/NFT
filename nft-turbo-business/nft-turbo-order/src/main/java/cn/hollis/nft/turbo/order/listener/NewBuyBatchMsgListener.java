@@ -23,6 +23,7 @@ import org.apache.rocketmq.spring.core.RocketMQPushConsumerLifecycleListener;
 import org.locationtech.jts.util.Assert;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -30,9 +31,17 @@ import java.util.List;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
+/**
+ * @author
+ *
+ * 批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
+ * 这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
+ * 如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
+ */
 @Component
 @Slf4j
 @RocketMQMessageListener(topic = "new-buy-topic", consumerGroup = "trade-group")
+@ConditionalOnProperty(value = "rocketmq.broker.check", havingValue = "true")
 public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, RocketMQPushConsumerLifecycleListener {
 
     @Autowired

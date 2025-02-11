@@ -8,6 +8,7 @@ import org.dromara.easyes.core.biz.EsPageInfo;
 import org.dromara.easyes.core.biz.SAPageInfo;
 import org.dromara.easyes.core.conditions.select.LambdaEsQueryWrapper;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -34,12 +35,14 @@ public class EsCollectionRepositoryTest extends GoodsBaseTest {
     private CollectionEsMapper collectionEsMapper;
 
     @Test
+    @Ignore // 测试前，请先开启es，修改base.yml中 nft.turbo.elasticsearch.enable = true
     public void test() {
         IndexOperations indexOperations = elasticsearchOperations.indexOps(Collection.class);
         Assert.assertEquals("nfturbo_collection", indexOperations.getIndexCoordinates().getIndexName());
     }
 
     @Test
+    @Ignore
     public void testFindByNameAndState(){
         Criteria criteria = new Criteria("name").is("11").and(new Criteria[]{new Criteria("state").is("SUCCEED"),new Criteria("deleted").is("0")});
         PageRequest pageRequest = PageRequest.of(0,1);
@@ -52,6 +55,7 @@ public class EsCollectionRepositoryTest extends GoodsBaseTest {
     }
 
     @Test
+    @Ignore
     public void testFindByNameAndStateWithEasyEs(){
         LambdaEsQueryWrapper<Collection> queryWrapper = new LambdaEsQueryWrapper<>();
         queryWrapper.match(Collection::getName, "测试")
@@ -66,6 +70,7 @@ public class EsCollectionRepositoryTest extends GoodsBaseTest {
 
 
     @Test
+    @Ignore
     public void testSearchAfter() {
         LambdaEsQueryWrapper<Collection> queryWrapper = new LambdaEsQueryWrapper<>();
         queryWrapper.match(Collection::getName, "测试")

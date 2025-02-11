@@ -4,6 +4,7 @@ import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.api.collection.constant.HeldCollectionState;
 import cn.hollis.nft.turbo.api.collection.request.CollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
+import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionActiveRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionDestroyRequest;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionTransferRequest;
@@ -35,7 +36,7 @@ public class HeldCollectionServiceTest extends GoodsBaseTest {
         request.setCreateTime(new Date());
         request.setSaleTime(new Date());
         Collection collection = collectionService.create(request);
-        Assert.assertTrue(collection.getId() != null);
+        Assert.assertNotNull(collection.getId());
 
         //create
         HeldCollectionCreateRequest mintRequest = new HeldCollectionCreateRequest();
@@ -45,26 +46,35 @@ public class HeldCollectionServiceTest extends GoodsBaseTest {
         mintRequest.setBizType(GoodsSaleBizType.PRIMARY_TRADE.name());
         mintRequest.setUserId("1");
         var heldCollection = heldCollectionService.create(mintRequest);
-        Assert.assertTrue(heldCollection.getId() != null);
-        Assert.assertTrue(heldCollection.getState() == HeldCollectionState.INIT);
-        //transfer
+        Assert.assertNotNull(heldCollection.getId());
+        Assert.assertSame(heldCollection.getState(), HeldCollectionState.INIT);
+
+        // active
+        HeldCollectionActiveRequest heldCollectionActiveRequest = new HeldCollectionActiveRequest();
+        heldCollectionActiveRequest.setHeldCollectionId(heldCollection.getId().toString());
+        heldCollectionActiveRequest.setIdentifier(heldCollection.getId().toString());
+        heldCollectionActiveRequest.setNftId(heldCollection.getId().toString());
+        heldCollectionActiveRequest.setTxHash(heldCollection.getId().toString());
+        heldCollectionService.active(heldCollectionActiveRequest);
+        // transfer
         HeldCollectionTransferRequest transferRequest = new HeldCollectionTransferRequest();
         transferRequest.setHeldCollectionId(heldCollection.getId().toString());
         transferRequest.setIdentifier("345");
         transferRequest.setRecipientUserId("2");
         transferRequest.setOperatorId("1");
         var newHeldCollection = heldCollectionService.transfer(transferRequest);
-        Assert.assertTrue(newHeldCollection.getId() != null);
-        Assert.assertTrue(newHeldCollection.getState() == HeldCollectionState.INIT);
+        Assert.assertNotNull(newHeldCollection.getId());
+        Assert.assertSame(newHeldCollection.getState(), HeldCollectionState.INIT);
         var oldHeldCollection = heldCollectionService.queryByCollectionIdAndSerialNo(heldCollection.getCollectionId(),
                 heldCollection.getSerialNo());
-        Assert.assertTrue(oldHeldCollection.getState() == HeldCollectionState.INACTIVED);
-        //destroy
+        Assert.assertSame(oldHeldCollection.getState(), HeldCollectionState.INACTIVED);
+        // destroy
         HeldCollectionDestroyRequest destroyRequest = new HeldCollectionDestroyRequest();
         destroyRequest.setHeldCollectionId(newHeldCollection.getId().toString());
         destroyRequest.setIdentifier("456");
+        destroyRequest.setOperatorId(transferRequest.getRecipientUserId());
         var destroyHeldCollection = heldCollectionService.destroy(destroyRequest);
-        Assert.assertTrue(destroyHeldCollection.getId() != null);
-        Assert.assertTrue(destroyHeldCollection.getState() == HeldCollectionState.DESTROYED);
+        Assert.assertNotNull(destroyHeldCollection.getId());
+        Assert.assertSame(destroyHeldCollection.getState(), HeldCollectionState.DESTROYING);
     }
 }

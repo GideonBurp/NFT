@@ -1,16 +1,15 @@
 package cn.hollis.nft.turbo.order.domain;
 
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.order.NfTurboOrderApplication;
+import cn.hollis.nft.turbo.order.sharding.id.DistributeID;
 import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
 import cn.hutool.core.util.RandomUtil;
-import com.xxl.job.core.executor.XxlJobExecutor;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.redisson.RedissonAtomicLong;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,10 +18,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Hollis
@@ -41,9 +36,6 @@ public class OrderBaseTest {
     @MockBean
     private WorkerIdHolder workerIdHolder;
 
-
-
-
     @Test
     public void test(){
 
@@ -51,7 +43,8 @@ public class OrderBaseTest {
 
     protected OrderCreateRequest orderCreateRequest() {
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
-        orderCreateRequest.setBuyerId(UUID.randomUUID().toString().substring(0, 10));
+        String buyerId = String.valueOf(UUID.randomUUID().hashCode());
+        orderCreateRequest.setBuyerId(buyerId);
         orderCreateRequest.setSellerId(UUID.randomUUID().toString().substring(0, 10));
         orderCreateRequest.setGoodsId(RandomUtil.randomNumbers(5));
         orderCreateRequest.setGoodsName(UUID.randomUUID().toString());
@@ -60,6 +53,7 @@ public class OrderBaseTest {
         orderCreateRequest.setIdentifier(UUID.randomUUID().toString());
         orderCreateRequest.setItemPrice(new BigDecimal("3212"));
         orderCreateRequest.setItemCount(1);
+        orderCreateRequest.setOrderId(DistributeID.generateWithSnowflake(BusinessCode.TRADE_ORDER, WorkerIdHolder.WORKER_ID, buyerId));
         return orderCreateRequest;
     }
 }

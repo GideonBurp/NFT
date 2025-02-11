@@ -130,7 +130,7 @@ public class OrderManageServiceTest extends OrderBaseTest {
         orderPayRequest.setPayStreamId(UUID.randomUUID().toString());
         orderPayRequest.setPayChannel(PayChannel.WECHAT);
         orderPayRequest.setAmount(new BigDecimal("1.1"));
-        OrderResponse payResponse = orderService.pay(orderPayRequest);
+        OrderResponse payResponse = orderService.paySuccess(orderPayRequest);
         Assert.assertTrue(payResponse.getSuccess());
 
         TradeOrder tradeOrder = orderReadService.getOrder(orderId);
@@ -166,7 +166,7 @@ public class OrderManageServiceTest extends OrderBaseTest {
             throw new RuntimeException(e);
         }
 
-        OrderResponse payResponse = orderService.pay(orderPayRequest);
+        OrderResponse payResponse = orderService.paySuccess(orderPayRequest);
         System.out.println(JSON.toJSONString(payResponse));
         Assert.assertTrue(payResponse.getSuccess());
 
@@ -227,10 +227,10 @@ public class OrderManageServiceTest extends OrderBaseTest {
         orderPayRequest.setPayStreamId(UUID.randomUUID().toString());
         orderPayRequest.setPayChannel(PayChannel.WECHAT);
         orderPayRequest.setAmount(new BigDecimal("1.1"));
-        OrderResponse payResponse = orderService.pay(orderPayRequest);
+        OrderResponse payResponse = orderService.paySuccess(orderPayRequest);
         Assert.assertTrue(payResponse.getSuccess());
 
-        payResponse = orderService.pay(orderPayRequest);
+        payResponse = orderService.paySuccess(orderPayRequest);
         Assert.assertTrue(payResponse.getSuccess());
     }
 
@@ -261,12 +261,12 @@ public class OrderManageServiceTest extends OrderBaseTest {
         orderPayRequest.setPayStreamId(UUID.randomUUID().toString());
         orderPayRequest.setPayChannel(PayChannel.WECHAT);
         orderPayRequest.setAmount(new BigDecimal("1.1"));
-        OrderResponse payResponse = orderService.pay(orderPayRequest);
+        OrderResponse payResponse = orderService.paySuccess(orderPayRequest);
         Assert.assertTrue(payResponse.getSuccess());
 
         orderPayRequest.setPayStreamId(UUID.randomUUID().toString());
         orderPayRequest.setIdentifier(UUID.randomUUID().toString());
-        payResponse = orderService.pay(orderPayRequest);
+        payResponse = orderService.paySuccess(orderPayRequest);
         Assert.assertFalse(payResponse.getSuccess());
     }
 

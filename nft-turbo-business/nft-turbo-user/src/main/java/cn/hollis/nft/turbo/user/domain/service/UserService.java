@@ -72,19 +72,23 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     @Autowired
     private RedissonClient redissonClient;
 
-    private RBloomFilter<String> nickNameBloomFilter;
-
-    private RBloomFilter<String> inviteCodeBloomFilter;
-
-    private RScoredSortedSet<String> inviteRank;
-
     @Autowired
     private CacheManager cacheManager;
 
-    private Cache<String, User> idUserCache;
-
     @Autowired
     private UserCacheDelayDeleteService userCacheDelayDeleteService;
+
+    //用户名布隆过滤器
+    private RBloomFilter<String> nickNameBloomFilter;
+
+    //邀请码布隆过滤器
+    private RBloomFilter<String> inviteCodeBloomFilter;
+
+    //邀请排行榜
+    private RScoredSortedSet<String> inviteRank;
+
+    //通过用户ID对用户信息做的缓存
+    private Cache<String, User> idUserCache;
 
     @PostConstruct
     public void init() {
@@ -156,7 +160,6 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
         return userOperatorResponse;
     }
-
 
     /**
      * 注册
@@ -425,7 +428,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     public PageResponse<User> getUsersByInviterId(String inviterId, int currentPage, int pageSize) {
         Page<User> page = new Page<>(currentPage, pageSize);
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.select("nick_name","gmt_create");
+        wrapper.select("nick_name", "gmt_create");
         wrapper.eq("inviter_id", inviterId);
 
         wrapper.orderBy(true, false, "gmt_create");
@@ -484,18 +487,39 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         return this.inviteCodeBloomFilter != null && this.inviteCodeBloomFilter.add(inviteCode);
     }
 
+    /**
+     * 更新排名，排名规则：
+     * <pre>
+     *     1、优先按照分数排，分数越大的，排名越靠前
+     *     2、分数相同，则按照上榜时间排，上榜越早的排名越靠前
+     * </pre>
+     *
+     * @param inviterId
+     */
     private void updateInviteRank(String inviterId) {
         if (inviterId == null) {
             return;
         }
+        //1、这里因为是一个私有方法，无法通过注解方式实现分布式锁。
+        //2、register方法已经加了锁，这里需要二次加锁的原因是register锁的是注册人，这里锁的是邀请人
         RLock rLock = redissonClient.getLock(inviterId);
         rLock.lock();
         try {
+            //获取当前用户的积分
             Double score = inviteRank.getScore(inviterId);
             if (score == null) {
                 score = 0.0;
             }
-            inviteRank.add(score + 100.0, inviterId);
+
+            //获取最近一次上榜时间
+            long currentTimeStamp = System.currentTimeMillis();
+            //把上榜时间转成小数(时间戳13位，所以除以10000000000000能转成小数)，并且倒序排列（用1减），即上榜时间越早，分数越大（时间越晚，时间戳越大，用1减一下，就反过来了）
+            double timePartScore = 1 - (double) currentTimeStamp / 10000000000000L;
+
+            //1、当前积分保留整数，即移除上一次的小数位
+            //2、当前积分加100，表示新邀请了一个用户
+            //3、加上“最近一次上榜时间的倒序小数位“作为score
+            inviteRank.add(score.intValue() + 100.0 + timePartScore, inviterId);
         } finally {
             rLock.unlock();
         }

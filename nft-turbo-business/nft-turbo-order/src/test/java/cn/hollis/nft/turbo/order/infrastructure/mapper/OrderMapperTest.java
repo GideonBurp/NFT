@@ -135,7 +135,7 @@ public class OrderMapperTest extends OrderBaseTest {
         payRequest.setPayChannel(PayChannel.ALIPAY);
         payRequest.setOperateTime(new Date());
         payRequest.setOrderId(tradeOrder.getOrderId());
-        tradeOrder.pay(payRequest);
+        tradeOrder.paySuccess(payRequest);
 
         OrderFinishRequest finishRequest = new OrderFinishRequest();
         finishRequest.setOrderId(tradeOrder.getOrderId());
