@@ -10,6 +10,7 @@
     <property name="LOG_PATH" value="${user.home}/${APP_NAME}/logs"/>
     <property name="LOG_FILE" value="${LOG_PATH}/application.log"/>
     <property name="FILE_LOG_PATTERN" value="%d %-5level [%thread %logger - %sensitive%n"/>
+    <property name="CONSOLE_LOG_PATTERN" value="%d [%thread] %-5level %logger - %msg%n"/>
 
     <appender name="APPLICATION"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
