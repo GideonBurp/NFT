@@ -17,21 +17,26 @@ import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
 /**
  * @author Hollis
+ * <p>
+ * 单条消费MQ的newBuy消息，在rocketmq.broker.check=fasle （stream.yml） 的时候会生效
+ * 这个Bean和NewBuyBatchMsgListener只启动一个。
+ * 本Bean对RocketMQ的Brocker部署不强依赖，即不部署也不到会导致应用无法启动，但是消息会无法发送和消费
  */
 @Component
 @Slf4j
+@ConditionalOnProperty(value = "rocketmq.broker.check", havingValue = "false", matchIfMissing = true)
 public class NewBuyMsgListener {
 
     @Autowired
@@ -44,16 +49,13 @@ public class NewBuyMsgListener {
     private InventoryFacadeService inventoryFacadeService;
 
     @Bean
-    Consumer<Message<List<MessageBody>>> newBuy() {
+    Consumer<Message<MessageBody>> newBuy() {
         return msg -> {
             String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-            log.info("Received NewBuy Message messageId:{},msgCoung:{}，tag:{}", messageId, msg.getPayload().size());
-            msg.getPayload().parallelStream().forEach(messageBody -> {
-                OrderCreateRequest orderCreateRequest = JSON.parseObject(messageBody.getBody(), OrderCreateRequest.class);
-                log.info("Received NewBuy Message messageId:{},orderCreateRequest:{}", messageId, orderCreateRequest);
-                doNewBuyExecute(orderCreateRequest);
-            });
-
+            String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
+            OrderCreateRequest orderCreateRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCreateRequest.class);
+            log.info("Received NewBuy Message messageId:{},orderCreateRequest:{}，tag:{}", messageId, orderCreateRequest, tag);
+            doNewBuyExecute(orderCreateRequest);
         };
     }
 
