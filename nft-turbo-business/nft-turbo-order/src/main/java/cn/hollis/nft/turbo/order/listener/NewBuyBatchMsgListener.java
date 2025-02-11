@@ -34,12 +34,14 @@ import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE
 /**
  * @author
  *
- * 批量消费MQ的newBuy消息，这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
+ * 批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
+ * 这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
+ * 如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
  */
 @Component
 @Slf4j
 @RocketMQMessageListener(topic = "new-buy-topic", consumerGroup = "trade-group")
-@ConditionalOnProperty(name = "rocketmq.broker.check", havingValue = "true")
+@ConditionalOnProperty(value = "rocketmq.broker.check", havingValue = "true")
 public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, RocketMQPushConsumerLifecycleListener {
 
     @Autowired

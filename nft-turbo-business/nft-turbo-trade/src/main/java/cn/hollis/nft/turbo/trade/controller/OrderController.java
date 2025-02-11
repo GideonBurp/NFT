@@ -65,6 +65,9 @@ public class OrderController {
         SingleResponse<TradeOrderVO> singleResponse = orderFacadeService.getTradeOrder(orderId, userId);
         if (singleResponse.getSuccess()) {
             TradeOrderVO tradeOrderVO = singleResponse.getData();
+            if(tradeOrderVO == null){
+                return Result.error("ORDER_NOT_EXIST", "订单不存在");
+            }
             if (tradeOrderVO.getTimeout() && tradeOrderVO.getOrderState() == TradeOrderState.CONFIRM) {
                 //如果订单已经超时，并且尚未关闭，则执行一次关单后再返回数据
                 OrderTimeoutRequest timeoutRequest = new OrderTimeoutRequest();
