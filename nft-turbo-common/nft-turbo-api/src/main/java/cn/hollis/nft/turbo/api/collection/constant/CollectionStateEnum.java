@@ -17,6 +17,4 @@ public enum CollectionStateEnum {
      * 已下架
      */
     REMOVED
-
-
 }

@@ -60,29 +60,6 @@ public class BlindBoxVO extends BaseGoodsVO {
     private Long quantity;
 
     /**
-     * 幂等号
-     */
-    private String identifier;
-
-    /**
-     * '可售库存'
-     */
-    private Long saleableInventory;
-
-    /**
-     * '已占库存'
-     *
-     * @deprecated 这个字段不再使用，详见 CollecitonSerivce.confirmSale
-     */
-    @Deprecated
-    private Long occupiedInventory;
-
-    /**
-     * 盲盒分配规则
-     */
-    private String allocateRule;
-
-    /**
      * 预约开始时间
      */
     private Date bookStartTime;
