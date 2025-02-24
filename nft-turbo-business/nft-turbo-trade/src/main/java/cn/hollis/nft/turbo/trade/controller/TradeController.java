@@ -99,7 +99,7 @@ public class TradeController {
         //数藏比较特殊，一个商品只能预定一次，所以这里直接用userId+goodsType+goodsId作为标识了，如果支持多次预定的话，需要在再有个活动的概念，基于活动做预约
         goodsBookRequest.setIdentifier(userId + "_" + bookParam.getGoodsType() + "_" + bookParam.getGoodsId());
         goodsBookRequest.setBuyerId(userId);
-        GoodsBookResponse goodsBookResponse = goodsFacadeService.book(goodsBookRequest);
+        GoodsBookResponse goodsBookResponse = RemoteCallWrapper.call(req -> goodsFacadeService.book(req), goodsBookRequest, "bookGoods");
         if (goodsBookResponse.getSuccess()) {
             return Result.success(goodsBookResponse.getBookId());
         }
@@ -170,6 +170,7 @@ public class TradeController {
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateAndConfirmRequest orderCreateRequest = getOrderCreateAndConfirmRequest(buyParam);
 
+        //todo 通过TCC保证订单和库存扣减的原子性
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.createAndConfirm(req), orderCreateRequest, "createOrder");
 
         if (orderResponse.getSuccess()) {

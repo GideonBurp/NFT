@@ -112,7 +112,7 @@ public class TradeOrderTest {
         orderPayRequest.setPayStreamId("dsadasdsa");
         orderPayRequest.setAmount(new BigDecimal("2312.32"));
 
-        tradeOrder.pay(orderPayRequest);
+        tradeOrder.paySuccess(orderPayRequest);
 
         Assert.assertEquals(tradeOrder.getOrderState(), TradeOrderState.PAID);
         Assert.assertEquals(tradeOrder.getPayChannel(), orderPayRequest.getPayChannel());
@@ -140,7 +140,7 @@ public class TradeOrderTest {
         orderPayRequest.setPayStreamId("dsadasdsa");
         orderPayRequest.setAmount(new BigDecimal("2312.32"));
 
-        tradeOrder.pay(orderPayRequest);
+        tradeOrder.paySuccess(orderPayRequest);
 
         OrderFinishRequest orderFinishRequest = new OrderFinishRequest();
         orderFinishRequest.setOperateTime(new Date());
@@ -162,6 +162,7 @@ public class TradeOrderTest {
         orderCreateRequest.setItemCount(2);
         orderCreateRequest.setItemPrice(new BigDecimal("21312"));
         orderCreateRequest.setSnapshotVersion(123);
+        orderCreateRequest.setOrderId(UUID.randomUUID().toString());
         orderCreateRequest.setGoodsPicUrl("http://www.nft.com/pic");
         return orderCreateRequest;
     }

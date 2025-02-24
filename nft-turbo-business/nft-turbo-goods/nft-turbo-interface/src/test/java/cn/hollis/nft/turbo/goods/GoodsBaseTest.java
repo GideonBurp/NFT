@@ -22,16 +22,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class GoodsBaseTest {
 
     @MockBean
-    private RedissonClient redissonClient;
-
-
-    @MockBean
-    protected SlidingWindowRateLimiter slidingWindowRateLimiter;
-
-    @MockBean
-    private CollectionService collectionService;
-
-    @MockBean
     protected ChainFacadeService chainFacadeService;
 
     @MockBean
@@ -42,9 +32,6 @@ public class GoodsBaseTest {
 
     @MockBean
     protected OrderFacadeService orderFacadeService;
-
-    @MockBean
-    protected HeldCollectionService heldCollectionService;
 
     @Test
     public void test() {

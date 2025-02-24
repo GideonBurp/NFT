@@ -198,6 +198,9 @@ CREATE TABLE IF NOT EXISTS  `blind_box` (
  `allocate_rule` varchar(512) DEFAULT NULL COMMENT '盲盒分配规则',
  `sync_chain_time` datetime DEFAULT NULL COMMENT '上链时间',
  `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
+`book_start_time` datetime DEFAULT NULL COMMENT '预约开始时间',
+`book_end_time` datetime DEFAULT NULL COMMENT '预约结束时间',
+`can_book` int DEFAULT NULL COMMENT '是否可以预约',
  `collection_configs` text COMMENT '藏品配置',
  `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
@@ -255,3 +258,16 @@ CREATE TABLE IF NOT EXISTS  `blind_box_item` (
   `assign_time` datetime DEFAULT NULL COMMENT ' 分配时间',
   PRIMARY KEY (`id`)
 ) ;
+
+CREATE TABLE IF NOT EXISTS  `held_collection_stream` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+  `held_collection_id` bigint NOT NULL COMMENT '持有藏品的id',
+  `stream_type` varchar(64) NOT NULL COMMENT '流水类型',
+  `operator` varchar(64) NOT NULL COMMENT '操作者',
+  `identifier` varchar(128) NOT NULL COMMENT '幂等号',
+  `deleted` tinyint NULL COMMENT ' 逻辑删除',
+  `lock_version` int NULL COMMENT ' 版本号',
+  PRIMARY KEY (`id`)
+)
