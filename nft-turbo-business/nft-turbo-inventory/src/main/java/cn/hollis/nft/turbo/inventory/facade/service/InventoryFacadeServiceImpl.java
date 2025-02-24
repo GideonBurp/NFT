@@ -1,14 +1,21 @@
 package cn.hollis.nft.turbo.inventory.facade.service;
 
-import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
+import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
 import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.inventory.domain.response.InventoryResponse;
 import cn.hollis.nft.turbo.inventory.domain.service.impl.BlindBoxInventoryRedisService;
 import cn.hollis.nft.turbo.inventory.domain.service.impl.CollectionInventoryRedisService;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeUnit;
+
+import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventoryRedisService.ERROR_CODE_INVENTORY_NOT_ENOUGH;
 
 /**
  * 库存门面服务
@@ -23,6 +30,17 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
     @Autowired
     private BlindBoxInventoryRedisService blindBoxInventoryRedisService;
+
+    private Cache<String, Boolean> soldOutGoodsLocalCache;
+
+    @PostConstruct
+    public void init() {
+        soldOutGoodsLocalCache = Caffeine.newBuilder()
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .maximumSize(3000)
+                .build();
+    }
+
 
     @Override
     public SingleResponse<Boolean> init(InventoryRequest inventoryRequest) {
@@ -45,6 +63,11 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     @Override
     public SingleResponse<Boolean> decrease(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();
+
+        if (soldOutGoodsLocalCache.getIfPresent(goodsType + "_" + inventoryRequest.getGoodsId()) != null) {
+            return SingleResponse.fail(ERROR_CODE_INVENTORY_NOT_ENOUGH, "库存不足");
+        }
+
         InventoryResponse inventoryResponse = switch (goodsType) {
             case COLLECTION -> collectionInventoryRedisService.decrease(inventoryRequest);
 
@@ -53,7 +76,11 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };
 
-        if (inventoryResponse.getSuccess()) {
+        //1、如果库存为0，则在本地缓存记录，用于对售罄商品快速决策
+        //2、当前库存已经是0了，本次扣减失败的情况
+        if (inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0
+                || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_NOT_ENOUGH)) {
+            soldOutGoodsLocalCache.put(goodsType + "_" + inventoryRequest.getGoodsId(), true);
             return SingleResponse.of(true);
         }
 
@@ -72,6 +99,13 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         };
 
         if (inventoryResponse.getSuccess()) {
+
+            //如果库存大于0，则清除本地缓存中的商品售罄标记
+            //但是因为是本地缓存，所以无法保证一致性，极端情况下，会存在一分钟的数据不一致的延迟。但是在高并发秒杀场景下，一般是不允许修改库存，所以这种不一致业务上可接受
+            if (inventoryResponse.getInventory() > 0) {
+                soldOutGoodsLocalCache.invalidate(goodsType + "_" + inventoryRequest.getGoodsId());
+            }
+
             return SingleResponse.of(true);
         }
 
@@ -88,6 +122,8 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             default -> throw new UnsupportedOperationException("unsupport goods type");
         }
+
+        soldOutGoodsLocalCache.invalidate(goodsType + "_" + inventoryRequest.getGoodsId());
 
         return SingleResponse.of(null);
     }
@@ -110,6 +146,10 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     public SingleResponse<Integer> queryInventory(InventoryRequest InventoryRequest) {
 
         GoodsType goodsType = InventoryRequest.getGoodsType();
+
+        if (soldOutGoodsLocalCache.getIfPresent(goodsType + "_" + InventoryRequest.getGoodsId()) != null) {
+            return SingleResponse.of(0);
+        }
 
         Integer inventory = switch (goodsType) {
             case COLLECTION -> collectionInventoryRedisService.getInventory(InventoryRequest);
