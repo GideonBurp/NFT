@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.order.validator;
 
+import cn.hollis.nft.turbo.api.goods.constant.GoodsState;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
@@ -21,7 +22,9 @@ public class GoodsValidator extends BaseOrderCreateValidator {
     protected void doValidate(OrderCreateRequest request) throws OrderException {
         BaseGoodsVO baseGoodsVO = goodsFacadeService.getGoods(request.getGoodsId(), request.getGoodsType());
 
-        if (!baseGoodsVO.available()) {
+        // 如果商品不是可售状态，则返回失败
+        // PS：可售状态为什么要包含SOLD_OUT呢？因为商品查询的接口中去查询了 Redis 的最新库存，而 Redis 的库存在下单时可能已经扣减过刚好为0了，所以这里要包含 SOLD_OUT
+        if (baseGoodsVO.getState() != GoodsState.SELLING && baseGoodsVO.getState() != GoodsState.SOLD_OUT) {
             throw new OrderException(GOODS_NOT_AVAILABLE);
         }
 
