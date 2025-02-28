@@ -81,10 +81,13 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         if (inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0
                 || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_NOT_ENOUGH)) {
             soldOutGoodsLocalCache.put(goodsType + "_" + inventoryRequest.getGoodsId(), true);
-            return SingleResponse.of(true);
         }
 
-        return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
+        if (!inventoryResponse.getSuccess()) {
+            return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
+        }
+        
+        return SingleResponse.of(true);
     }
 
     @Override
