@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public class BlindBoxOpenEvent extends ApplicationEvent {
 
-    public BlindBoxOpenEvent(BlindBoxItem blindBoxItem) {
-        super(blindBoxItem);
+    public BlindBoxOpenEvent(Long blindBoxItemId) {
+        super(blindBoxItemId);
     }
 }

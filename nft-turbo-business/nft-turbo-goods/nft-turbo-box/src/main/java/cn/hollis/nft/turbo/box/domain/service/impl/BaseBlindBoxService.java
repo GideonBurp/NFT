@@ -18,6 +18,7 @@ import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.box.exception.BlindBoxException;
 import cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxInventoryStreamMapper;
 import cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxMapper;
+import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hutool.core.lang.Assert;
 import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheRefresh;
@@ -172,6 +173,7 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
     }
 
     @Override
+    @DistributeLock(keyExpression = "#request.blindBoxId", scene = "BLIND_BOX_ASSIGN")
     public Boolean assign(BlindBoxAssignRequest request) {
         BlindBox blindBox = this.getById(request.getBlindBoxId());
         //调用分配的规则进行分配
@@ -184,7 +186,7 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
         //更新blindBoxItem状态
         BlindBoxItem blindBoxItem = new BlindBoxItem();
         blindBoxItem.setId(blindBoxItemId);
-        blindBoxItem.assign(request, blindBox);
+        blindBoxItem.assign(request);
         boolean updateResult = blindBoxItemService.updateById(blindBoxItem);
         Assert.isTrue(updateResult, () -> new BlindBoxException(BLIND_BOX_UPDATE_FAILED));
         return true;

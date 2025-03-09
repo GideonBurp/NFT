@@ -55,10 +55,8 @@ public class BlindBoxItemServiceImpl extends ServiceImpl<BlindBoxItemMapper, Bli
         blindBoxItem.opening();
         boolean result = this.updateById(blindBoxItem);
         Assert.isTrue(result, () -> new BlindBoxException(BLIND_BOX_OPEN_FAILED));
-        //查询出更新后的最新值，避免后续 cas 操作失败
-        blindBoxItem = this.getById(blindBoxItem.getId());
         //通过事件驱动解耦，具体逻辑在 BlindBoxEventListener 中处理
-        applicationContext.publishEvent(new BlindBoxOpenEvent(blindBoxItem));
+        applicationContext.publishEvent(new BlindBoxOpenEvent(blindBoxItem.getId()));
         return blindBoxItem;
     }
 

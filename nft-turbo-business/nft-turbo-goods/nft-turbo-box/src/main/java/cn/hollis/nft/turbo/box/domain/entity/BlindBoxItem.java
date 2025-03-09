@@ -54,6 +54,7 @@ public class BlindBoxItem extends BaseEntity {
 
     /**
      * 藏品序列号
+     * @Deprecated
      */
     private String collectionSerialNo;
 
@@ -103,11 +104,10 @@ public class BlindBoxItem extends BaseEntity {
         this.setUserId(request.userId());
         this.setOrderId(request.bizNo());
         this.setAssignTime(new Date());
-        this.setCollectionSerialNo(String.valueOf(blindBox.getOccupiedInventory() + 1));
         return this;
     }
 
-    public BlindBoxItem assign(BlindBoxAssignRequest request, BlindBox blindBox) {
+    public BlindBoxItem assign(BlindBoxAssignRequest request) {
         this.setState(BlindBoxItemStateEnum.ASSIGNED);
         this.setUserId(request.getUserId());
         this.setOrderId(request.getOrderId());

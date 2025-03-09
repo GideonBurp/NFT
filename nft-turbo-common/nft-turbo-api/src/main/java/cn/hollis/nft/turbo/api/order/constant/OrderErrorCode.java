@@ -71,6 +71,11 @@ public enum OrderErrorCode implements ErrorCode {
     USER_NOT_EXIST("USER_NOT_EXIST", "买家不存在"),
 
     /**
+     * 藏品不能转让给自己
+     */
+    TRANSFER_SELF_ERROR("TRANSFER_SELF_ERROR", "藏品不能转让给自己"),
+
+    /**
      * 买家状态异常
      */
     BUYER_STATUS_ABNORMAL("BUYER_STATUS_ABNORMAL", "买家状态异常"),

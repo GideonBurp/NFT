@@ -37,8 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.BUYER_STATUS_ABNORMAL;
-import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.USER_NOT_EXIST;
+import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.*;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_OWNER_CHECK_ERROR;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_SAVE_FAILED;
 
@@ -167,6 +166,9 @@ public class CollectionController {
     @PostMapping("/transfer")
     public Result<Boolean> transfer(@Valid @RequestBody TransferParam param) {
         String userId = (String) StpUtil.getLoginId();
+        if (userId.equals(param.getRecipientUserId())) {
+            throw new CollectionException(TRANSFER_SELF_ERROR);
+        }
         SingleResponse<HeldCollectionVO> response = collectionReadFacadeService.queryHeldCollectionById(Long.parseLong(param.getHeldCollectionId()));
         HeldCollectionVO heldCollection = response.getData();
         UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(param.getRecipientUserId()));

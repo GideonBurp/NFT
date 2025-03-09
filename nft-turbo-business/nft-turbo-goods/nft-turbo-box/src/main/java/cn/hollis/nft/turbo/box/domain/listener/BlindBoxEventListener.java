@@ -50,7 +50,10 @@ public class BlindBoxEventListener {
     @EventListener(value = BlindBoxOpenEvent.class)
     @Async("blindBoxListenExecutor")
     public void onApplicationEvent(BlindBoxOpenEvent event) {
-        BlindBoxItem blindBoxItem = (BlindBoxItem) event.getSource();
+        Long blindBoxItemId = (Long) event.getSource();
+
+        //查询出更新后的最新值，避免后续 cas 操作失败
+        BlindBoxItem blindBoxItem = blindBoxItemService.getById(blindBoxItemId);
 
         //创建heldCollection
         HeldCollectionCreateRequest heldCollectionCreateRequest = getHeldCollectionCreateRequest(blindBoxItem);
@@ -77,7 +80,7 @@ public class BlindBoxEventListener {
         chainProcessRequest.setRecipient(userQueryResponse.getData().getBlockChainUrl());
         chainProcessRequest.setClassId(GoodsSaleBizType.BLIND_BOX_TRADE + "_" + blindBoxItem.getBlindBoxId());
         chainProcessRequest.setClassName(blindBoxItem.getName());
-        chainProcessRequest.setSerialNo(blindBoxItem.getCollectionSerialNo());
+        chainProcessRequest.setSerialNo(heldCollection.getSerialNo());
         chainProcessRequest.setBizId(heldCollection.getId().toString());
         chainProcessRequest.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
         chainProcessRequest.setIdentifier(blindBoxItem.getId().toString());

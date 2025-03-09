@@ -32,7 +32,6 @@ public class OrderEventListener {
         confirmRequest.setOrderId(tradeOrder.getOrderId());
         confirmRequest.setIdentifier(tradeOrder.getIdentifier());
         confirmRequest.setOperateTime(new Date());
-        confirmRequest.setOrderId(tradeOrder.getOrderId());
         confirmRequest.setBuyerId(tradeOrder.getBuyerId());
         confirmRequest.setItemCount(tradeOrder.getItemCount());
         confirmRequest.setGoodsType(tradeOrder.getGoodsType());
