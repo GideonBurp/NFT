@@ -22,6 +22,11 @@ public enum OrderErrorCode implements ErrorCode {
     UPDATE_ORDER_FAILED("UPDATE_ORDER_FAILED", "更新订单失败"),
 
     /**
+     * 更新订单失败
+     */
+    CREATE_ORDER_FAILED("CREATE_ORDER_FAILED", "创建订单失败"),
+
+    /**
      * 订单已支付
      */
     ORDER_ALREADY_PAID("ORDER_ALREADY_PAID", "订单已支付"),

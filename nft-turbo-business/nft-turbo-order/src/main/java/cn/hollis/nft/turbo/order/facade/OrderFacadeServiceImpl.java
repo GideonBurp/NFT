@@ -24,7 +24,6 @@ import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.entity.convertor.TradeOrderConvertor;
 import cn.hollis.nft.turbo.order.domain.service.OrderManageService;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
-import cn.hollis.nft.turbo.order.domain.validator.OrderCreateAndConfirmValidatorConfig;
 import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.turbo.stream.producer.StreamProducer;
@@ -82,7 +81,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         SingleResponse<Boolean> decreaseResult = inventoryFacadeService.decrease(inventoryRequest);
 
         if (decreaseResult.getSuccess()) {
-            return orderService.create(request);
+            return orderService.createAndAsyncConfirm(request);
         }
         throw new OrderException(OrderErrorCode.INVENTORY_DECREASE_FAILED);
     }
@@ -139,6 +138,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     @NotNull
     private OrderResponse sendTransactionMsgForClose(BaseOrderUpdateRequest request) {
         //因为RocketMQ 的事务消息中，如果本地事务发生了异常，这里返回也会是个 true，所以就需要做一下反查进行二次判断，才能知道关单操作是否成功
+        //消息监听：TradeOrderListener
         streamProducer.send("orderClose-out-0", null, JSON.toJSONString(request), "CLOSE_TYPE", request.getOrderEvent().name());
         TradeOrder tradeOrder = orderReadService.getOrder(request.getOrderId());
         OrderResponse orderResponse = new OrderResponse();

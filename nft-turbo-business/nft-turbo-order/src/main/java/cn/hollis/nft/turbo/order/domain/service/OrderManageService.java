@@ -8,9 +8,9 @@ import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.exception.BizException;
 import cn.hollis.nft.turbo.base.exception.RepoErrorCode;
 import cn.hollis.nft.turbo.base.utils.BeanValidator;
+import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrderStream;
-import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.listener.event.OrderCreateEvent;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderMapper;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderStreamMapper;
@@ -65,13 +65,37 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-//    @ShardingSphereTransactionType(TransactionType.BASE)
     public OrderResponse create(OrderCreateRequest request) {
         TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
         if (existOrder != null) {
             return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
         }
 
+        TradeOrder tradeOrder = doCreate(request);
+
+        return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
+    }
+
+    /**
+     * 订单创建并异步执行确认
+     *
+     * @param request
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public OrderResponse createAndAsyncConfirm(OrderCreateRequest request) {
+        TradeOrder existOrder = orderMapper.selectByIdentifier(request.getIdentifier(), request.getBuyerId());
+        if (existOrder != null) {
+            return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
+        }
+
+        TradeOrder tradeOrder = doCreate(request);
+
+        applicationContext.publishEvent(new OrderCreateEvent(tradeOrder));
+        return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
+    }
+
+    private TradeOrder doCreate(OrderCreateRequest request) {
         TradeOrder tradeOrder = TradeOrder.createOrder(request);
 
         boolean result = save(tradeOrder);
@@ -80,13 +104,12 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
         TradeOrderStream orderStream = new TradeOrderStream(tradeOrder, request.getOrderEvent(), request.getIdentifier());
         result = orderStreamMapper.insert(orderStream) == 1;
         Assert.isTrue(result, () -> new BizException(RepoErrorCode.INSERT_FAILED));
-
-        applicationContext.publishEvent(new OrderCreateEvent(tradeOrder));
-        return new OrderResponse.OrderResponseBuilder().orderId(tradeOrder.getOrderId()).buildSuccess();
+        return tradeOrder;
     }
 
     /**
      * 订单创建并确认
+     *
      * @param request
      * @return
      */
@@ -99,7 +122,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
 
         TradeOrder tradeOrder = TradeOrder.createOrder(request);
         OrderConfirmRequest confirmRequest = new OrderConfirmRequest();
-        BeanUtils.copyProperties(request,confirmRequest);
+        BeanUtils.copyProperties(request, confirmRequest);
         confirmRequest.setOrderId(tradeOrder.getOrderId());
 
         tradeOrder.confirm(confirmRequest);
@@ -144,6 +167,16 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
      */
     public OrderResponse cancel(OrderCancelRequest request) {
         return doExecute(request, tradeOrder -> tradeOrder.close(request));
+    }
+
+    /**
+     * 订单取消
+     *
+     * @param request
+     * @return
+     */
+    public OrderResponse discard(OrderDiscardRequest request) {
+        return doExecute(request, tradeOrder -> tradeOrder.discard(request));
     }
 
     /**
@@ -258,6 +291,7 @@ public class OrderManageService extends ServiceImpl<OrderMapper, TradeOrder> {
             case TIME_OUT:
             case CONFIRM:
             case FINISH:
+            case DISCARD:
                 return operatorType == UserType.PLATFORM;
             default:
                 throw new UnsupportedOperationException("unsupport order event : " + orderEvent);
