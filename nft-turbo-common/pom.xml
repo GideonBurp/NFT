@@ -38,8 +38,9 @@
         <module>nft-turbo-mq</module>
         <module>nft-turbo-es</module>
         <module>nft-turbo-seata</module>
-        <module>nft-turbo-promethues</module>
+        <module>nft-turbo-prometheus</module>
         <module>nft-turbo-order-client</module>
+        <module>nft-turbo-tcc</module>
     </modules>
 
 
