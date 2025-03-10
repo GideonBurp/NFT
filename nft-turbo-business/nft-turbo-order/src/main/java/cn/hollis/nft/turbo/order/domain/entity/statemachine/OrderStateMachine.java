@@ -19,6 +19,10 @@ public class OrderStateMachine extends BaseStateMachine<TradeOrderState, TradeOr
         putTransition(TradeOrderState.CREATE, TradeOrderEvent.CANCEL, TradeOrderState.CLOSED);
         putTransition(TradeOrderState.CREATE, TradeOrderEvent.TIME_OUT, TradeOrderState.CLOSED);
 
+        //订单创建过程中失败，推进到废弃态，这种状态用户看不到订单
+        putTransition(TradeOrderState.CREATE, TradeOrderEvent.DISCARD, TradeOrderState.DISCARD);
+        putTransition(TradeOrderState.CONFIRM, TradeOrderEvent.DISCARD, TradeOrderState.DISCARD);
+
         //已支付后，再确认，状态不变
         putTransition(TradeOrderState.PAID, TradeOrderEvent.CONFIRM, TradeOrderState.PAID);
 

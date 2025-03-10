@@ -26,5 +26,9 @@ public enum TradeOrderState {
     /**
      * 订单关闭
      */
-    CLOSED;
+    CLOSED,
+    /**
+     * 废单，用户看不到
+     */
+    DISCARD;
 }

@@ -38,5 +38,10 @@ public enum TradeOrderEvent {
     /**
      * 订单完成
      */
-    FINISH;
+    FINISH,
+
+    /**
+     * 订单废弃
+     */
+    DISCARD;
 }

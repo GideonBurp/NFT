@@ -212,6 +212,14 @@ public class TradeOrder extends BaseEntity {
         return this;
     }
 
+    public TradeOrder discard(BaseOrderUpdateRequest request) {
+        this.setOrderClosedTime(request.getOperateTime());
+        TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());
+        this.setOrderState(orderState);
+        this.setCloseType(request.getOrderEvent().name());
+        return this;
+    }
+
     public TradeOrder finish(OrderFinishRequest request) {
         this.setOrderFinishedTime(request.getOperateTime());
         TradeOrderState orderState = OrderStateMachine.INSTANCE.transition(this.getOrderState(), request.getOrderEvent());
