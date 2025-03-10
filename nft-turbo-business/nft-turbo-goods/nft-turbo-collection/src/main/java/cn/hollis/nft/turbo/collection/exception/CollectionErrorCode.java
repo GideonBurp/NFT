@@ -62,6 +62,11 @@ public enum CollectionErrorCode implements ErrorCode {
      * 藏品流水信息已存在
      */
     COLLECTION_STREAM_EXIST("COLLECTION_STREAM_EXIST", "藏品流水信息已存在"),
+
+    /**
+     * 未冻结库存无法解冻
+     */
+    INVENTORY_UNFREEZE_FAILED("INVENTORY_UNFREEZE_FAILED", "未冻结库存无法解冻"),
     /**
      * 藏品空投流水更新失败
      */

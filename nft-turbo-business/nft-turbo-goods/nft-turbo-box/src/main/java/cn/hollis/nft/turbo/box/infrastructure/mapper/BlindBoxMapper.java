@@ -24,14 +24,6 @@ public interface BlindBoxMapper extends BaseMapper<BlindBox> {
     BlindBox selectByIdentifier(String identifier);
 
     /**
-     * 库存扣减
-     *
-     * @param blindBox
-     * @return
-     */
-    int sale(BlindBox blindBox);
-
-    /**
      * 库存确认扣减
      *
      * @param id
@@ -42,16 +34,16 @@ public interface BlindBoxMapper extends BaseMapper<BlindBox> {
     int confirmSale(Long id, Long occupiedInventory, Integer quantity);
 
     /**
-     * 库存预扣减
+     * 库存扣减
      *
      * @param id
      * @param quantity
      * @return
      */
-    int trySale(Long id, Integer quantity);
+    int sale(Long id, Integer quantity);
 
     /**
-     * 库存预扣减-无hint版
+     * 库存扣减-无hint版
      *
      * @param id
      * @param quantity
@@ -66,5 +58,32 @@ public interface BlindBoxMapper extends BaseMapper<BlindBox> {
      * @param quantity
      * @return
      */
-    int cancelSale(Long id, Integer quantity);
+    int cancel(Long id, Integer quantity);
+
+
+    /**
+     * 冻结库存
+     *
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int freezeInventory(Long id, Integer quantity);
+
+    /**
+     * 解冻并扣减库存
+     *
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int unfreezeAndSale(Long id, Integer quantity);
+
+    /**
+     * 解冻库存
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int unfreezeInventory(Long id, Integer quantity);
 }

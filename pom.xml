@@ -129,6 +129,12 @@
 
             <dependency>
                 <groupId>cn.hollis</groupId>
+                <artifactId>nft-turbo-tcc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hollis</groupId>
                 <artifactId>nft-turbo-limiter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -258,7 +264,7 @@
 
             <dependency>
                 <groupId>cn.hollis</groupId>
-                <artifactId>nft-turbo-promethues</artifactId>
+                <artifactId>nft-turbo-prometheus</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

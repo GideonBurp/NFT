@@ -3,10 +3,10 @@ package cn.hollis.nft.turbo.box.domain.service.impl;
 import cn.hollis.nft.turbo.api.box.constant.BlindAllotBoxRule;
 import cn.hollis.nft.turbo.api.box.request.BlindBoxCreateRequest;
 import cn.hollis.nft.turbo.api.box.request.BlindBoxItemCreateRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
+import cn.hollis.nft.turbo.api.goods.request.*;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBoxInventoryStream;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBoxItem;
@@ -24,8 +24,12 @@ import com.alicp.jetcache.anno.CacheInvalidate;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -40,7 +44,8 @@ import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.*;
  * <p>
  * 通用的盲盒服务
  */
-public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, BlindBox> implements BlindBoxService {
+@Service
+public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> implements BlindBoxService {
 
     @Autowired
     private BlindBoxInventoryStreamMapper blindBoxInventoryStreamMapper;
@@ -50,6 +55,22 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
     private BlindBoxMapper blindBoxMapper;
     @Autowired
     private BlindBoxRuleServiceFactory blindBoxRuleServiceFactory;
+
+    @Override
+    public PageResponse<BlindBox> pageQueryByState(String keyWord, String state, int currentPage, int pageSize) {
+        Page<BlindBox> page = new Page<>(currentPage, pageSize);
+        QueryWrapper<BlindBox> wrapper = new QueryWrapper<>();
+        wrapper.eq("state", state);
+
+        if (StringUtils.isNotBlank(keyWord)) {
+            wrapper.like("name", keyWord);
+        }
+        wrapper.orderBy(true, true, "gmt_create");
+
+        Page<BlindBox> blindBoxPage = this.page(page, wrapper);
+
+        return PageResponse.of(blindBoxPage.getRecords(), (int) blindBoxPage.getTotal(), pageSize, currentPage);
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -80,7 +101,7 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean trySale(GoodsTrySaleRequest request) {
+    public Boolean sale(GoodsTrySaleRequest request) {
         //流水校验
         BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
         if (null != existStream) {
@@ -96,14 +117,14 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
         Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
 
         //核心逻辑执行
-        result = blindBoxMapper.trySale(request.goodsId(), request.quantity());
+        result = blindBoxMapper.sale(request.goodsId(), request.quantity());
         Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
         return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean trySaleWithoutHint(GoodsTrySaleRequest request) {
+    public Boolean saleWithoutHint(GoodsTrySaleRequest request) {
         //流水校验
         BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
         if (null != existStream) {
@@ -173,6 +194,85 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean freezeInventory(GoodsFreezeInventoryRequest request) {
+        //流水校验
+        BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
+        if (null != existStream) {
+            return true;
+        }
+
+        //查询出最新的值
+        BlindBox blindBox = this.getById(request.goodsId());
+
+        //新增blindBox流水
+        BlindBoxInventoryStream stream = new BlindBoxInventoryStream(blindBox, request.identifier(), request.eventType(), request.quantity());
+        int result = blindBoxInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = blindBoxMapper.freezeInventory(request.goodsId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unfreezeAndSale(GoodsUnfreezeAndSaleRequest request) {
+        //流水校验
+        BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
+        if (null != existStream) {
+            return true;
+        }
+
+        BlindBoxInventoryStream existFreezeStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), GoodsEvent.FREEZE_INVENTORY.name(), request.goodsId());
+        if (null == existFreezeStream) {
+            throw new BlindBoxException(INVENTORY_UNFREEZE_FAILED);
+        }
+
+        //查询出最新的值
+        BlindBox blindBox = this.getById(request.goodsId());
+
+        //新增blindBox流水
+        BlindBoxInventoryStream stream = new BlindBoxInventoryStream(blindBox, request.identifier(), request.eventType(), request.quantity());
+        int result = blindBoxInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = blindBoxMapper.unfreezeAndSale(request.goodsId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unfreezeInventory(GoodsUnfreezeInventoryRequest request) {
+        //流水校验
+        BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
+        if (null != existStream) {
+            return true;
+        }
+
+        BlindBoxInventoryStream existFreezeStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), GoodsEvent.FREEZE_INVENTORY.name(), request.goodsId());
+        if (null == existFreezeStream) {
+            throw new BlindBoxException(INVENTORY_UNFREEZE_FAILED);
+        }
+
+        //查询出最新的值
+        BlindBox blindBox = this.getById(request.goodsId());
+
+        //新增blindBox流水
+        BlindBoxInventoryStream stream = new BlindBoxInventoryStream(blindBox, request.identifier(), request.eventType(), request.quantity());
+        int result = blindBoxInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = blindBoxMapper.unfreezeInventory(request.goodsId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
+        return true;
+    }
+
+    @Override
     @DistributeLock(keyExpression = "#request.blindBoxId", scene = "BLIND_BOX_ASSIGN")
     public Boolean assign(BlindBoxAssignRequest request) {
         BlindBox blindBox = this.getById(request.getBlindBoxId());
@@ -194,7 +294,7 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean cancelSale(GoodsCancelSaleRequest request) {
+    public Boolean cancel(GoodsCancelSaleRequest request) {
         //流水校验
         BlindBoxInventoryStream existStream = blindBoxInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
         if (null != existStream) {
@@ -210,7 +310,7 @@ public abstract class BaseBlindBoxService extends ServiceImpl<BlindBoxMapper, Bl
         Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
 
         //核心逻辑执行
-        result = blindBoxMapper.cancelSale(request.collectionId(), request.quantity());
+        result = blindBoxMapper.cancel(request.collectionId(), request.quantity());
         Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
         return true;
     }

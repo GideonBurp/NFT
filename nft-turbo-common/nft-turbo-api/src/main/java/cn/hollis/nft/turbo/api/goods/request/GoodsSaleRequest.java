@@ -66,6 +66,7 @@ public class GoodsSaleRequest extends BaseGoodsRequest {
     public GoodsSaleRequest(OrderCreateAndConfirmRequest orderCreateAndConfirmRequest) {
         this.userId = orderCreateAndConfirmRequest.getBuyerId();
         this.quantity = orderCreateAndConfirmRequest.getItemCount();
+        this.bizNo = orderCreateAndConfirmRequest.getOrderId();
         super.setGoodsId(Long.valueOf(orderCreateAndConfirmRequest.getGoodsId()));
         super.setGoodsType(orderCreateAndConfirmRequest.getGoodsType().name());
         super.setIdentifier(orderCreateAndConfirmRequest.getOrderId());

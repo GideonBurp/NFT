@@ -72,7 +72,7 @@ public class BlindBoxServiceTest extends GoodsBaseTest {
 
 
         GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest("test123", blindBox.getId(), 1);
-        boolean tryRes = blindBoxService.trySale(collectionTrySaleRequest);
+        boolean tryRes = blindBoxService.sale(collectionTrySaleRequest);
         Assert.assertTrue(tryRes);
         var queRes = blindBoxService.getById(blindBox.getId());
         Assert.assertTrue(queRes.getSaleableInventory() == 9L);

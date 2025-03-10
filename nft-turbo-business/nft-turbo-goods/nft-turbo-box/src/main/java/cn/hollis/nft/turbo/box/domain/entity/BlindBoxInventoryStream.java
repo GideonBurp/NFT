@@ -71,6 +71,11 @@ public class BlindBoxInventoryStream extends BaseEntity {
     private Long occupiedInventory;
 
     /**
+     * '冻结库存'
+     */
+    private Long frozenInventory;
+
+    /**
      * '状态'
      */
     private BlindBoxStateEnum state;
@@ -87,6 +92,7 @@ public class BlindBoxInventoryStream extends BaseEntity {
         this.quantity = blindBox.getQuantity();
         this.saleableInventory = blindBox.getSaleableInventory();
         this.occupiedInventory = blindBox.getOccupiedInventory();
+        this.frozenInventory = blindBox.getFrozenInventory();
         this.state = blindBox.getState();
         this.streamType = streamType;
         this.identifier = identifier;

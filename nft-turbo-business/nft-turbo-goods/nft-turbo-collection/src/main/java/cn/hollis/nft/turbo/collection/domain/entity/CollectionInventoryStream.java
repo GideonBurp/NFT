@@ -71,6 +71,11 @@ public class CollectionInventoryStream extends BaseEntity {
     private Long occupiedInventory;
 
     /**
+     * '冻结库存'
+     */
+    private Long frozenInventory;
+
+    /**
      * '状态'
      */
     private CollectionStateEnum state;
@@ -87,6 +92,7 @@ public class CollectionInventoryStream extends BaseEntity {
         this.quantity = collection.getQuantity();
         this.saleableInventory = collection.getSaleableInventory();
 //        this.occupiedInventory = collection.getOccupiedInventory();
+        this.frozenInventory = collection.getFrozenInventory();
         this.state = collection.getState();
         this.streamType = streamType;
         this.identifier = identifier;

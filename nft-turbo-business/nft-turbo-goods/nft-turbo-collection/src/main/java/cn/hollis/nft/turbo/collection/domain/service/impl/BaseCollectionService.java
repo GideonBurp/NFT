@@ -4,9 +4,8 @@ import cn.hollis.nft.turbo.api.collection.constant.CollectionInventoryModifyType
 import cn.hollis.nft.turbo.api.collection.request.*;
 import cn.hollis.nft.turbo.api.collection.response.CollectionAirdropResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
-import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
+import cn.hollis.nft.turbo.api.goods.request.*;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.*;
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConvertor;
@@ -176,7 +175,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean trySale(GoodsTrySaleRequest request) {
+    public Boolean sale(GoodsTrySaleRequest request) {
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
         if (null != existStream) {
@@ -192,14 +191,14 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
 
         //核心逻辑执行
-        result = collectionMapper.trySale(request.goodsId(), request.quantity());
+        result = collectionMapper.sale(request.goodsId(), request.quantity());
         Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
         return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean trySaleWithoutHint(GoodsTrySaleRequest request) {
+    public Boolean saleWithoutHint(GoodsTrySaleRequest request) {
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
         if (null != existStream) {
@@ -215,14 +214,14 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
 
         //核心逻辑执行
-        result = collectionMapper.trySaleWithoutHint(request.goodsId(), request.quantity());
+        result = collectionMapper.saleWithoutHint(request.goodsId(), request.quantity());
         Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
         return true;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean cancelSale(GoodsCancelSaleRequest request) {
+    public Boolean cancel(GoodsCancelSaleRequest request) {
         //流水校验
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.collectionId());
         if (null != existStream) {
@@ -238,7 +237,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
 
         //核心逻辑执行
-        result = collectionMapper.cancelSale(request.collectionId(), request.quantity());
+        result = collectionMapper.cancel(request.collectionId(), request.quantity());
         Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
         return true;
     }
@@ -325,6 +324,85 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         collectionSaleResponse.setSuccess(true);
         collectionSaleResponse.setHeldCollectionId(heldCollection.getId());
         return collectionSaleResponse;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean freezeInventory(GoodsFreezeInventoryRequest request) {
+        //流水校验
+        CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
+        if (null != existStream) {
+            return true;
+        }
+
+        //查询出最新的值
+        Collection collection = this.getById(request.goodsId());
+
+        //新增collection流水
+        CollectionInventoryStream stream = new CollectionInventoryStream(collection, request.identifier(), request.eventType(), request.quantity());
+        int result = collectionInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = collectionMapper.freezeInventory(request.goodsId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unfreezeInventory(GoodsUnfreezeInventoryRequest request) {
+        //流水校验
+        CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
+        if (null != existStream) {
+            return true;
+        }
+
+        CollectionInventoryStream existFreezeStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), GoodsEvent.FREEZE_INVENTORY.name(), request.goodsId());
+        if (null == existFreezeStream) {
+            throw new CollectionException(INVENTORY_UNFREEZE_FAILED);
+        }
+
+        //查询出最新的值
+        Collection collection = this.getById(request.goodsId());
+
+        //新增collection流水
+        CollectionInventoryStream stream = new CollectionInventoryStream(collection, request.identifier(), request.eventType(), request.quantity());
+        int result = collectionInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = collectionMapper.unfreezeInventory(request.goodsId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unfreezeAndSale(GoodsUnfreezeAndSaleRequest request) {
+        //流水校验
+        CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), request.eventType().name(), request.goodsId());
+        if (null != existStream) {
+            return true;
+        }
+
+        CollectionInventoryStream existFreezeStream = collectionInventoryStreamMapper.selectByIdentifier(request.identifier(), GoodsEvent.FREEZE_INVENTORY.name(), request.goodsId());
+        if (null == existFreezeStream) {
+           throw new CollectionException(INVENTORY_UNFREEZE_FAILED);
+        }
+
+        //查询出最新的值
+        Collection collection = this.getById(request.goodsId());
+
+        //新增collection流水
+        CollectionInventoryStream stream = new CollectionInventoryStream(collection, request.identifier(), request.eventType(), request.quantity());
+        int result = collectionInventoryStreamMapper.insert(stream);
+        Assert.isTrue(result > 0, () -> new CollectionException(COLLECTION_STREAM_SAVE_FAILED));
+
+        //核心逻辑执行
+        result = collectionMapper.unfreezeAndSale(request.goodsId(), request.quantity());
+        Assert.isTrue(result == 1, () -> new CollectionException(COLLECTION_SAVE_FAILED));
+        return true;
     }
 
     @Override

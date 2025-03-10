@@ -49,5 +49,20 @@ public enum GoodsEvent {
     /**
      * 绑定盲盒事件
      */
-    BIND;
+    BIND,
+
+    /**
+     * 冻结库存
+     */
+    FREEZE_INVENTORY,
+
+    /**
+     * 解冻库存
+     */
+    UNFREEZE_INVENTORY,
+
+    /**
+     * 解冻库存并出售
+     */
+    UNFREEZE_AND_SALE;
 }

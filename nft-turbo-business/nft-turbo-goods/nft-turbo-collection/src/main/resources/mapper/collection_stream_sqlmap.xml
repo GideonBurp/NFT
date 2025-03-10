@@ -17,6 +17,7 @@
         <result property="detail" column="DETAIL"/>
         <result property="saleableInventory" column="SALEABLE_INVENTORY"/>
         <result property="occupiedInventory" column="OCCUPIED_INVENTORY"/>
+        <result property="frozenInventory" column="FROZEN_INVENTORY"/>
         <result property="state" column="STATE"/>
         <result property="createTime" column="CREATE_TIME"/>
         <result property="saleTime" column="SALE_TIME"/>

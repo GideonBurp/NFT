@@ -78,7 +78,7 @@ public class CollectionServiceTest extends GoodsBaseTest {
         Collection collection = collectionService.create(request);
         Assert.assertTrue(collection.getId() != null);
         GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest("test123", collection.getId(), 1);
-        boolean tryRes = collectionService.trySale(collectionTrySaleRequest);
+        boolean tryRes = collectionService.sale(collectionTrySaleRequest);
         Assert.assertTrue(tryRes);
         var queRes = collectionService.queryById(collection.getId());
         Assert.assertTrue(queRes.getSaleableInventory() == 99L);

@@ -1,0 +1,114 @@
+package cn.hollis.nft.turbo.goods.facade.service;
+
+import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
+import cn.hollis.nft.turbo.api.goods.request.*;
+import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.hollis.nft.turbo.api.goods.service.GoodsTransactionFacadeService;
+import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
+import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
+import cn.hollis.nft.turbo.rpc.facade.Facade;
+import cn.hollis.nft.turbo.tcc.entity.TransCancelSuccessType;
+import cn.hollis.nft.turbo.tcc.request.TccRequest;
+import cn.hollis.nft.turbo.tcc.response.TransactionCancelResponse;
+import cn.hollis.nft.turbo.tcc.service.TransactionLogService;
+import cn.hutool.core.lang.Assert;
+import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * @author Hollis
+ */
+@DubboService(version = "1.0.0")
+public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacadeService {
+
+
+    @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
+    private BlindBoxService blindBoxService;
+
+    @Autowired
+    private TransactionLogService transactionLogService;
+
+
+    @Override
+    @Facade
+    @Transactional
+    public GoodsSaleResponse tryDecreaseInventory(GoodsSaleRequest request) {
+
+        GoodsFreezeInventoryRequest goodsTrySaleRequest = new GoodsFreezeInventoryRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
+        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+        Boolean freezeResult = switch (goodsType) {
+            case BLIND_BOX -> blindBoxService.freezeInventory(goodsTrySaleRequest);
+            case COLLECTION -> collectionService.freezeInventory(goodsTrySaleRequest);
+            default -> throw new UnsupportedOperationException("unsupport goods type");
+        };
+        Assert.isTrue(freezeResult, "freeze inventory failed");
+        Boolean result = transactionLogService.tryTransaction(new TccRequest(request.getBizNo(), "normalBuy", goodsType.name()));
+        Assert.isTrue(result, "transaction log failed");
+        GoodsSaleResponse response = new GoodsSaleResponse();
+        response.setSuccess(true);
+        return response;
+    }
+
+    @Override
+    @Facade
+    @Transactional
+    public GoodsSaleResponse confirmDecreaseInventory(GoodsSaleRequest request) {
+        GoodsUnfreezeAndSaleRequest unfreezeAndSaleRequest = new GoodsUnfreezeAndSaleRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
+        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+        Boolean freezeResult = switch (goodsType) {
+            case BLIND_BOX -> blindBoxService.unfreezeAndSale(unfreezeAndSaleRequest);
+            case COLLECTION -> collectionService.unfreezeAndSale(unfreezeAndSaleRequest);
+            default -> throw new UnsupportedOperationException("unsupport goods type");
+        };
+        Assert.isTrue(freezeResult, "freeze inventory failed");
+
+        Boolean result = transactionLogService.confirmTransaction(new TccRequest(request.getBizNo(), "normalBuy", goodsType.name()));
+        Assert.isTrue(result, "transaction log failed");
+        GoodsSaleResponse response = new GoodsSaleResponse();
+        response.setSuccess(true);
+        return response;
+    }
+
+    @Override
+    @Facade
+    @Transactional
+    public GoodsSaleResponse cancelDecreaseInventory(GoodsSaleRequest request) {
+        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+        TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(new TccRequest(request.getBizNo(), "normalBuy", goodsType.name()));
+        Assert.isTrue(transactionCancelResponse.getSuccess(), "transaction log failed");
+
+        //如果发生空回滚，或者回滚幂等，则不进行解冻库存操作
+        //Try成功后的Cancel，直接解冻库存
+        if(transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_TRY_SUCCESS){
+            GoodsUnfreezeInventoryRequest unfreezeInventoryRequest = new GoodsUnfreezeInventoryRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
+            Boolean freezeResult = switch (goodsType) {
+                case BLIND_BOX -> blindBoxService.unfreezeInventory(unfreezeInventoryRequest);
+                case COLLECTION -> collectionService.unfreezeInventory(unfreezeInventoryRequest);
+                default -> throw new UnsupportedOperationException("unsupport goods type");
+            };
+            Assert.isTrue(freezeResult, "freeze inventory failed");
+        }
+
+        //如果发生空回滚，或者回滚幂等，则不进行解冻库存操作
+        //Confirm成功后的Cancel，直接回滚库存
+        if (transactionCancelResponse.getTransCancelSuccessType() == TransCancelSuccessType.CANCEL_AFTER_CONFIRM_SUCCESS) {
+            GoodsCancelSaleRequest goodsCancelSaleRequest = new GoodsCancelSaleRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
+            Boolean freezeResult = switch (goodsType) {
+                case BLIND_BOX -> blindBoxService.cancel(goodsCancelSaleRequest);
+                case COLLECTION -> collectionService.cancel(goodsCancelSaleRequest);
+                default -> throw new UnsupportedOperationException("unsupport goods type");
+            };
+            Assert.isTrue(freezeResult, "freeze inventory failed");
+        }
+
+        GoodsSaleResponse response = new GoodsSaleResponse();
+        response.setSuccess(true);
+        return response;
+    }
+}

@@ -72,6 +72,11 @@ public class Collection extends BaseEntity {
     private Long occupiedInventory;
 
     /**
+     * 被冻结库存
+     */
+    private Long frozenInventory;
+
+    /**
      * '状态'
      */
     private CollectionStateEnum state;

@@ -81,8 +81,8 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
         Boolean trySaleResult = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.trySale(goodsTrySaleRequest);
-            case COLLECTION -> collectionService.trySale(goodsTrySaleRequest);
+            case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
+            case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };
 
@@ -98,8 +98,8 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
         Boolean trySaleResult = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.trySaleWithoutHint(collectionTrySaleRequest);
-            case COLLECTION -> collectionService.trySaleWithoutHint(collectionTrySaleRequest);
+            case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
+            case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };
 
@@ -160,8 +160,8 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 
         Boolean result = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.cancelSale(goodsCancelSaleRequest);
-            case COLLECTION -> collectionService.cancelSale(goodsCancelSaleRequest);
+            case BLIND_BOX -> blindBoxService.cancel(goodsCancelSaleRequest);
+            case COLLECTION -> collectionService.cancel(goodsCancelSaleRequest);
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };
 

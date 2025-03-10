@@ -3,9 +3,7 @@ package cn.hollis.nft.turbo.collection.domain.service;
 import cn.hollis.nft.turbo.api.collection.request.*;
 import cn.hollis.nft.turbo.api.collection.response.CollectionAirdropResponse;
 import cn.hollis.nft.turbo.api.collection.response.CollectionInventoryModifyResponse;
-import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
+import cn.hollis.nft.turbo.api.goods.request.*;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.collection.domain.entity.Collection;
@@ -52,31 +50,55 @@ public interface CollectionService extends IService<Collection> {
 
 
     /**
-     * 尝试售卖
+     * 售卖
      *
      * @param request
      * @return
      */
-    public Boolean trySale(GoodsTrySaleRequest request);
+    public Boolean sale(GoodsTrySaleRequest request);
+
 
     /**
-     * 尝试售卖-无hint版
+     * 冻结库存
      *
      * @param request
      * @return
      */
-    public Boolean trySaleWithoutHint(GoodsTrySaleRequest request);
+    public Boolean freezeInventory(GoodsFreezeInventoryRequest request);
 
     /**
-     * 取消售卖
+     * 解冻库存
+     * @param request
+     * @return
+     */
+    public Boolean unfreezeInventory(GoodsUnfreezeInventoryRequest request);
+
+    /**
+     * 冻结库存
      *
      * @param request
      * @return
      */
-    public Boolean cancelSale(GoodsCancelSaleRequest request);
+    public Boolean unfreezeAndSale(GoodsUnfreezeAndSaleRequest request);
 
     /**
-     * 确认售卖
+     * 售卖-无hint版
+     *
+     * @param request
+     * @return
+     */
+    public Boolean saleWithoutHint(GoodsTrySaleRequest request);
+
+    /**
+     * 取消
+     *
+     * @param request
+     * @return
+     */
+    public Boolean cancel(GoodsCancelSaleRequest request);
+
+    /**
+     * 确认
      *
      * @param request
      * @return

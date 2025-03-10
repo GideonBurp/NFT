@@ -24,14 +24,6 @@ public interface CollectionMapper extends BaseMapper<Collection> {
     Collection selectByIdentifier(String identifier);
 
     /**
-     * 库存扣减
-     *
-     * @param collection
-     * @return
-     */
-    int sale(Collection collection);
-
-    /**
      * 库存确认扣减
      *
      * @param id
@@ -39,24 +31,25 @@ public interface CollectionMapper extends BaseMapper<Collection> {
      * @param quantity
      * @return
      */
-    int confirmSale(Long id, Long occupiedInventory,Integer quantity);
+    int confirmSale(Long id, Long occupiedInventory, Integer quantity);
 
     /**
-     * 库存预扣减
+     * 库存扣减
      *
      * @param id
      * @param quantity
      * @return
      */
-    int trySale(Long id, Integer quantity);
+    int sale(Long id, Integer quantity);
 
     /**
-     * 库存预扣减-无hint版
+     * 库存扣减-无hint版
+     *
      * @param id
      * @param quantity
      * @return
      */
-    int trySaleWithoutHint(Long id, Integer quantity);
+    int saleWithoutHint(Long id, Integer quantity);
 
     /**
      * 库存退回
@@ -65,7 +58,32 @@ public interface CollectionMapper extends BaseMapper<Collection> {
      * @param quantity
      * @return
      */
-    int cancelSale(Long id, Integer quantity);
+    int cancel(Long id, Integer quantity);
+
+    /**
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int freezeInventory(Long id, Integer quantity);
+
+    /**
+     * 解冻并扣减库存
+     *
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int unfreezeAndSale(Long id, Integer quantity);
+
+    /**
+     * 解冻库存
+     *
+     * @param id
+     * @param quantity
+     * @return
+     */
+    int unfreezeInventory(Long id, Integer quantity);
 
     /**
      * 空投

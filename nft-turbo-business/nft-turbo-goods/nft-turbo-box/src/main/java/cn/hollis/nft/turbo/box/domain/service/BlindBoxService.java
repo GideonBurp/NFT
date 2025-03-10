@@ -1,9 +1,7 @@
 package cn.hollis.nft.turbo.box.domain.service;
 
 import cn.hollis.nft.turbo.api.box.request.BlindBoxCreateRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsCancelSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsConfirmSaleRequest;
-import cn.hollis.nft.turbo.api.goods.request.GoodsTrySaleRequest;
+import cn.hollis.nft.turbo.api.goods.request.*;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.base.response.PageResponse;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
@@ -25,20 +23,20 @@ public interface BlindBoxService extends IService<BlindBox> {
     public BlindBox create(BlindBoxCreateRequest request);
 
     /**
-     * 尝试售卖
+     * 售卖
      *
      * @param request
      * @return
      */
-    public Boolean trySale(GoodsTrySaleRequest request);
+    public Boolean sale(GoodsTrySaleRequest request);
 
     /**
-     * 尝试售卖-无hint版
+     * 售卖-无hint版
      *
      * @param request
      * @return
      */
-    public Boolean trySaleWithoutHint(GoodsTrySaleRequest request);
+    public Boolean saleWithoutHint(GoodsTrySaleRequest request);
 
     /**
      * 确认售卖
@@ -50,6 +48,31 @@ public interface BlindBoxService extends IService<BlindBox> {
      */
     @Deprecated
     public GoodsSaleResponse confirmSale(GoodsConfirmSaleRequest request);
+
+
+    /**
+     * 冻结库存
+     *
+     * @param request
+     * @return
+     */
+    public Boolean freezeInventory(GoodsFreezeInventoryRequest request);
+
+    /**
+     * 冻结库存并售卖
+     *
+     * @param request
+     * @return
+     */
+    public Boolean unfreezeAndSale(GoodsUnfreezeAndSaleRequest request);
+
+
+    /**
+     * 解冻库存
+     * @param request
+     * @return
+     */
+    public Boolean unfreezeInventory(GoodsUnfreezeInventoryRequest request);
 
     /**
      * 盲盒分配
@@ -66,7 +89,7 @@ public interface BlindBoxService extends IService<BlindBox> {
      * @param request
      * @return
      */
-    public Boolean cancelSale(GoodsCancelSaleRequest request);
+    public Boolean cancel(GoodsCancelSaleRequest request);
 
     /**
      * 查询

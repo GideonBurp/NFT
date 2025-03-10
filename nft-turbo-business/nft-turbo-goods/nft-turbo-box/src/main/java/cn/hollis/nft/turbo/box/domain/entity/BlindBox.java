@@ -71,6 +71,10 @@ public class BlindBox extends BaseEntity {
     @Deprecated
     private Long occupiedInventory;
 
+    /**
+     * '冻结库存'
+     */
+    private Long frozenInventory;
 
     /**
      * '盲盒创建时间'
