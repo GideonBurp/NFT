@@ -47,7 +47,17 @@ public enum TradeErrorCode implements ErrorCode {
     /**
      * 库存回滚失败
      */
-    INVENTORY_ROLLBACK_FAILED("INVENTORY_ROLLBACK_FAILED", "库存回滚失败");
+    INVENTORY_ROLLBACK_FAILED("INVENTORY_ROLLBACK_FAILED", "库存回滚失败"),
+
+    /**
+     * 正常购买TCC确认失败
+     */
+    NORMAL_BUY_TCC_CONFIRM_FAILED("NORMAL_BUY_TCC_CONFIRM_FAILED","订单创建失败"),
+
+    /**
+     * 正常购买TCC取消失败
+     */
+    NORMAL_BUY_TCC_CANCEL_FAILED("NORMAL_BUY_TCC_CANCEL_FAILED","订单创建失败");
 
     private String code;
 

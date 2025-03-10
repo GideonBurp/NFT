@@ -1,8 +1,10 @@
 package cn.hollis.nft.turbo.trade.infrastructure.config;
 
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.hollis.nft.turbo.api.inventory.InventoryTransactionFacadeService;
 import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
+import cn.hollis.nft.turbo.api.order.OrderTransactionFacadeService;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -28,9 +30,14 @@ public class TradeDubboConfiguration {
     @DubboReference(version = "1.0.0")
     private InventoryFacadeService inventoryFacadeService;
 
-
     @DubboReference(version = "1.0.0")
     private UserFacadeService userFacadeService;
+
+    @DubboReference(version = "1.0.0")
+    private OrderTransactionFacadeService orderTransactionFacadeService;
+
+    @DubboReference(version = "1.0.0")
+    private InventoryTransactionFacadeService inventoryTransactionFacadeService;
 
     @Bean
     @ConditionalOnMissingBean(name = "payFacadeService")
@@ -60,5 +67,17 @@ public class TradeDubboConfiguration {
     @ConditionalOnMissingBean(name = "userFacadeService")
     public UserFacadeService userFacadeService() {
         return userFacadeService;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "orderTransactionFacadeService")
+    public OrderTransactionFacadeService orderTransactionFacadeService() {
+        return orderTransactionFacadeService;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "inventoryTransactionFacadeService")
+    public InventoryTransactionFacadeService inventoryTransactionFacadeService() {
+        return inventoryTransactionFacadeService;
     }
 }

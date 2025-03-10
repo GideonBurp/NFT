@@ -29,6 +29,7 @@ import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.sharding.id.DistributeID;
 import cn.hollis.nft.turbo.order.sharding.id.WorkerIdHolder;
 import cn.hollis.nft.turbo.order.validator.OrderCreateValidator;
+import cn.hollis.nft.turbo.trade.application.TradeApplicationService;
 import cn.hollis.nft.turbo.trade.exception.TradeErrorCode;
 import cn.hollis.nft.turbo.trade.exception.TradeException;
 import cn.hollis.nft.turbo.trade.param.BookParam;
@@ -67,6 +68,9 @@ public class TradeController {
 
     @Autowired
     private OrderFacadeService orderFacadeService;
+
+    @Autowired
+    private TradeApplicationService tradeApplicationService;
 
     @Autowired
     private PayFacadeService payFacadeService;
@@ -142,7 +146,8 @@ public class TradeController {
             throw new TradeException(e.getErrorCode().getMessage(), ORDER_CREATE_PRE_VALID_FAILED);
         }
 
-        boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
+        //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
+          boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
 
         if (!result) {
             throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
@@ -170,8 +175,7 @@ public class TradeController {
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateAndConfirmRequest orderCreateRequest = getOrderCreateAndConfirmRequest(buyParam);
 
-        //todo 通过TCC保证订单和库存扣减的原子性
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.createAndConfirm(req), orderCreateRequest, "createOrder");
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateRequest, "createOrder");
 
         if (orderResponse.getSuccess()) {
             //同步写redis，如果失败，不阻塞流程，靠binlog同步保障

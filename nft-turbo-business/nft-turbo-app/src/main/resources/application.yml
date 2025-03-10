@@ -10,7 +10,7 @@ spring:
   cloud:
     # spring.cloud.stream.function.definition 已废弃, 需要使用 spring.cloud.function.definition 代替
     function:
-      definition: chain;orderClose;heldCollection;newBuy
+      definition: chain;orderClose;heldCollection;newBuy;normalBuyCancel;normalBuyPreCancel
     stream:
       rocketmq:
         bindings:
@@ -66,10 +66,25 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
-        newBuy-in-0:
+        normalBuyCancel-out-0:
           content-type: application/json
-          destination: new-buy-topic
-          group: trade-group
+          destination: normal-buy-cancel-topic
+          group: trade-cancel-group
+          binder: rocketmq
+        normalBuyPreCancel-out-0:
+          content-type: application/json
+          destination: normal-buy-pre-cancel-topic
+          group: trade-pre-cancel-group
+          binder: rocketmq
+        normalBuyCancel-in-0:
+          content-type: application/json
+          destination: normal-buy-cancel-topic
+          group: trade-cancel-group
+          binder: rocketmq
+        normalBuyPreCancel-in-0:
+          content-type: application/json
+          destination: normal-buy-pre-cancel-topic
+          group: trade-pre-cancel-group
           binder: rocketmq
   shardingsphere:
     rules:

@@ -5,7 +5,7 @@ spring:
     import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
   cloud:
     function:
-      definition: newBuy
+      definition: newBuy;normalBuyCancel;normalBuyPreCancel
     stream:
       rocketmq:
         bindings:
@@ -23,6 +23,26 @@ spring:
           content-type: application/json
           destination: order-close-topic
           group: order-group
+          binder: rocketmq
+        normalBuyCancel-out-0:
+          content-type: application/json
+          destination: normal-buy-cancel-topic
+          group: trade-cancel-group
+          binder: rocketmq
+        normalBuyPreCancel-out-0:
+          content-type: application/json
+          destination: normal-buy-pre-cancel-topic
+          group: trade-pre-cancel-group
+          binder: rocketmq
+        normalBuyCancel-in-0:
+          content-type: application/json
+          destination: normal-buy-cancel-topic
+          group: trade-cancel-group
+          binder: rocketmq
+        normalBuyPreCancel-in-0:
+          content-type: application/json
+          destination: normal-buy-pre-cancel-topic
+          group: trade-pre-cancel-group
           binder: rocketmq
 
 server:
