@@ -1,3 +1,43 @@
+# 2025-03-10 增加transaction_log表
+
+CREATE TABLE `transaction_log` (
+   `id` bigint NOT NULL AUTO_INCREMENT,
+   `gmt_create` datetime NOT NULL COMMENT '创建时间',
+   `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+   `transaction_id` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '事务id',
+   `business_scene` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '业务场景',
+   `business_module` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '业务模块',
+   `state` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '状态',
+   `lock_version` int NULL COMMENT '版本号',
+   `deleted` tinyint NULL COMMENT '逻辑删除字段',
+   `cancel_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'cancel的类型',
+   PRIMARY KEY (`id`),
+   KEY `idx_businsess_trans_id`(`transaction_id`,`business_scene`,`business_module`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb3 COLLATE=utf8_general_ci COMMENT='事务记录表';
+
+# 2025-03-10 增加occupied_inventory字段,废弃saleable_inventory字段
+ALTER TABLE `blind_box`
+    MODIFY COLUMN `occupied_inventory` bigint NULL COMMENT '已占用库存（已废弃）' AFTER `saleable_inventory`,
+    ADD COLUMN `frozen_inventory` bigint NULL DEFAULT 0  COMMENT '被冻结库存' AFTER `occupied_inventory`
+;
+
+ALTER TABLE `collection`
+    MODIFY COLUMN `occupied_inventory` bigint NULL COMMENT '已占用库存（已废弃）' AFTER `identifier`,
+    ADD COLUMN `frozen_inventory` int DEFAULT 0  COMMENT '被冻结库存' AFTER `occupied_inventory`
+;
+
+ALTER TABLE `blind_box_inventory_stream`
+    ADD COLUMN `frozen_inventory` bigint NULL COMMENT '被冻结库存' AFTER `occupied_inventory`
+;
+
+ALTER TABLE `collection_inventory_stream`
+    ADD COLUMN `frozen_inventory` bigint NULL COMMENT '被冻结库存' AFTER `occupied_inventory`
+;
+
+ALTER TABLE `collection_stream`
+    ADD COLUMN `frozen_inventory` bigint NULL COMMENT '被冻结库存' AFTER `occupied_inventory`
+;
+
 # 2025-02-04 新增预约记录表
 
 CREATE TABLE `goods_book` (

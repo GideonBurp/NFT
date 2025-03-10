@@ -39,6 +39,7 @@ CREATE TABLE `collection` (
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可销售库存',
   `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占用库存',
+  `frozen_inventory` bigint DEFAULT 0 COMMENT '冻结库存',
   `state` varchar(128) DEFAULT NULL COMMENT '状态',
   `create_time` datetime DEFAULT NULL COMMENT '藏品创建时间',
   `sale_time` datetime DEFAULT NULL COMMENT '藏品发售时间',
@@ -72,6 +73,7 @@ CREATE TABLE `collection_stream` (
   `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
+  `frozen_inventory` bigint DEFAULT NULL COMMENT '冻结库存',
   `create_time` datetime DEFAULT NULL COMMENT '藏品创建时间',
   `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
   `sale_time` datetime DEFAULT NULL COMMENT '藏品发售时间',
@@ -623,6 +625,7 @@ CREATE TABLE `collection_inventory_stream` (
   `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
+  `frozen_inventory` bigint DEFAULT NULL COMMENT '冻结库存',
   `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
   `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
@@ -710,6 +713,7 @@ CREATE TABLE `blind_box` (
   `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可销售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占用库存',
+  `frozen_inventory` bigint DEFAULT 0 COMMENT '冻结库存',
   `create_time` datetime DEFAULT NULL COMMENT '盲盒创建时间',
   `sale_time` datetime DEFAULT NULL COMMENT '盲盒发售时间',
   `allocate_rule` varchar(512) DEFAULT NULL COMMENT '盲盒分配规则',
@@ -741,6 +745,7 @@ CREATE TABLE `blind_box_inventory_stream` (
   `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
+  `frozen_inventory` bigint DEFAULT NULL COMMENT '冻结库存',
   `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
   `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
@@ -782,6 +787,27 @@ CREATE TABLE `blind_box_item` (
   KEY `idx_order` (`order_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4011 DEFAULT CHARSET=utf8mb3 COMMENT='盲盒条目表'
 ;
+
+
+/******************************************/
+/*   DatabaseName = nfturbo   */
+/*   TableName = transaction_log   */
+/******************************************/
+CREATE TABLE `transaction_log` (
+   `id` bigint NOT NULL AUTO_INCREMENT,
+   `gmt_create` datetime NOT NULL COMMENT '创建时间',
+   `gmt_modified` datetime NOT NULL COMMENT '更新时间',
+   `transaction_id` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '事务id',
+   `business_scene` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '业务场景',
+   `business_module` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '业务模块',
+   `state` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '状态',
+   `lock_version` int NULL COMMENT '版本号',
+   `deleted` tinyint NULL COMMENT '逻辑删除字段',
+   `cancel_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'cancel的类型',
+   PRIMARY KEY (`id`),
+   KEY `idx_businsess_trans_id`(`transaction_id`,`business_scene`,`business_module`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb3 COLLATE=utf8_general_ci COMMENT='事务记录表';
+
 
 /******************************************/
 /*   DatabaseName = nfturbo   */
