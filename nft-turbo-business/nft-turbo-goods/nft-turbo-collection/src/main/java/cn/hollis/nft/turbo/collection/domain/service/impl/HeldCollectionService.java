@@ -268,6 +268,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
 
     private boolean sendMsg(HeldCollection heldCollection, HeldCollectionEventType eventType) {
         HeldCollectionDTO heldCollectionDTO = HeldCollectionConvertor.INSTANCE.mapToDto(heldCollection);
+        //消息监听：HeldCollectionMsgListener
         return streamProducer.send("heldCollection-out-0", eventType.name(), JSON.toJSONString(heldCollectionDTO));
     }
 

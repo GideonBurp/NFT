@@ -239,7 +239,7 @@ public abstract class AbstractChainService implements ChainService {
         chainOperateBody.setOperateType(ChainOperateTypeEnum.valueOf(chainOperateInfo.getOperateType()));
         chainOperateBody.setChainType(ChainType.valueOf(chainOperateInfo.getChainType()));
         chainOperateBody.setChainResultData(chainResultData);
-
+        //消息监听：ChainOperateResultListener
         streamProducer.send("chain-out-0", chainOperateInfo.getBizType(), JSON.toJSONString(chainOperateBody));
     }
 
