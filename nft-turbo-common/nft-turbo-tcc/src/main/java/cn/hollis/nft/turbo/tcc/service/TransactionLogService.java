@@ -1,11 +1,11 @@
 package cn.hollis.nft.turbo.tcc.service;
 
-import cn.hollis.nft.turbo.tcc.entity.TransActionLogState;
-import cn.hollis.nft.turbo.tcc.entity.TransCancelSuccessType;
-import cn.hollis.nft.turbo.tcc.entity.TransactionLog;
+import cn.hollis.nft.turbo.tcc.entity.*;
 import cn.hollis.nft.turbo.tcc.mapper.TransactionLogMapper;
 import cn.hollis.nft.turbo.tcc.request.TccRequest;
 import cn.hollis.nft.turbo.tcc.response.TransactionCancelResponse;
+import cn.hollis.nft.turbo.tcc.response.TransactionConfirmResponse;
+import cn.hollis.nft.turbo.tcc.response.TransactionTryResponse;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -22,21 +22,21 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
      * @param tccRequest
      * @return
      */
-    public Boolean tryTransaction(TccRequest tccRequest) {
+    public TransactionTryResponse tryTransaction(TccRequest tccRequest) {
         TransactionLog existTransactionLog = getExistTransLog(tccRequest);
         if (existTransactionLog == null) {
             TransactionLog transactionLog = new TransactionLog(tccRequest, TransActionLogState.TRY);
-            return this.save(transactionLog);
+            if (this.save(transactionLog)) {
+                return new TransactionTryResponse(true, TransTrySuccessType.TRY_SUCCESS);
+            }
+            return new TransactionTryResponse(false, "TRY_FAILED", "TRY_FAILED");
         }
 
         //幂等
-        if (existTransactionLog.getState() == TransActionLogState.TRY || existTransactionLog.getState() == TransActionLogState.CONFIRM) {
-            return true;
-        }
-
-        //如果已经Cancel，直接返回成功，避免事务悬挂
-        if (existTransactionLog.getState() == TransActionLogState.CANCEL) {
-            return true;
+        if (existTransactionLog.getState() == TransActionLogState.TRY
+                || existTransactionLog.getState() == TransActionLogState.CONFIRM
+                || existTransactionLog.getState() == TransActionLogState.CANCEL) {
+            return new TransactionTryResponse(true, TransTrySuccessType.DUPLICATED_TRY);
         }
 
         throw new UnsupportedOperationException("unsupport state :" + existTransactionLog.getState());
@@ -48,7 +48,7 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
      * @param tccRequest
      * @return
      */
-    public Boolean confirmTransaction(TccRequest tccRequest) {
+    public TransactionConfirmResponse confirmTransaction(TccRequest tccRequest) {
         TransactionLog existTransactionLog = getExistTransLog(tccRequest);
         if (existTransactionLog == null) {
             throw new UnsupportedOperationException("transacton can not confirm");
@@ -56,12 +56,16 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
 
         if (existTransactionLog.getState() == TransActionLogState.TRY) {
             existTransactionLog.setState(TransActionLogState.CONFIRM);
-            return this.updateById(existTransactionLog);
+            if (this.updateById(existTransactionLog)) {
+                return new TransactionConfirmResponse(true, TransConfirmSuccessType.CONFIRM_SUCCESS);
+            }
+
+            return new TransactionConfirmResponse(false, "CONFIRM_FAILED", "CONFIRM_FAILED");
         }
 
         //幂等
         if (existTransactionLog.getState() == TransActionLogState.CONFIRM) {
-            return true;
+            return new TransactionConfirmResponse(true, TransConfirmSuccessType.DUPLICATED_CONFIRM);
         }
 
         throw new UnsupportedOperationException("transacton can not confirm :" + existTransactionLog.getState());

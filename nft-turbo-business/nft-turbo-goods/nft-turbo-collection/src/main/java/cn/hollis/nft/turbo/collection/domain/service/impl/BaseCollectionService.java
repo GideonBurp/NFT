@@ -79,7 +79,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
     @Transactional(rollbackFor = Exception.class)
     public CollectionInventoryModifyResponse modifyInventory(CollectionModifyInventoryRequest request) {
         CollectionInventoryModifyResponse response = new CollectionInventoryModifyResponse();
-        response.setCollectionId(response.getCollectionId());
+        response.setCollectionId(request.getCollectionId());
 
         CollectionInventoryStream existStream = collectionInventoryStreamMapper.selectByIdentifier(request.getIdentifier(), request.getEventType().name(), request.getCollectionId());
         if (existStream != null) {
