@@ -49,7 +49,7 @@ public interface BlindBoxMapper extends BaseMapper<BlindBox> {
      * @param quantity
      * @return
      */
-    int trySaleWithoutHint(Long id, Integer quantity);
+    int saleWithoutHint(Long id, Integer quantity);
 
     /**
      * 库存退回

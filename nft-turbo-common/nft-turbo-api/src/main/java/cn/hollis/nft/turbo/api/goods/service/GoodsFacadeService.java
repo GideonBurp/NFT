@@ -37,7 +37,7 @@ public interface GoodsFacadeService {
      * @param request
      * @return
      */
-    public GoodsSaleResponse trySaleWithoutHint(GoodsSaleRequest request);
+    public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request);
 
     /**
      * 藏品出售的confirm阶段，做真正售出

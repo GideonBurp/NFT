@@ -140,7 +140,7 @@ public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> i
         Assert.isTrue(result > 0, () -> new BlindBoxException(BLIND_BOX_STREAM_SAVE_FAILED));
 
         //核心逻辑执行
-        result = blindBoxMapper.trySaleWithoutHint(request.goodsId(), request.quantity());
+        result = blindBoxMapper.saleWithoutHint(request.goodsId(), request.quantity());
         Assert.isTrue(result == 1, () -> new BlindBoxException(BLIND_BOX_SAVE_FAILED));
         return true;
     }

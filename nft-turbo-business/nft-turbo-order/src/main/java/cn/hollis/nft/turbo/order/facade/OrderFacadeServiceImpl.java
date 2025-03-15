@@ -127,7 +127,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         }
         GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
 
-        GoodsSaleResponse response = goodsFacadeService.trySaleWithoutHint(goodsSaleRequest);
+        GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
 
         if (!response.getSuccess()) {
             return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());

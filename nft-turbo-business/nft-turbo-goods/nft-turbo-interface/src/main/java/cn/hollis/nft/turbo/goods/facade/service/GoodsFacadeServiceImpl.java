@@ -92,7 +92,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
     }
 
     @Override
-    public GoodsSaleResponse trySaleWithoutHint(GoodsSaleRequest request) {
+    public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request) {
         GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
 
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
