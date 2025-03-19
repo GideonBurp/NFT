@@ -52,7 +52,7 @@ CREATE TABLE `collection` (
   `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
   `version` int DEFAULT NULL COMMENT '修改版本',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10023 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品表'
+) ENGINE=InnoDB AUTO_INCREMENT=10023 DEFAULT CHARSET=utf8mb4  COMMENT='藏品表'
 ;
 
 /******************************************/
@@ -63,26 +63,26 @@ CREATE TABLE `collection_stream` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
-  `name` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品名称',
-  `cover` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品封面',
-  `class_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品类目ID',
+  `name` varchar(512) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '藏品名称',
+  `cover` varchar(512) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '藏品封面',
+  `class_id` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '藏品类目ID',
   `collection_id` bigint DEFAULT NULL COMMENT '藏品id',
   `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
   `quantity` bigint DEFAULT NULL COMMENT '藏品数量',
-  `detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '详情',
-  `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
+  `detail` text CHARACTER SET utf8mb4  COMMENT '详情',
+  `state` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '状态',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
   `frozen_inventory` bigint DEFAULT NULL COMMENT '冻结库存',
   `create_time` datetime DEFAULT NULL COMMENT '藏品创建时间',
-  `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
+  `stream_type` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '流水类型',
   `sale_time` datetime DEFAULT NULL COMMENT '藏品发售时间',
   `sync_chain_time` datetime DEFAULT NULL COMMENT '藏品上链时间',
   `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表流水'
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表流水'
 ;
 
 /******************************************/
@@ -94,15 +94,15 @@ CREATE TABLE `held_collection` (
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '最后更新时间',
   `collection_id` bigint unsigned DEFAULT NULL COMMENT '藏品id',
-  `name` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品名称',
-  `cover` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品封面地址',
+  `name` varchar(512) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '藏品名称',
+  `cover` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '藏品封面地址',
   `purchase_price` decimal(18,6) DEFAULT NULL COMMENT '购入价格',
-  `serial_no` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '藏品编号',
-  `nft_id` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT 'NFT唯一编号',
-  `pre_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '上一个持有人id',
-  `user_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '持有人id',
-  `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
-  `tx_hash` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '交易hash',
+  `serial_no` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '藏品编号',
+  `nft_id` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT 'NFT唯一编号',
+  `pre_id` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '上一个持有人id',
+  `user_id` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '持有人id',
+  `state` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '状态',
+  `tx_hash` varchar(256) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '交易hash',
   `reference_price` decimal(18,6)  NULL COMMENT ' 参考价格',
   `rarity` varchar(64) NULL COMMENT ' 稀有度',
   `hold_time` datetime DEFAULT NULL COMMENT '藏品持有时间',
@@ -110,11 +110,11 @@ CREATE TABLE `held_collection` (
   `delete_time` datetime DEFAULT NULL COMMENT '藏品销毁时间',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
-  `biz_no` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '业务单据号',
-  `biz_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT ' 业务类型',
+  `biz_no` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '业务单据号',
+  `biz_type` varchar(64) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT ' 业务类型',
   PRIMARY KEY (`id`),
   KEY `idx_user_state` (`user_id`,`state`,`gmt_create`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品持有表'
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4  COMMENT='藏品持有表'
 ;
 
 CREATE TABLE `held_collection_stream` (
@@ -154,7 +154,7 @@ CREATE TABLE `notice` (
   `retry_times` int DEFAULT NULL COMMENT '重试次数',
   `extend_info` varchar(1024) DEFAULT NULL COMMENT '扩展信息',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='通知表'
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4  COMMENT='通知表'
 ;
 
 /******************************************/
@@ -176,9 +176,9 @@ CREATE TABLE `pay_order` (
   `paid_amount` decimal(18,6) DEFAULT NULL COMMENT '已支付金额',
   `channel_stream_id` varchar(64) DEFAULT NULL COMMENT '渠道流水号',
   `pay_url` varchar(512) DEFAULT NULL COMMENT '支付地址',
-  `pay_channel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '支付方式',
+  `pay_channel` varchar(64) CHARACTER SET utf8mb4  NOT NULL COMMENT '支付方式',
   `memo` varchar(512) DEFAULT NULL COMMENT '备注',
-  `order_state` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '单据类型',
+  `order_state` varchar(64) CHARACTER SET utf8mb4  NOT NULL COMMENT '单据类型',
   `pay_succeed_time` datetime DEFAULT NULL COMMENT '支付成功时间',
   `pay_failed_time` datetime DEFAULT NULL COMMENT '支付失败时间',
   `pay_expire_time` datetime DEFAULT NULL COMMENT '支付超时时间',
@@ -189,7 +189,7 @@ CREATE TABLE `pay_order` (
   PRIMARY KEY (`id`),
   KEY `idx_biz` (`biz_no`,`biz_type`) USING BTREE,
   Unique KEY `uk_pay_order`(`pay_order_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 
 ;
 
 /******************************************/
@@ -200,7 +200,7 @@ CREATE TABLE `trade_order_0000` (
   `id` bigint NOT NULL COMMENT '主键ID',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
-  `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
+  `order_id` varchar(32) CHARACTER SET utf8mb4  NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
   `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
@@ -220,7 +220,7 @@ CREATE TABLE `trade_order_0000` (
   `order_confirmed_time` datetime DEFAULT NULL COMMENT '订单确认时间',
   `order_finished_time` datetime DEFAULT NULL COMMENT '完结时间',
   `order_closed_time` datetime DEFAULT NULL COMMENT '关单时间',
-  `pay_channel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '支付方式',
+  `pay_channel` varchar(64) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '支付方式',
   `pay_stream_id` varchar(256) DEFAULT NULL COMMENT '支付流水号',
   `close_type` varchar(32) DEFAULT NULL COMMENT '关闭类型',
   `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
@@ -232,7 +232,7 @@ CREATE TABLE `trade_order_0000` (
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
   KEY `idx_state_time` (`order_state`,`gmt_create`),
   KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='交易订单'
 ;
 
 /******************************************/
@@ -243,13 +243,13 @@ CREATE TABLE `trade_order_0001` (
   `id` bigint NOT NULL COMMENT '主键ID',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
-  `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
+  `order_id` varchar(32) CHARACTER SET utf8mb4  NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
   `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',
-  `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '幂等号',
+  `identifier` varchar(128) CHARACTER SET utf8mb4  NOT NULL COMMENT '幂等号',
   `goods_id` varchar(32) NOT NULL COMMENT '商品ID',
   `goods_type` varchar(32) NOT NULL COMMENT '商品类型',
   `goods_pic_url` varchar(512) DEFAULT NULL COMMENT '商品图片地址',
@@ -263,7 +263,7 @@ CREATE TABLE `trade_order_0001` (
   `order_confirmed_time` datetime DEFAULT NULL COMMENT '订单确认时间',
   `order_finished_time` datetime DEFAULT NULL COMMENT '完结时间',
   `order_closed_time` datetime DEFAULT NULL COMMENT '关单时间',
-  `pay_channel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '支付方式',
+  `pay_channel` varchar(64) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '支付方式',
   `pay_stream_id` varchar(256) DEFAULT NULL COMMENT '支付流水号',
   `close_type` varchar(32) DEFAULT NULL COMMENT '关闭类型',
   `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
@@ -275,7 +275,7 @@ CREATE TABLE `trade_order_0001` (
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
   KEY `idx_state_time` (`order_state`,`gmt_create`),
   KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='交易订单'
 ;
 
 /******************************************/
@@ -286,13 +286,13 @@ CREATE TABLE `trade_order_0002` (
   `id` bigint NOT NULL COMMENT '主键ID',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
-  `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
+  `order_id` varchar(32) CHARACTER SET utf8mb4  NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
   `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
   `seller_id` varchar(32) NOT NULL COMMENT '卖家ID',
   `seller_type` varchar(32) NOT NULL COMMENT '卖家类型',
-  `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '幂等号',
+  `identifier` varchar(128) CHARACTER SET utf8mb4  NOT NULL COMMENT '幂等号',
   `goods_id` varchar(32) NOT NULL COMMENT '商品ID',
   `goods_type` varchar(32) NOT NULL COMMENT '商品类型',
   `goods_pic_url` varchar(512) DEFAULT NULL COMMENT '商品图片地址',
@@ -306,7 +306,7 @@ CREATE TABLE `trade_order_0002` (
   `order_confirmed_time` datetime DEFAULT NULL COMMENT '订单确认时间',
   `order_finished_time` datetime DEFAULT NULL COMMENT '完结时间',
   `order_closed_time` datetime DEFAULT NULL COMMENT '关单时间',
-  `pay_channel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '支付方式',
+  `pay_channel` varchar(64) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '支付方式',
   `pay_stream_id` varchar(256) DEFAULT NULL COMMENT '支付流水号',
   `close_type` varchar(32) DEFAULT NULL COMMENT '关闭类型',
   `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
@@ -318,7 +318,7 @@ CREATE TABLE `trade_order_0002` (
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
   KEY `idx_state_time` (`order_state`,`gmt_create`),
   KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='交易订单'
 ;
 
 /******************************************/
@@ -329,7 +329,7 @@ CREATE TABLE `trade_order_0003` (
   `id` bigint NOT NULL COMMENT '主键ID',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
   `gmt_modified` datetime NOT NULL COMMENT '修改时间',
-  `order_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '订单号',
+  `order_id` varchar(32) CHARACTER SET utf8mb4  NOT NULL COMMENT '订单号',
   `buyer_id` varchar(32) NOT NULL COMMENT '买家ID',
   `reverse_buyer_id` varchar(32) DEFAULT NULL COMMENT '逆序的买家ID',
   `buyer_type` varchar(32) NOT NULL COMMENT '买家类型',
@@ -349,7 +349,7 @@ CREATE TABLE `trade_order_0003` (
   `order_confirmed_time` datetime DEFAULT NULL COMMENT '订单确认时间',
   `order_finished_time` datetime DEFAULT NULL COMMENT '完结时间',
   `order_closed_time` datetime DEFAULT NULL COMMENT '关单时间',
-  `pay_channel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '支付方式',
+  `pay_channel` varchar(64) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '支付方式',
   `pay_stream_id` varchar(256) DEFAULT NULL COMMENT '支付流水号',
   `close_type` varchar(32) DEFAULT NULL COMMENT '关闭类型',
   `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
@@ -361,7 +361,7 @@ CREATE TABLE `trade_order_0003` (
   KEY `idx_buyer_state` (`buyer_id`,`order_state`),
   KEY `idx_state_time` (`order_state`,`gmt_create`),
   KEY `idx_rvbuyer_state` (`reverse_buyer_id`,`order_state`,`gmt_create`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='交易订单'
 ;
 
 /******************************************/
@@ -395,7 +395,7 @@ CREATE TABLE `trade_order__test` (
   PRIMARY KEY (`id`),
   KEY `idx_order_id` (`order_id`) USING BTREE,
   KEY `idx_buyer_state` (`buyer_id`,`order_state`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易订单'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='交易订单'
 ;
 
 /******************************************/
@@ -436,7 +436,7 @@ CREATE TABLE `trade_order_stream_0000` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_type` (`stream_type`,`stream_identifier`,`order_id`),
   KEY `idx_order_id_buyer` (`order_id`,`buyer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 
 ;
 
 /******************************************/
@@ -477,7 +477,7 @@ CREATE TABLE `trade_order_stream_0001` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_type` (`stream_type`,`stream_identifier`,`order_id`),
   KEY `idx_order_id_buyer` (`order_id`,`buyer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 
 ;
 
 /******************************************/
@@ -518,7 +518,7 @@ CREATE TABLE `trade_order_stream_0002` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_type` (`stream_type`,`stream_identifier`,`order_id`),
   KEY `idx_order_id_buyer` (`order_id`,`buyer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 
 ;
 
 /******************************************/
@@ -559,7 +559,7 @@ CREATE TABLE `trade_order_stream_0003` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_type` (`stream_type`,`stream_identifier`,`order_id`),
   KEY `idx_order_id_buyer` (`order_id`,`buyer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 
 ;
 
 /******************************************/
@@ -601,12 +601,12 @@ CREATE TABLE `users` (
   `block_chain_platform` varchar(255) DEFAULT NULL COMMENT '区块链平台',
   `certification` tinyint(1) DEFAULT NULL COMMENT '实名认证状态（TRUE或FALSE）',
   `real_name` varchar(255) DEFAULT NULL COMMENT '真实姓名',
-  `id_card_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '身份证no',
+  `id_card_no` varchar(255) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '身份证no',
   `user_role` varchar(128) DEFAULT NULL COMMENT '用户角色',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息表'
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4  COMMENT='用户信息表'
 ;
 
 
@@ -622,18 +622,18 @@ CREATE TABLE `collection_inventory_stream` (
   `changed_quantity` bigint DEFAULT NULL COMMENT '本次变更的数量',
   `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
   `quantity` bigint DEFAULT NULL COMMENT '藏品数量',
-  `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
+  `state` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '状态',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
   `frozen_inventory` bigint DEFAULT NULL COMMENT '冻结库存',
-  `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
+  `stream_type` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '流水类型',
   `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
    `extend_info` varchar(512) DEFAULT NULL COMMENT '扩展信息',
   PRIMARY KEY (`id`),
   KEY `idx_cid_ident_type` (`collection_id`,`identifier`,`stream_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表库存流水'
+) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表库存流水'
 ;
 
 /******************************************/
@@ -660,7 +660,7 @@ CREATE TABLE `collection_snapshot` (
   `creator_id` varchar(128) DEFAULT NULL COMMENT '创建者',
   `version` int DEFAULT NULL COMMENT '修改版本',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10017 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='藏品快照表'
+) ENGINE=InnoDB AUTO_INCREMENT=10017 DEFAULT CHARSET=utf8mb4  COMMENT='藏品快照表'
 ;
 
 /******************************************/
@@ -683,9 +683,9 @@ CREATE TABLE `refund_order` (
   `apply_refund_amount` decimal(18,6) NOT NULL COMMENT '申请退款金额',
   `refunded_amount` decimal(18,6) DEFAULT NULL COMMENT '退款成功金额',
   `refund_channel_stream_id` varchar(64) DEFAULT NULL COMMENT '退款的渠道流水号',
-  `refund_channel` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '退款方式',
+  `refund_channel` varchar(64) CHARACTER SET utf8mb4  NOT NULL COMMENT '退款方式',
   `memo` varchar(512) DEFAULT NULL COMMENT '备注',
-  `refund_order_state` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '退款单状态',
+  `refund_order_state` varchar(64) CHARACTER SET utf8mb4  NOT NULL COMMENT '退款单状态',
   `refund_succeed_time` datetime DEFAULT NULL COMMENT '退款成功时间',
   `deleted` tinyint DEFAULT NULL COMMENT '逻辑删除标识',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
@@ -693,7 +693,7 @@ CREATE TABLE `refund_order` (
   KEY `idx_pay_order` (`pay_order_id`) USING BTREE,
   KEY `uk_identifier` (`identifier`,`pay_order_id`,`refund_channel`),
   KEY `idx_refund_order` (`refund_order_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 
 ;
 
 /******************************************/
@@ -742,18 +742,18 @@ CREATE TABLE `blind_box_inventory_stream` (
   `changed_quantity` bigint DEFAULT NULL COMMENT '本次变更的数量',
   `price` decimal(18,6) DEFAULT NULL COMMENT '价格',
   `quantity` bigint DEFAULT NULL COMMENT '藏品数量',
-  `state` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '状态',
+  `state` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '状态',
   `saleable_inventory` bigint DEFAULT NULL COMMENT '可售库存',
   `occupied_inventory` bigint DEFAULT NULL COMMENT '已占库存',
   `frozen_inventory` bigint DEFAULT NULL COMMENT '冻结库存',
-  `stream_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '流水类型',
-  `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '幂等号',
+  `stream_type` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '流水类型',
+  `identifier` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
-  `extend_info` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '扩展信息',
+  `extend_info` varchar(512) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '扩展信息',
   PRIMARY KEY (`id`),
   KEY `idx_cid_ident_type` (`identifier`,`stream_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=561 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='盲盒表库存流水'
+) ENGINE=InnoDB AUTO_INCREMENT=561 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='盲盒表库存流水'
 ;
 
 /******************************************/
@@ -767,7 +767,7 @@ CREATE TABLE `blind_box_item` (
   `blind_box_id` bigint DEFAULT NULL COMMENT '盲盒id',
   `name` varchar(512) DEFAULT NULL COMMENT '盲盒名称',
   `cover` varchar(512) DEFAULT NULL COMMENT '盲盒封面',
-  `collection_name` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '藏品名称',
+  `collection_name` varchar(512) CHARACTER SET utf8  DEFAULT NULL COMMENT '藏品名称',
   `collection_cover` varchar(512) DEFAULT NULL COMMENT '藏品封面',
   `collection_detail` text COMMENT '藏品详情',
   `collection_serial_no` varchar(128) DEFAULT NULL COMMENT '持有藏品的序列号',
@@ -797,16 +797,16 @@ CREATE TABLE `transaction_log` (
    `id` bigint NOT NULL AUTO_INCREMENT,
    `gmt_create` datetime NOT NULL COMMENT '创建时间',
    `gmt_modified` datetime NOT NULL COMMENT '更新时间',
-   `transaction_id` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '事务id',
-   `business_scene` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '业务场景',
-   `business_module` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '业务模块',
-   `state` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '状态',
+   `transaction_id` varchar(256) CHARACTER SET utf8  NOT NULL COMMENT '事务id',
+   `business_scene` varchar(64) CHARACTER SET utf8  NOT NULL COMMENT '业务场景',
+   `business_module` varchar(64) CHARACTER SET utf8  NOT NULL COMMENT '业务模块',
+   `state` varchar(32) CHARACTER SET utf8  NOT NULL COMMENT '状态',
    `lock_version` int NULL COMMENT '版本号',
    `deleted` tinyint NULL COMMENT '逻辑删除字段',
-   `cancel_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'cancel的类型',
+   `cancel_type` varchar(32) CHARACTER SET utf8  NULL COMMENT 'cancel的类型',
    PRIMARY KEY (`id`),
    KEY `idx_businsess_trans_id`(`transaction_id`,`business_scene`,`business_module`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb3 COLLATE=utf8_general_ci COMMENT='事务记录表';
+) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb3  COMMENT='事务记录表';
 
 
 /******************************************/
@@ -821,11 +821,11 @@ CREATE TABLE `collection_airdrop_stream` (
   `recipient_user_id` varchar(128) DEFAULT NULL COMMENT '接收用户ID',
   `quantity` bigint DEFAULT NULL COMMENT '藏品空投数量',
   `stream_type` varchar(128) DEFAULT NULL COMMENT '流水类型',
-  `identifier` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '幂等号',
+  `identifier` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品空投流水表'
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品空投流水表'
 ;
 
 
@@ -837,11 +837,11 @@ CREATE TABLE `goods_book` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
   `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
   `gmt_modified` datetime DEFAULT NULL COMMENT '最后更新时间',
-  `goods_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '商品名称',
-  `goods_type` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '商品类型',
+  `goods_id` varchar(128) CHARACTER SET utf8  DEFAULT NULL COMMENT '商品名称',
+  `goods_type` varchar(128) CHARACTER SET utf8  DEFAULT NULL COMMENT '商品类型',
   `buyer_id` varchar(128) DEFAULT NULL COMMENT '买家id',
-  `buyer_type` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '买家类型',
-  `identifier` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '幂等号',
+  `buyer_type` varchar(128) CHARACTER SET utf8  DEFAULT NULL COMMENT '买家类型',
+  `identifier` varchar(128) CHARACTER SET utf8  DEFAULT NULL COMMENT '幂等号',
   `book_succeed_time` datetime DEFAULT NULL COMMENT '预定成功时间',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
