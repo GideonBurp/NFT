@@ -86,10 +86,17 @@ public class CollectionController {
      */
     @GetMapping("/collectionInfo")
     public Result<CollectionVO> collectionInfo(@NotBlank String collectionId) {
-        String userId = (String) StpUtil.getLoginId();
         CollectionVO collectionVO = (CollectionVO) goodsFacadeService.getGoods(collectionId, GoodsType.COLLECTION);
-        Boolean hasBooked = goodsFacadeService.isGoodsBooked(collectionId, GoodsType.COLLECTION, userId);
-        collectionVO.setHasBooked(hasBooked);
+        if (collectionVO.canBook()) {
+            try {
+                String userId = (String) StpUtil.getLoginId();
+                Boolean hasBooked = goodsFacadeService.isGoodsBooked(collectionId, GoodsType.COLLECTION, userId);
+                collectionVO.setHasBooked(hasBooked);
+            } catch (Exception e) {
+                //如果用户未登录或其他异常
+                collectionVO.setHasBooked(false);
+            }
+        }
         return Result.success(collectionVO);
     }
 
