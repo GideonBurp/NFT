@@ -66,6 +66,11 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
+        newBuy-in-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: trade-group
+          binder: rocketmq
         normalBuyCancel-out-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
