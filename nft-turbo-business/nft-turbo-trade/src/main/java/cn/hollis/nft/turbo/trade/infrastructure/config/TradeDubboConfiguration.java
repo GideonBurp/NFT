@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.trade.infrastructure.config;
 
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.hollis.nft.turbo.api.goods.service.GoodsTransactionFacadeService;
 import cn.hollis.nft.turbo.api.inventory.InventoryTransactionFacadeService;
 import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
@@ -39,6 +40,10 @@ public class TradeDubboConfiguration {
     @DubboReference(version = "1.0.0")
     private InventoryTransactionFacadeService inventoryTransactionFacadeService;
 
+
+    @DubboReference(version = "1.0.0")
+    private GoodsTransactionFacadeService goodsTransactionFacadeService;
+
     @Bean
     @ConditionalOnMissingBean(name = "payFacadeService")
     public PayFacadeService payFacadeService() {
@@ -73,6 +78,12 @@ public class TradeDubboConfiguration {
     @ConditionalOnMissingBean(name = "orderTransactionFacadeService")
     public OrderTransactionFacadeService orderTransactionFacadeService() {
         return orderTransactionFacadeService;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "goodsTransactionFacadeService")
+    public GoodsTransactionFacadeService goodsTransactionFacadeService() {
+        return goodsTransactionFacadeService;
     }
 
     @Bean
