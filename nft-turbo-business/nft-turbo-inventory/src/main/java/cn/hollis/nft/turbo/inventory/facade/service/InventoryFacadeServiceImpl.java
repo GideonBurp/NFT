@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
+import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventoryRedisService.ERROR_CODE_INVENTORY_IS_ZERO;
 import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventoryRedisService.ERROR_CODE_INVENTORY_NOT_ENOUGH;
 
 /**
@@ -79,7 +80,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
         //1、如果库存为0，则在本地缓存记录，用于对售罄商品快速决策
         //2、当前库存已经是0了，本次扣减失败的情况
         if (inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0
-                || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_NOT_ENOUGH)) {
+                || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_IS_ZERO)) {
             soldOutGoodsLocalCache.put(goodsType + "_" + inventoryRequest.getGoodsId(), true);
         }
 

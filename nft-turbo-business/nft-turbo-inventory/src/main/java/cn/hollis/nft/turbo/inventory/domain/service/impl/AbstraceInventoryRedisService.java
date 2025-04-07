@@ -31,6 +31,7 @@ public abstract class AbstraceInventoryRedisService implements InventoryService 
     private RedissonClient redissonClient;
 
     public static final String ERROR_CODE_INVENTORY_NOT_ENOUGH = "INVENTORY_NOT_ENOUGH";
+    public static final String ERROR_CODE_INVENTORY_IS_ZERO = "INVENTORY_IS_ZERO";
     public static final String ERROR_CODE_KEY_NOT_FOUND = "KEY_NOT_FOUND";
     public static final String ERROR_CODE_OPERATION_ALREADY_EXECUTED = "OPERATION_ALREADY_EXECUTED";
 
@@ -71,6 +72,9 @@ public abstract class AbstraceInventoryRedisService implements InventoryService 
                 end
                 if tonumber(current) == nil then
                     return redis.error_reply('current value is not a number')
+                end
+                if tonumber(current) == 0 then
+                    return redis.error_reply('INVENTORY_IS_ZERO')
                 end
                 if tonumber(current) < tonumber(ARGV[1]) then
                     return redis.error_reply('INVENTORY_NOT_ENOUGH')
@@ -119,6 +123,8 @@ public abstract class AbstraceInventoryRedisService implements InventoryService 
             inventoryResponse.setIdentifier(request.getIdentifier());
             if (e.getMessage().startsWith(ERROR_CODE_INVENTORY_NOT_ENOUGH)) {
                 inventoryResponse.setResponseCode(ERROR_CODE_INVENTORY_NOT_ENOUGH);
+            } else if (e.getMessage().startsWith(ERROR_CODE_INVENTORY_IS_ZERO)) {
+                inventoryResponse.setResponseCode(ERROR_CODE_INVENTORY_IS_ZERO);
             } else if (e.getMessage().startsWith(ERROR_CODE_KEY_NOT_FOUND)) {
                 inventoryResponse.setResponseCode(ERROR_CODE_KEY_NOT_FOUND);
             } else if (e.getMessage().startsWith(ERROR_CODE_OPERATION_ALREADY_EXECUTED)) {
