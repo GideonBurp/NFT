@@ -6,6 +6,7 @@ import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.api.goods.service.GoodsTransactionFacadeService;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
+import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.nft.turbo.tcc.entity.TransCancelSuccessType;
 import cn.hollis.nft.turbo.tcc.entity.TransConfirmSuccessType;
@@ -40,6 +41,7 @@ public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacade
     @Override
     @Facade
     @Transactional
+    @DistributeLock(keyExpression = "#request.bizNo",scene = "NORMAL_BUY_GOODS")
     public GoodsSaleResponse tryDecreaseInventory(GoodsSaleRequest request) {
 
         GoodsFreezeInventoryRequest goodsTrySaleRequest = new GoodsFreezeInventoryRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
@@ -67,6 +69,7 @@ public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacade
     @Override
     @Facade
     @Transactional
+    @DistributeLock(keyExpression = "#request.bizNo",scene = "NORMAL_BUY_GOODS")
     public GoodsSaleResponse confirmDecreaseInventory(GoodsSaleRequest request) {
         GoodsUnfreezeAndSaleRequest unfreezeAndSaleRequest = new GoodsUnfreezeAndSaleRequest(request.getBizNo(), request.getGoodsId(), request.getQuantity());
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
@@ -92,6 +95,7 @@ public class GoodsTransactionFacadeServiceImpl implements GoodsTransactionFacade
     @Override
     @Facade
     @Transactional
+    @DistributeLock(keyExpression = "#request.bizNo",scene = "NORMAL_BUY_GOODS")
     public GoodsSaleResponse cancelDecreaseInventory(GoodsSaleRequest request) {
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
         TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(new TccRequest(request.getBizNo(), "normalBuy", goodsType.name()));

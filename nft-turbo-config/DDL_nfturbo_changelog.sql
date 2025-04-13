@@ -1,3 +1,10 @@
+# 2025-05-10 transaction_log表更新为唯一性索引
+
+ALTER TABLE `transaction_log`
+	DROP KEY `idx_businsess_trans_id`,
+	ADD Unique KEY `uk_businsess_trans_id`(`transaction_id`,`business_scene`,`business_module`) USING BTREE
+
+
 # 2025-03-10 增加transaction_log表
 
 CREATE TABLE `transaction_log` (

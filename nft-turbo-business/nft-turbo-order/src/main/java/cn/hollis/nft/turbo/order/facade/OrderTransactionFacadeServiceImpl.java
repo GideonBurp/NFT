@@ -7,6 +7,7 @@ import cn.hollis.nft.turbo.api.order.request.OrderCreateRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderDiscardRequest;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.base.exception.BizException;
+import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hollis.nft.turbo.order.domain.service.OrderManageService;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import cn.hollis.nft.turbo.tcc.entity.TransCancelSuccessType;
@@ -37,6 +38,7 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
+    @DistributeLock(keyExpression = "#orderCreateRequest.orderId",scene = "NORMAL_BUY_ORDER")
     public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest) {
         TransactionTryResponse transactionTryResponse = transactionLogService.tryTransaction(new TccRequest(orderCreateRequest.getOrderId(), "normalBuy", "ORDER"));
         Assert.isTrue(transactionTryResponse.getSuccess(), "transaction try failed");
@@ -53,6 +55,7 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
+    @DistributeLock(keyExpression = "#orderConfirmRequest.orderId",scene = "NORMAL_BUY_ORDER")
     public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest) {
         TransactionConfirmResponse transactionConfirmResponse = transactionLogService.confirmTransaction(new TccRequest(orderConfirmRequest.getOrderId(), "normalBuy", "ORDER"));
         Assert.isTrue(transactionConfirmResponse.getSuccess(), "transaction confirm failed");
@@ -70,6 +73,7 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
+    @DistributeLock(keyExpression = "#orderDiscardRequest.orderId",scene = "NORMAL_BUY_ORDER")
     public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest) {
 
         TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(new TccRequest(orderDiscardRequest.getOrderId(), "normalBuy", "ORDER"));

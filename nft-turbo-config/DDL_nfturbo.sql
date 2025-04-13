@@ -805,7 +805,7 @@ CREATE TABLE `transaction_log` (
    `deleted` tinyint NULL COMMENT '逻辑删除字段',
    `cancel_type` varchar(32) CHARACTER SET utf8  NULL COMMENT 'cancel的类型',
    PRIMARY KEY (`id`),
-   KEY `idx_businsess_trans_id`(`transaction_id`,`business_scene`,`business_module`) USING BTREE
+   Unique KEY `uk_businsess_trans_id`(`transaction_id`,`business_scene`,`business_module`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb3  COMMENT='事务记录表';
 
 

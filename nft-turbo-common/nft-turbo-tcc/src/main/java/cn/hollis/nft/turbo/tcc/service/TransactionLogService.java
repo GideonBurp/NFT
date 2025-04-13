@@ -33,13 +33,7 @@ public class TransactionLogService extends ServiceImpl<TransactionLogMapper, Tra
         }
 
         //幂等
-        if (existTransactionLog.getState() == TransActionLogState.TRY
-                || existTransactionLog.getState() == TransActionLogState.CONFIRM
-                || existTransactionLog.getState() == TransActionLogState.CANCEL) {
-            return new TransactionTryResponse(true, TransTrySuccessType.DUPLICATED_TRY);
-        }
-
-        throw new UnsupportedOperationException("unsupport state :" + existTransactionLog.getState());
+        return new TransactionTryResponse(true, TransTrySuccessType.DUPLICATED_TRY);
     }
 
     /**
