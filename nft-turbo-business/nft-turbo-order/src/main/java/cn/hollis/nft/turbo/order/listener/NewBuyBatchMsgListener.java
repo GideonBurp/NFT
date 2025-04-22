@@ -26,8 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.*;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
@@ -53,6 +55,8 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Autowired
     private InventoryFacadeService inventoryFacadeService;
 
+    private final ExecutorService executor = Executors.newFixedThreadPool(16);
+
     @Override
     public void onMessage(List<Object> strings) {
         log.info("NewBuyBatchMsgListener receive message: {}", strings);
@@ -61,23 +65,49 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Override
     public void prepareStart(DefaultMQPushConsumer consumer) {
         consumer.setPullInterval(1000);
-//        consumer.setConsumeThreadMin(1);
-//        consumer.setConsumeThreadMax(1);
         consumer.setConsumeMessageBatchMaxSize(128);
         consumer.setPullBatchSize(64);
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.info("NewBuyBatchMsgListener receive message size: {}", msgs.size());
-            msgs.stream().forEach(messageExt -> {
-                log.info("NewBuyBatchMsgListener receive message: {}", messageExt);
-                OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
-                doNewBuyExecute(orderCreateRequest);
+
+            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executor);
+            List<Future<Boolean>> futures = new ArrayList<>();
+
+            // 1. 提交所有任务
+            msgs.forEach(messageExt -> {
+                Callable<Boolean> task = () -> {
+                    try {
+                        OrderCreateRequest orderCreateRequest = JSON.parseObject(JSON.parseObject(messageExt.getBody()).getString("body"), OrderCreateRequest.class);
+                        return doNewBuyExecute(orderCreateRequest);
+                    } catch (Exception e) {
+                        log.error("Task failed", e);
+                        return false; // 标记失败
+                    }
+                };
+                futures.add(completionService.submit(task));
             });
 
-            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            // 2. 检查结果
+            boolean allSuccess = true;
+            try {
+                for (int i = 0; i < msgs.size(); i++) {
+                    Future<Boolean> future = completionService.take();
+                    if (!future.get()) { // 3.发现一个失败立即终止
+                        allSuccess = false;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                allSuccess = false;
+            }
+
+            // 3. 根据结果返回消费状态
+            return allSuccess ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS
+                    : ConsumeConcurrentlyStatus.RECONSUME_LATER;
         });
     }
 
-    public void doNewBuyExecute(OrderCreateRequest orderCreateRequest) {
+    public boolean doNewBuyExecute(OrderCreateRequest orderCreateRequest) {
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         BeanUtils.copyProperties(orderCreateRequest, orderCreateAndConfirmRequest);
         orderCreateAndConfirmRequest.setOperator(UserType.PLATFORM.name());
@@ -100,13 +130,14 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
                 if (decreaseResponse.getSuccess()) {
                     log.info("increase success,collectionInventoryRequest:{}", collectionInventoryRequest);
                     //库存回滚后提前返回
-                    return;
+                    return true;
                 } else {
                     log.error("increase inventory failed,orderCreateRequest:{} , decreaseResponse : {}", JSON.toJSONString(orderCreateRequest), JSON.toJSONString(decreaseResponse));
                     throw new OrderException(OrderErrorCode.INVENTORY_INCREASE_FAILED);
                 }
             }
         }
-        Assert.isTrue(orderResponse.getSuccess(), "create order failed");
+        Assert.isTrue(orderResponse.getSuccess(), "create order failed ," + orderResponse.getResponseMessage());
+        return true;
     }
 }
