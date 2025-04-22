@@ -191,7 +191,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
             RefundModel refundModel = new RefundModel()
                     .setOut_refund_no(refundChannelRequest.getRefundOrderId())
                     .setReason(refundChannelRequest.getRefundReason())
-                    .setNotify_url(wxPayBean.getDomain().concat("/v3/refundNotify"))
+                    .setNotify_url(wxPayBean.getDomain().concat("/wxPay/refundNotify"))
                     .setOut_trade_no(refundChannelRequest.getPayOrderId())
                     .setTransaction_id(refundChannelRequest.getPayChannelStreamId())
                     .setAmount(new RefundAmount().setRefund(refundChannelRequest.getRefundAmount().intValue()).setTotal(refundChannelRequest.getPaidAmount().intValue()).setCurrency("CNY"));
