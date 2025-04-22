@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState.REFUNDING;
+import static cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState.TO_REFUND;
+
 /**
  * @author Hollis
  */
@@ -59,6 +62,7 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
 
     public boolean refunding(String refundOrderId) {
         RefundOrder refundOrder = refundOrderMapper.selectByRefundOrderId(refundOrderId);
+        Assert.isTrue(refundOrder.getRefundOrderState() == TO_REFUND);
         refundOrder.refunding();
 
         boolean saveResult = saveOrUpdate(refundOrder);
@@ -69,6 +73,8 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
 
     public boolean refundSuccess(RefundSuccessEvent refundSuccessEvent) {
         RefundOrder refundOrder = refundOrderMapper.selectByRefundOrderId(refundSuccessEvent.getRefundOrderId());
+        Assert.isTrue(refundOrder.getRefundOrderState() == REFUNDING);
+
         refundOrder.refundSuccess(refundSuccessEvent);
 
         boolean saveResult = saveOrUpdate(refundOrder);
@@ -81,7 +87,7 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
         Page<RefundOrder> page = new Page<>(currentPage, pageSize);
 
         QueryWrapper<RefundOrder> wrapper = new QueryWrapper<>();
-        wrapper.in("refund_order_state", PayRefundOrderState.REFUNDING, PayRefundOrderState.TO_REFUND);
+        wrapper.in("refund_order_state", PayRefundOrderState.REFUNDING, TO_REFUND);
         wrapper.orderBy(true, true, "gmt_create");
 
         return this.page(page, wrapper);
