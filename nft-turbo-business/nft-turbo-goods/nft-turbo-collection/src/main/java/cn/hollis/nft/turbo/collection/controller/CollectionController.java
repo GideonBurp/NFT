@@ -160,7 +160,8 @@ public class CollectionController {
             chainProcessRequest.setBizId(String.valueOf(param.getHeldCollectionId()));
             chainProcessRequest.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
             chainProcessRequest.setIdentifier(param.getHeldCollectionId() + "_" + ChainOperateTypeEnum.COLLECTION_DESTROY.name());
-            chainProcessRequest.setOwner(heldCollection.getUserId());
+            UserInfo owner = (UserInfo) StpUtil.getSession().get(userId);
+            chainProcessRequest.setOwner(owner.getBlockChainUrl());
             chainProcessRequest.setClassId(String.valueOf(heldCollection.getCollectionId()));
             chainProcessRequest.setNtfId(heldCollection.getNftId());
             var res = chainFacadeService.destroy(chainProcessRequest);
@@ -207,7 +208,8 @@ public class CollectionController {
             request.setBizId(String.valueOf(transferHeldCollection.getId()));
             request.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
             request.setIdentifier(param.getHeldCollectionId() + "_" + param.getRecipientUserId() + "_" + ChainOperateTypeEnum.COLLECTION_TRANSFER.name());
-            request.setOwner(transferHeldCollection.getUserId());
+            UserInfo owner = (UserInfo) StpUtil.getSession().get(userId);
+            request.setOwner(owner.getBlockChainUrl());
             request.setClassId(String.valueOf(heldCollection.getCollectionId()));
             request.setNtfId(transferHeldCollection.getNftId());
             request.setRecipient(recipient.getBlockChainUrl());

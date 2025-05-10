@@ -43,7 +43,7 @@ public class WxPayController {
 
     @RequestMapping("/test")
     @ResponseBody
-    public String test(String orderId, String paidAmount ) {
+    public String test(String orderId, String paidAmount) {
         payApplicationService.test();
         return "test";
     }
@@ -66,12 +66,14 @@ public class WxPayController {
     public void payNotify(HttpServletRequest request, HttpServletResponse response) {
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
         boolean result = wxPayChannelService.notify(request, response);
-        Assert.isTrue(result, "支付通知失败");
+        if (!result) {
+            response.setStatus(500);
+        }
     }
 
     @RequestMapping(value = "/payNotifyMock", method = {RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
-    public void payNotifyMock(String  payOrderId, String  paidAmount) {
+    public void payNotifyMock(String payOrderId, String paidAmount) {
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.MOCK);
 
         Map<String, Serializable> params = new HashMap<>(12);
@@ -89,6 +91,8 @@ public class WxPayController {
     public void refundNotify(HttpServletRequest request, HttpServletResponse response) {
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
         boolean result = wxPayChannelService.refundNotify(request, response);
-        Assert.isTrue(result, "退款通知失败");
+        if (!result) {
+            response.setStatus(500);
+        }
     }
 }
