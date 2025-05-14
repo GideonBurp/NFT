@@ -1,5 +1,6 @@
 package cn.hollis.nft.turbo.trade.infrastructure.config;
 
+import cn.hollis.nft.turbo.api.check.service.InventoryCheckFacadeService;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.goods.service.GoodsTransactionFacadeService;
 import cn.hollis.nft.turbo.api.inventory.InventoryTransactionFacadeService;
@@ -40,6 +41,8 @@ public class TradeDubboConfiguration {
     @DubboReference(version = "1.0.0")
     private InventoryTransactionFacadeService inventoryTransactionFacadeService;
 
+    @DubboReference(version = "1.0.0")
+    private InventoryCheckFacadeService inventoryCheckFacadeService;
 
     @DubboReference(version = "1.0.0")
     private GoodsTransactionFacadeService goodsTransactionFacadeService;
@@ -90,5 +93,11 @@ public class TradeDubboConfiguration {
     @ConditionalOnMissingBean(name = "inventoryTransactionFacadeService")
     public InventoryTransactionFacadeService inventoryTransactionFacadeService() {
         return inventoryTransactionFacadeService;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "inventoryCheckFacadeService")
+    public InventoryCheckFacadeService inventoryCheckFacadeService() {
+        return inventoryCheckFacadeService;
     }
 }

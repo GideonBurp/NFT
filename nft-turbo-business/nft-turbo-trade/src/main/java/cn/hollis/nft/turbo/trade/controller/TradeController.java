@@ -1,8 +1,12 @@
 package cn.hollis.nft.turbo.trade.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hollis.nft.turbo.api.check.request.InventoryCheckRequest;
+import cn.hollis.nft.turbo.api.check.response.InventoryCheckResponse;
+import cn.hollis.nft.turbo.api.check.service.InventoryCheckFacadeService;
 import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
 import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
 import cn.hollis.nft.turbo.api.goods.request.GoodsBookRequest;
@@ -39,6 +43,7 @@ import cn.hollis.nft.turbo.trade.param.PayParam;
 import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import com.alibaba.fastjson.JSON;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +57,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_PRE_VALID_FAILED;
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
@@ -65,6 +74,11 @@ import static cn.hollis.nft.turbo.web.filter.TokenFilter.tokenThreadLocal;
 @RestController
 @RequestMapping("trade")
 public class TradeController {
+
+    private static ThreadFactory inventoryBypassVerifyThreadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("inventory-bypass-verify-pool-%d").build();
+
+    private ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(10, inventoryBypassVerifyThreadFactory);
 
     @Autowired
     private OrderFacadeService orderFacadeService;
@@ -86,6 +100,9 @@ public class TradeController {
 
     @Autowired
     private OrderCreateValidator orderPreValidatorChain;
+
+    @Autowired
+    private InventoryCheckFacadeService inventoryCheckFacadeService;
 
     /**
      * 预定
@@ -124,6 +141,8 @@ public class TradeController {
         OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
 
         if (orderResponse.getSuccess()) {
+            InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+            inventoryBypassVerify(inventoryRequest);
             return Result.success(orderCreateRequest.getOrderId());
         }
 
@@ -147,7 +166,7 @@ public class TradeController {
         }
 
         //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
-          boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
+        boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
 
         if (!result) {
             throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
@@ -159,10 +178,40 @@ public class TradeController {
         SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
 
         if (response.getSuccess() && response.getData() != null) {
+            inventoryBypassVerify(inventoryRequest);
             return Result.success(orderCreateRequest.getOrderId());
         }
 
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+    }
+
+    /**
+     * 库存扣减旁路验证
+     *
+     * @param inventoryRequest
+     */
+    private void inventoryBypassVerify(InventoryRequest inventoryRequest) {
+        try {
+            //延迟3秒检查数据库中是否有库存扣减记录
+            scheduler.schedule(() -> {
+                InventoryCheckRequest inventoryCheckRequest = new InventoryCheckRequest();
+                inventoryCheckRequest.setIdentifier(inventoryRequest.getIdentifier());
+                inventoryCheckRequest.setGoodsType(inventoryRequest.getGoodsType());
+                inventoryCheckRequest.setGoodsId(inventoryRequest.getGoodsId());
+                inventoryCheckRequest.setGoodsEvent(GoodsEvent.TRY_SALE);
+                inventoryCheckRequest.setChangedQuantity(inventoryRequest.getInventory());
+                InventoryCheckResponse checkResponse = inventoryCheckFacadeService.check(inventoryCheckRequest);
+                //核验成功,数据一致
+                if (checkResponse.getSuccess() && checkResponse.getCheckResult()) {
+                    //删除库存扣减流水记录
+                    inventoryFacadeService.removeInventoryDecreaseLog(inventoryRequest);
+                }
+            }, 3, TimeUnit.SECONDS);
+
+        } catch (Exception e) {
+            //核验失败打印日志，不影响主流程，等异步任务再核对
+            log.error("inventoryBypassVerify failed,", e);
+        }
     }
 
     /**
