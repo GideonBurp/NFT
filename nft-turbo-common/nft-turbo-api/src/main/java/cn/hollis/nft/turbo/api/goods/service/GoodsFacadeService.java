@@ -1,11 +1,15 @@
 package cn.hollis.nft.turbo.api.goods.service;
 
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
+import cn.hollis.nft.turbo.api.goods.model.GoodsStreamVO;
 import cn.hollis.nft.turbo.api.goods.request.GoodsBookRequest;
 import cn.hollis.nft.turbo.api.goods.request.GoodsSaleRequest;
 import cn.hollis.nft.turbo.api.goods.response.GoodsBookResponse;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
+
+import java.util.List;
 
 /**
  * 商品服务
@@ -22,6 +26,17 @@ public interface GoodsFacadeService {
      * @return
      */
     public BaseGoodsVO getGoods(String goodsId, GoodsType goodsType);
+
+    /**
+     * 获取商品流水
+     *
+     * @param goodsId
+     * @param goodsType
+     * @param goodsEvent
+     * @param identifier
+     * @return
+     */
+    public GoodsStreamVO getGoodsInventoryStream(String goodsId, GoodsType goodsType, GoodsEvent goodsEvent, String identifier);
 
     /**
      * 藏品出售的try阶段，做库存预占用
@@ -101,4 +116,13 @@ public interface GoodsFacadeService {
      * @return
      */
     public Boolean isHotGoods(String goodsId, String goodsType);
+
+
+    /**
+     * 获取热门商品id列表
+     *
+     * @param goodsType
+     * @return
+     */
+    public List<String> getHotGoods(String goodsType);
 }

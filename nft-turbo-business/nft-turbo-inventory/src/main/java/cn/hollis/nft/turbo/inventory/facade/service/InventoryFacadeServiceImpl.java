@@ -3,6 +3,7 @@ package cn.hollis.nft.turbo.inventory.facade.service;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
 import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
+import cn.hollis.nft.turbo.base.response.MultiResponse;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.inventory.domain.response.InventoryResponse;
 import cn.hollis.nft.turbo.inventory.domain.service.impl.BlindBoxInventoryRedisService;
@@ -13,6 +14,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventoryRedisService.ERROR_CODE_INVENTORY_IS_ZERO;
@@ -139,6 +141,35 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
             case COLLECTION -> collectionInventoryRedisService.getInventoryDecreaseLog(inventoryRequest);
 
             case BLIND_BOX -> blindBoxInventoryRedisService.getInventoryDecreaseLog(inventoryRequest);
+
+            default -> throw new UnsupportedOperationException("unsupport goods type");
+        };
+
+        return SingleResponse.of(inventoryResponse);
+    }
+
+    @Override
+    public MultiResponse<String> getInventoryDecreaseLogs(InventoryRequest inventoryRequest) {
+        GoodsType goodsType = inventoryRequest.getGoodsType();
+        List<String> inventoryResponse = switch (goodsType) {
+            case COLLECTION -> collectionInventoryRedisService.getInventoryDecreaseLogs(inventoryRequest);
+
+            case BLIND_BOX -> blindBoxInventoryRedisService.getInventoryDecreaseLogs(inventoryRequest);
+
+            default -> throw new UnsupportedOperationException("unsupport goods type");
+        };
+
+        return MultiResponse.of(inventoryResponse);
+    }
+
+
+    @Override
+    public SingleResponse<Long> removeInventoryDecreaseLog(InventoryRequest inventoryRequest) {
+        GoodsType goodsType = inventoryRequest.getGoodsType();
+        Long inventoryResponse = switch (goodsType) {
+            case COLLECTION -> collectionInventoryRedisService.removeInventoryDecreaseLog(inventoryRequest);
+
+            case BLIND_BOX -> blindBoxInventoryRedisService.removeInventoryDecreaseLog(inventoryRequest);
 
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };

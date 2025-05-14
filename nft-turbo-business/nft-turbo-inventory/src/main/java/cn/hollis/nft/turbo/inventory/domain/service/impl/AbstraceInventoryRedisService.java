@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static cn.hollis.nft.turbo.base.response.ResponseCode.BIZ_ERROR;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
@@ -149,6 +151,35 @@ public abstract class AbstraceInventoryRedisService implements InventoryService 
         String stream = redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
                 luaScript,
                 RScript.ReturnType.STATUS,
+                Arrays.asList(getCacheStreamKey(request)), "DECREASE_" + request.getIdentifier());
+        return stream;
+    }
+
+    @Override
+    public List<String> getInventoryDecreaseLogs(InventoryRequest request) {
+        String luaScript = """
+                local jsonString = redis.call('hvals', KEYS[1])
+                return jsonString
+                """;
+
+        List<String> stream = redissonClient.getScript().eval(RScript.Mode.READ_ONLY,
+                luaScript,
+                RScript.ReturnType.STATUS,
+                Arrays.asList(getCacheStreamKey(request)),
+                Collections.emptyList());
+        return stream;
+    }
+
+    @Override
+    public Long removeInventoryDecreaseLog(InventoryRequest request) {
+        String luaScript = """
+                local jsonString = redis.call('hdel', KEYS[1], ARGV[1])
+                return jsonString
+                """;
+
+        Long stream = redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
+                luaScript,
+                RScript.ReturnType.INTEGER,
                 Arrays.asList(getCacheStreamKey(request)), "DECREASE_" + request.getIdentifier());
         return stream;
     }

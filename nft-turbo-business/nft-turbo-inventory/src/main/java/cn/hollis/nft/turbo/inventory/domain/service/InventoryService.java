@@ -4,6 +4,8 @@ import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
 import cn.hollis.nft.turbo.inventory.domain.response.InventoryResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 库存服务
  *
@@ -59,4 +61,18 @@ public interface InventoryService {
      * @return
      */
     public String getInventoryDecreaseLog(InventoryRequest request);
+
+    /**
+     * 获取藏品全部日志
+     * @param request
+     * @return
+     */
+    public List<String> getInventoryDecreaseLogs(InventoryRequest request);
+
+    /**
+     * 移除库存操作日志
+     * @param request
+     * @return
+     */
+    public Long removeInventoryDecreaseLog(InventoryRequest request);
 }

@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.api.inventory.service;
 
 import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.hollis.nft.turbo.base.response.MultiResponse;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 
 /**
@@ -42,6 +43,7 @@ public interface InventoryFacadeService {
      */
     public SingleResponse<Void> invalid(InventoryRequest inventoryRequest);
 
+
     /**
      * 查询库存操作流水
      *
@@ -51,12 +53,27 @@ public interface InventoryFacadeService {
     public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest inventoryRequest);
 
     /**
+     * 批量查询库存流水
+     * @param inventoryRequest
+     * @return
+     */
+    public MultiResponse<String> getInventoryDecreaseLogs(InventoryRequest inventoryRequest);
+
+    /**
      * 查询库存
      *
      * @param inventoryRequest
      * @return
      */
     public SingleResponse<Integer> queryInventory(InventoryRequest inventoryRequest);
+
+    /**
+     * 移除流水
+     *
+     * @param inventoryRequest
+     * @return
+     */
+    public SingleResponse<Long> removeInventoryDecreaseLog(InventoryRequest inventoryRequest);
 
 
 }

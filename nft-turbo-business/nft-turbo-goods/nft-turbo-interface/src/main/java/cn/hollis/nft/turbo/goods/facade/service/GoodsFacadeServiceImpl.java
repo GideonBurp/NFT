@@ -4,25 +4,34 @@ import cn.hollis.nft.turbo.api.box.model.BlindBoxVO;
 import cn.hollis.nft.turbo.api.box.service.BlindBoxReadFacadeService;
 import cn.hollis.nft.turbo.api.collection.model.CollectionVO;
 import cn.hollis.nft.turbo.api.collection.service.CollectionReadFacadeService;
+import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import cn.hollis.nft.turbo.api.goods.model.BaseGoodsVO;
+import cn.hollis.nft.turbo.api.goods.model.GoodsStreamVO;
 import cn.hollis.nft.turbo.api.goods.request.*;
 import cn.hollis.nft.turbo.api.goods.response.GoodsBookResponse;
 import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
+import cn.hollis.nft.turbo.box.domain.entity.BlindBoxInventoryStream;
 import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
+import cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxInventoryStreamMapper;
+import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
+import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionInventoryStreamMapper;
+import cn.hollis.nft.turbo.goods.entity.convertor.GoodsStreamConvertor;
 import cn.hollis.nft.turbo.goods.service.GoodsBookService;
 import cn.hollis.nft.turbo.goods.service.HotGoodsService;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * 商品聚合服务
@@ -40,6 +49,12 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     @Autowired
     private CollectionReadFacadeService collectionReadFacadeService;
+
+    @Autowired
+    private CollectionInventoryStreamMapper collectionInventoryStreamMapper;
+
+    @Autowired
+    private BlindBoxInventoryStreamMapper blindBoxInventoryStreamMapper;
 
     @Autowired
     private BlindBoxReadFacadeService blindBoxReadFacadeService;
@@ -70,6 +85,23 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                     yield response.getData();
                 }
                 yield null;
+            }
+            default -> throw new UnsupportedOperationException("unsupport goods type");
+        };
+    }
+
+    @Override
+    public GoodsStreamVO getGoodsInventoryStream(String goodsId, GoodsType goodsType, GoodsEvent goodsEvent, String identifier) {
+        return switch (goodsType) {
+            case COLLECTION -> {
+                CollectionInventoryStream collectionInventoryStream = collectionInventoryStreamMapper.selectByIdentifier(identifier, goodsEvent.name(), Long.valueOf(goodsId));
+
+                yield GoodsStreamConvertor.INSTANCE.mapToVo(collectionInventoryStream);
+            }
+
+            case BLIND_BOX -> {
+                BlindBoxInventoryStream blindBoxInventoryStream = blindBoxInventoryStreamMapper.selectByIdentifier(identifier, goodsEvent.name(), Long.valueOf(goodsId));
+                yield GoodsStreamConvertor.INSTANCE.mapToVo(blindBoxInventoryStream);
             }
             default -> throw new UnsupportedOperationException("unsupport goods type");
         };
@@ -198,5 +230,11 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
     @Facade
     public Boolean isHotGoods(String goodsId, String goodsType) {
         return hotGoodsService.isHotGoods(goodsId, goodsType);
+    }
+
+    @Override
+    @Facade
+    public List<String> getHotGoods(String goodsType) {
+        return hotGoodsService.getHotGoods(goodsType);
     }
 }

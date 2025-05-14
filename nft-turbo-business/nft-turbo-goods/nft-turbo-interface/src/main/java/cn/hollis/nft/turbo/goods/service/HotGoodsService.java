@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.goods.service;
 
 import cn.hollis.nft.turbo.cache.constant.CacheConstant;
+import cn.hollis.nft.turbo.goods.entity.HotGoods;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.redisson.api.RSet;
@@ -9,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,4 +64,29 @@ public class HotGoodsService {
         return isHot;
     }
 
+    public List<String> getHotGoods(String goodsType) {
+        List<String> hotGoods = new ArrayList<>();
+        Set<String> hotKeys = redissonClient.getSet(HOT_GOODS_SET_KEY);
+        for (String hotKey : hotKeys) {
+            if (!hotKey.contains(goodsType)) {
+                hotGoods.add(hotKey.substring(hotKey.lastIndexOf(CacheConstant.CACHE_KEY_SEPARATOR)) + 1);
+            }
+        }
+        return hotGoods;
+    }
+
+    public Set<HotGoods> getAllHotGoods() {
+        RSet<String> hotGoodsSet = redissonClient.getSet(HOT_GOODS_SET_KEY);
+        Set<String> hotKeys = hotGoodsSet.readAll();
+
+        Set<HotGoods> hotGoods = new HashSet<>();
+        for (String hotKey : hotKeys) {
+            String[] hotKeyArr = hotKey.split(CacheConstant.CACHE_KEY_SEPARATOR);
+            HotGoods hotGood = new HotGoods();
+            hotGood.setGoodsId(hotKeyArr[3]);
+            hotGood.setGoodsType(hotKeyArr[2]);
+            hotGoods.add(hotGood);
+        }
+        return hotGoods;
+    }
 }
