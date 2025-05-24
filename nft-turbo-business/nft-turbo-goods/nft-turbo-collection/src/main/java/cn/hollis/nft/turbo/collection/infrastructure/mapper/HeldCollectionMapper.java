@@ -13,6 +13,13 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2024-01-19
  */
 @Mapper
-public interface HeldCollectionMapper extends BaseMapper<HeldCollection > {
+public interface HeldCollectionMapper extends BaseMapper<HeldCollection> {
+
+    /**
+     * 查询出需要重新上链铸造的最小id
+     *
+     * @return
+     */
+    public Long queryMinIdForMint();
 
 }

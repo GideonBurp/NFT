@@ -11,12 +11,13 @@ import cn.hollis.nft.turbo.pay.infrastructure.mapper.PayOrderMapper;
 import cn.hollis.nft.turbo.pay.infrastructure.mapper.RefundOrderMapper;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState.REFUNDING;
 import static cn.hollis.nft.turbo.api.pay.constant.PayRefundOrderState.TO_REFUND;
@@ -83,13 +84,16 @@ public class RefundOrderService extends ServiceImpl<RefundOrderMapper, RefundOrd
         return true;
     }
 
-    public Page<RefundOrder> pageQueryNeedRetryOrders(int currentPage, int pageSize) {
-        Page<RefundOrder> page = new Page<>(currentPage, pageSize);
+    public List<RefundOrder> pageQueryNeedRetryOrders(int pageSize, Long minId) {
 
         QueryWrapper<RefundOrder> wrapper = new QueryWrapper<>();
         wrapper.in("refund_order_state", PayRefundOrderState.REFUNDING, TO_REFUND);
+        if (minId != null) {
+            wrapper.ge("id", minId);
+        }
+        wrapper.last("limit " + pageSize);
         wrapper.orderBy(true, true, "gmt_create");
 
-        return this.page(page, wrapper);
+        return this.list(wrapper);
     }
 }

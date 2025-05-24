@@ -77,6 +77,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
 
         return true;
     }
+
     public Boolean payFailed(String payOrderId) {
         PayOrder payOrder = payOrderMapper.selectByPayOrderId(payOrderId);
         payOrder.payFailed();
@@ -120,14 +121,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return this.getOne(queryWrapper);
     }
 
-    public Page<PayOrder> pageQueryTimeoutOrders(int currentPage, int pageSize) {
-        Page<PayOrder> page = new Page<>(currentPage, pageSize);
-
+    public List<PayOrder> pageQueryTimeoutOrders(int pageSize, Long minId) {
         QueryWrapper<PayOrder> wrapper = new QueryWrapper<>();
         wrapper.eq("order_state", PayOrderState.PAYING);
         wrapper.lt("gmt_create", DateUtils.addMinutes(new Date(), -PayOrder.DEFAULT_TIME_OUT_MINUTES));
+        if (minId != null) {
+            wrapper.ge("id", minId);
+        }
         wrapper.orderBy(true, true, "gmt_create");
+        wrapper.last("limit " + pageSize);
 
-        return this.page(page, wrapper);
+        return this.list(wrapper);
     }
 }

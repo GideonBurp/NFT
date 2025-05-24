@@ -9,15 +9,16 @@ import cn.hollis.nft.turbo.api.user.response.data.UserInfo;
 import cn.hollis.nft.turbo.api.user.service.UserFacadeService;
 import cn.hollis.nft.turbo.base.utils.RemoteCallWrapper;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
-import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 藏品上链铸造重试任务
@@ -42,16 +43,14 @@ public class CollectionChainMintRetryJob {
 
     @XxlJob("collectionChainMintRetryJob")
     public ReturnT<String> execute() {
+        Long minId = heldCollectionService.queryMinIdForMint();
 
-        int currentPage = 1;
-        Page<HeldCollection> page = heldCollectionService.pageQueryForChainMint(currentPage, PAGE_SIZE);
+        List<HeldCollection> heldCollections = heldCollectionService.pageQueryForChainMint(PAGE_SIZE, minId);
 
-        page.getRecords().forEach(this::executeSingle);
-
-        while (page.hasNext()) {
-            currentPage++;
-            page = heldCollectionService.pageQueryForChainMint(currentPage, PAGE_SIZE);
-            page.getRecords().forEach(this::executeSingle);
+        while (CollectionUtils.isNotEmpty(heldCollections)) {
+            heldCollections.forEach(this::executeSingle);
+            Long maxId = heldCollections.stream().mapToLong(HeldCollection::getId).max().orElse(Long.MAX_VALUE);
+            heldCollections = heldCollectionService.pageQueryForChainMint(PAGE_SIZE, maxId + 1);
         }
 
         return ReturnT.SUCCESS;

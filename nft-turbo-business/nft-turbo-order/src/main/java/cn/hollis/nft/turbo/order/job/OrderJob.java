@@ -1,6 +1,7 @@
 package cn.hollis.nft.turbo.order.job;
 
 import cn.hollis.nft.turbo.api.common.constant.BizOrderType;
+import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.request.OrderConfirmRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderTimeoutRequest;
@@ -11,10 +12,8 @@ import cn.hollis.nft.turbo.api.pay.request.PayQueryRequest;
 import cn.hollis.nft.turbo.api.pay.service.PayFacadeService;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.response.MultiResponse;
-import cn.hollis.nft.turbo.api.common.constant.BusinessCode;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
@@ -84,16 +83,15 @@ public class OrderJob {
 
             buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
                 try {
-                    int currentPage = 1;
-                    Page<TradeOrder> page = orderReadService.pageQueryTimeoutOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
+                    List<TradeOrder> tradeOrders = orderReadService.pageQueryTimeoutOrders(PAGE_SIZE, buyerIdTailNumber, null);
                     //其实这里用put更好一点，可以避免因为队列满了而导致异常而提前结束。
-                    orderTimeoutBlockingQueue.addAll(page.getRecords());
+                    orderTimeoutBlockingQueue.addAll(tradeOrders);
                     forkJoinPool.execute(this::executeTimeout);
 
-                    while (page.hasNext()) {
-                        currentPage++;
-                        page = orderReadService.pageQueryTimeoutOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
-                        orderTimeoutBlockingQueue.addAll(page.getRecords());
+                    while (CollectionUtils.isNotEmpty(tradeOrders)) {
+                        long maxId = tradeOrders.stream().mapToLong(TradeOrder::getId).max().orElse(Long.MAX_VALUE);
+                        tradeOrders = orderReadService.pageQueryTimeoutOrders(PAGE_SIZE, buyerIdTailNumber, maxId + 1);
+                        orderTimeoutBlockingQueue.addAll(tradeOrders);
                     }
                 } finally {
                     orderTimeoutBlockingQueue.add(POISON);
@@ -125,15 +123,14 @@ public class OrderJob {
 
         buyerIdTailNumberList.forEach(buyerIdTailNumber -> {
             try {
-                int currentPage = 1;
-                Page<TradeOrder> page = orderReadService.pageQueryNeedConfirmOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
-                orderConfirmBlockingQueue.addAll(page.getRecords());
+                List<TradeOrder> tradeOrders = orderReadService.pageQueryNeedConfirmOrders(PAGE_SIZE, buyerIdTailNumber, null);
+                orderConfirmBlockingQueue.addAll(tradeOrders);
                 forkJoinPool.execute(this::executeConfirm);
 
-                while (page.hasNext()) {
-                    currentPage++;
-                    page = orderReadService.pageQueryNeedConfirmOrders(currentPage, PAGE_SIZE, buyerIdTailNumber);
-                    orderConfirmBlockingQueue.addAll(page.getRecords());
+                while (CollectionUtils.isNotEmpty(tradeOrders)) {
+                    long maxId = tradeOrders.stream().mapToLong(TradeOrder::getId).max().orElse(Long.MAX_VALUE);
+                    tradeOrders = orderReadService.pageQueryNeedConfirmOrders(PAGE_SIZE, buyerIdTailNumber, maxId + 1);
+                    orderConfirmBlockingQueue.addAll(tradeOrders);
                 }
             } finally {
                 orderConfirmBlockingQueue.add(POISON);
@@ -170,7 +167,7 @@ public class OrderJob {
                     LOG.debug("POISON toked from blocking queue");
                     break;
                 }
-                LOG.info("executeTimeout tradeOrderId = {}" , tradeOrder.getId());
+                LOG.info("executeTimeout tradeOrderId = {}", tradeOrder.getId());
                 executeTimeoutSingle(tradeOrder);
             }
         } catch (InterruptedException e) {
@@ -206,13 +203,12 @@ public class OrderJob {
                 try (HintManager hintManager = HintManager.getInstance()) {
                     LOG.info("shardIndex {} is execute", index);
                     hintManager.addTableShardingValue("trade_order", "000" + index);
-                    int currentPage = 1;
-                    Page<TradeOrder> page = orderReadService.pageQueryTimeoutOrders(currentPage, PAGE_SIZE, null);
-                    page.getRecords().forEach(this::executeTimeoutSingle);
-                    while (page.hasNext()) {
-                        currentPage++;
-                        page = orderReadService.pageQueryTimeoutOrders(currentPage, PAGE_SIZE, null);
-                        page.getRecords().forEach(this::executeTimeoutSingle);
+                    List<TradeOrder> tradeOrders = orderReadService.pageQueryTimeoutOrders(PAGE_SIZE, null, null);
+
+                    while (CollectionUtils.isNotEmpty(tradeOrders)) {
+                        tradeOrders.forEach(this::executeTimeoutSingle);
+                        long maxId = tradeOrders.stream().mapToLong(TradeOrder::getId).max().orElse(Long.MAX_VALUE);
+                        tradeOrders = orderReadService.pageQueryTimeoutOrders(PAGE_SIZE, null, maxId + 1);
                     }
                 }
             });
@@ -247,13 +243,11 @@ public class OrderJob {
         shardingTableIndexes.parallelStream().forEach(index -> {
             HintManager hintManager = HintManager.getInstance();
             hintManager.addTableShardingValue("trade_order", "000" + index);
-            int currentPage = 1;
-            Page<TradeOrder> page = orderReadService.pageQueryNeedConfirmOrders(currentPage, PAGE_SIZE, null);
-            page.getRecords().forEach(this::executeConfirmSingle);
-            while (page.hasNext()) {
-                currentPage++;
-                page = orderReadService.pageQueryNeedConfirmOrders(currentPage, PAGE_SIZE, null);
-                page.getRecords().forEach(this::executeConfirmSingle);
+            List<TradeOrder> tradeOrders = orderReadService.pageQueryNeedConfirmOrders(PAGE_SIZE, null, null);
+            while (CollectionUtils.isNotEmpty(tradeOrders)) {
+                tradeOrders.forEach(this::executeConfirmSingle);
+                long maxId = tradeOrders.stream().mapToLong(TradeOrder::getId).max().orElse(Long.MAX_VALUE);
+                tradeOrders = orderReadService.pageQueryNeedConfirmOrders(PAGE_SIZE, null, maxId + 1);
             }
         });
 

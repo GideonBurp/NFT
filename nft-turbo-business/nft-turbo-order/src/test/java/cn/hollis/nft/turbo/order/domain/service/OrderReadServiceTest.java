@@ -4,13 +4,13 @@ import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
 import cn.hollis.nft.turbo.order.domain.OrderBaseTest;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.infrastructure.mapper.OrderMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Hollis
@@ -55,20 +55,14 @@ public class OrderReadServiceTest extends OrderBaseTest {
             orderMapper.insert(tradeOrder);
         }
 
-        Page<TradeOrder> page = orderService.pageQueryTimeoutOrders(1, 1,null);
-        Assert.assertTrue(page.hasNext());
-        Assert.assertEquals(page.getTotal(),2);
-        Assert.assertEquals(page.getRecords().size(),1);
+        List<TradeOrder> tradeOrders = orderService.pageQueryTimeoutOrders(1, null, null);
+        Assert.assertEquals(tradeOrders.size(), 1);
 
-        page = orderService.pageQueryTimeoutOrders(2, 1,null);
-        Assert.assertFalse(page.hasNext());
-        Assert.assertEquals(page.getTotal(),2);
-        Assert.assertEquals(page.getRecords().size(),1);
+        tradeOrders = orderService.pageQueryTimeoutOrders(2, null, null);
+        Assert.assertEquals(tradeOrders.size(), 2);
 
-        page = orderService.pageQueryTimeoutOrders(1, 4,null);
-        Assert.assertFalse(page.hasNext());
-        Assert.assertEquals(page.getTotal(),2);
-        Assert.assertEquals(page.getRecords().size(),2);
+        tradeOrders = orderService.pageQueryTimeoutOrders(1, null, tradeOrders.get(1).getId() + 1);
+        Assert.assertEquals(tradeOrders.size(), 0);
     }
 
 
@@ -100,19 +94,16 @@ public class OrderReadServiceTest extends OrderBaseTest {
             orderMapper.insert(tradeOrder);
         }
 
-        Page<TradeOrder> page = orderService.pageQueryNeedConfirmOrders(1, 1,null);
-        Assert.assertTrue(page.hasNext());
-        Assert.assertEquals(page.getTotal(),4);
-        Assert.assertEquals(page.getRecords().size(),1);
+        List<TradeOrder> tradeOrders = orderService.pageQueryNeedConfirmOrders(1, null, null);
+        Assert.assertEquals(tradeOrders.size(), 1);
 
-        page = orderService.pageQueryNeedConfirmOrders(2, 1,null);
-        Assert.assertTrue(page.hasNext());
-        Assert.assertEquals(page.getTotal(),4);
-        Assert.assertEquals(page.getRecords().size(),1);
+        tradeOrders = orderService.pageQueryNeedConfirmOrders(5, null, null);
+        Assert.assertEquals(tradeOrders.size(), 4);
 
-        page = orderService.pageQueryNeedConfirmOrders(1, 4,null);
-        Assert.assertFalse(page.hasNext());
-        Assert.assertEquals(page.getTotal(),4);
-        Assert.assertEquals(page.getRecords().size(),4);
+        tradeOrders = orderService.pageQueryNeedConfirmOrders(5, null, tradeOrders.get(3).getId());
+        Assert.assertEquals(tradeOrders.size(), 1);
+
+        tradeOrders = orderService.pageQueryNeedConfirmOrders(5, null, tradeOrders.get(0).getId() + 1);
+        Assert.assertEquals(tradeOrders.size(), 0);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Hollis
@@ -54,44 +55,49 @@ public class OrderReadService extends ServiceImpl<OrderMapper, TradeOrder> {
     /**
      * 分页查询已经超时的订单
      *
-     * @param currentPage
      * @param pageSize
      * @param buyerIdTailNumber 买家 ID 的尾号
+     * @param minId
      * @return
      */
-    public Page<TradeOrder> pageQueryTimeoutOrders(int currentPage, int pageSize, @Nullable String buyerIdTailNumber) {
-        Page<TradeOrder> page = new Page<>(currentPage, pageSize);
-
+    public List<TradeOrder> pageQueryTimeoutOrders(int pageSize, @Nullable String buyerIdTailNumber, Long minId) {
         QueryWrapper<TradeOrder> wrapper = new QueryWrapper<>();
         wrapper.in("order_state", TradeOrderState.CONFIRM.name(), TradeOrderState.CREATE.name());
         wrapper.lt("gmt_create", DateUtils.addMinutes(new Date(), -TradeOrder.DEFAULT_TIME_OUT_MINUTES));
         if (buyerIdTailNumber != null) {
             wrapper.likeRight("reverse_buyer_id", buyerIdTailNumber);
         }
+        if (minId != null) {
+            wrapper.ge("id", minId);
+        }
         wrapper.orderBy(true, true, "gmt_create");
+        wrapper.last("limit " + pageSize);
 
-        return this.page(page, wrapper);
+        return this.list(wrapper);
     }
 
     /**
      * 分页查询待Confirm订单
      *
-     * @param currentPage
      * @param pageSize
      * @param buyerIdTailNumber
+     * @param minId
      * @return
      */
-    public Page<TradeOrder> pageQueryNeedConfirmOrders(int currentPage, int pageSize, @Nullable String buyerIdTailNumber) {
-        Page<TradeOrder> page = new Page<>(currentPage, pageSize);
+    public List<TradeOrder> pageQueryNeedConfirmOrders(int pageSize, @Nullable String buyerIdTailNumber, Long minId) {
 
         QueryWrapper<TradeOrder> wrapper = new QueryWrapper<>();
         wrapper.isNull("order_confirmed_time");
-        wrapper.orderBy(true, true, "gmt_create");
         if (buyerIdTailNumber != null) {
             wrapper.likeLeft("buyer_id", buyerIdTailNumber);
         }
+        if (minId != null) {
+            wrapper.ge("id", minId);
+        }
+        wrapper.orderBy(true, true, "gmt_create");
+        wrapper.last("limit " + pageSize);
 
-        return this.page(page, wrapper);
+        return this.list(wrapper);
     }
 
 }

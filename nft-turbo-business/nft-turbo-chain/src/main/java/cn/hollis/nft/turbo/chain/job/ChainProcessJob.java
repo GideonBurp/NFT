@@ -51,13 +51,11 @@ public class ChainProcessJob {
         List<ChainOperateInfo> chainOperateInfos = chainOperateInfoService.pageQueryOperateInfoByState(
                 ChainOperateStateEnum.PROCESSING.name(), PAGE_SIZE, minId);
 
-        chainOperateInfos.forEach(this::executeSingle);
-
         while (CollectionUtils.isNotEmpty(chainOperateInfos)) {
-            minId = chainOperateInfos.stream().mapToLong(ChainOperateInfo::getId).max().orElse(0L);
-            chainOperateInfos = chainOperateInfoService.pageQueryOperateInfoByState(ChainOperateStateEnum.PROCESSING.name()
-                    , PAGE_SIZE, minId + 1);
             chainOperateInfos.forEach(this::executeSingle);
+            Long maxId = chainOperateInfos.stream().mapToLong(ChainOperateInfo::getId).max().orElse(Long.MAX_VALUE);
+            chainOperateInfos = chainOperateInfoService.pageQueryOperateInfoByState(ChainOperateStateEnum.PROCESSING.name()
+                    , PAGE_SIZE, maxId + 1);
         }
 
         return ReturnT.SUCCESS;

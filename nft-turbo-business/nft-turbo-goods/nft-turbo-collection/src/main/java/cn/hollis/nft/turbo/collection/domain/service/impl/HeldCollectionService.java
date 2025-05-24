@@ -46,6 +46,8 @@ import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.*;
  */
 @Service
 public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, HeldCollection> {
+    @Autowired
+    private HeldCollectionMapper heldCollectionMapper;
 
     @Autowired
     private StreamProducer streamProducer;
@@ -61,7 +63,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
 
     private static final String HELD_COLLECTION_BIND_BOX_PREFIX = "HC:SALES:";
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public List<HeldCollection> batchCreate(List<HeldCollectionCreateRequest> heldCollectionCreateRequests) {
 
         List<HeldCollection> heldCollections = new ArrayList<>();
@@ -272,15 +274,20 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
         return streamProducer.send("heldCollection-out-0", eventType.name(), JSON.toJSONString(heldCollectionDTO));
     }
 
-    public Page<HeldCollection> pageQueryForChainMint(int currentPage, int pageSize) {
-        Page<HeldCollection> page = new Page<>(currentPage, pageSize);
+    public List<HeldCollection> pageQueryForChainMint(int pageSize, Long minId) {
         QueryWrapper<HeldCollection> wrapper = new QueryWrapper<>();
         wrapper.in("state", HeldCollectionState.INIT);
         wrapper.isNull("nft_id");
         wrapper.isNull("tx_hash");
         wrapper.isNull("sync_chain_time");
+        wrapper.ge("id", minId);
+        wrapper.last("limit " + pageSize);
         wrapper.orderBy(true, true, "gmt_create");
 
-        return this.page(page, wrapper);
+        return this.list(wrapper);
+    }
+
+    public Long queryMinIdForMint() {
+        return heldCollectionMapper.queryMinIdForMint();
     }
 }

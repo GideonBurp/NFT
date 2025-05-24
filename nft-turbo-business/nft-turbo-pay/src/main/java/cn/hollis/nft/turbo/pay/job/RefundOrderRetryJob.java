@@ -7,14 +7,16 @@ import cn.hollis.nft.turbo.pay.domain.service.RefundOrderService;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.RefundChannelRequest;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelServiceFactory;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 退款重试任务
@@ -37,16 +39,12 @@ public class RefundOrderRetryJob {
 
     @XxlJob("refundOrderRetryJob")
     public ReturnT<String> execute() {
+        List<RefundOrder> refundOrders = refundOrderService.pageQueryNeedRetryOrders(PAGE_SIZE, null);
 
-        int currentPage = 1;
-        Page<RefundOrder> page = refundOrderService.pageQueryNeedRetryOrders(currentPage, PAGE_SIZE);
-
-        page.getRecords().forEach(this::executeSingle);
-
-        while (page.hasNext()) {
-            currentPage++;
-            page = refundOrderService.pageQueryNeedRetryOrders(currentPage, PAGE_SIZE);
-            page.getRecords().forEach(this::executeSingle);
+        while (CollectionUtils.isNotEmpty(refundOrders)) {
+            refundOrders.forEach(this::executeSingle);
+            Long maxId = refundOrders.stream().mapToLong(RefundOrder::getId).max().orElse(Long.MAX_VALUE);
+            refundOrders = refundOrderService.pageQueryNeedRetryOrders(PAGE_SIZE, maxId + 1);
         }
 
         return ReturnT.SUCCESS;

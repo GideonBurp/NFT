@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.List;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
+
 /**
  * 库存一致性检查任务
  *
@@ -60,7 +62,7 @@ public class CollectionInventoryCheckJob {
                     inventoryCheckRequest.setChangedQuantity(Integer.valueOf(jsonObject.getString("change")));
                     //内容为 <"DECREASE_1019222537308167987200003">，需要从中解析出具体的订单号
                     String identifier = jsonObject.getString("by");
-                    inventoryCheckRequest.setIdentifier(identifier.substring(identifier.indexOf("_") + 1, identifier.lastIndexOf("\"")));
+                    inventoryCheckRequest.setIdentifier(identifier.substring(identifier.indexOf(SEPARATOR) + 1, identifier.lastIndexOf("\"")));
                     InventoryCheckResponse response = inventoryCheckFacadeService.check(inventoryCheckRequest);
                     //核对一致后清除redis中的流水
                     if (response.getSuccess() && response.getCheckResult()) {
