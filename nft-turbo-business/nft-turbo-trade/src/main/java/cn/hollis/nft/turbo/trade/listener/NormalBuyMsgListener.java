@@ -11,9 +11,9 @@ import cn.hollis.nft.turbo.api.order.request.OrderDiscardRequest;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
+import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
 import cn.hutool.core.lang.Assert;
-import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  */
 @Component
 @Slf4j
-public class NormalBuyMsgListener {
+public class NormalBuyMsgListener extends AbstractStreamConsumer {
 
     @Autowired
     private OrderFacadeService orderFacadeService;
@@ -42,11 +42,7 @@ public class NormalBuyMsgListener {
     @Bean
     Consumer<Message<MessageBody>> normalBuyPreCancel() {
         return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-
-            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCreateAndConfirmRequest.class);
-
-            log.info("Received NormalBuyCancel Message messageId:{},orderCreateAndConfirmRequest:{}", messageId, orderCreateAndConfirmRequest);
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
 
             //如果订单已经创建成功，则直接返回。不再需要做废单处理了。
@@ -61,10 +57,7 @@ public class NormalBuyMsgListener {
     @Bean
     Consumer<Message<MessageBody>> normalBuyCancel() {
         return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCreateAndConfirmRequest.class);
-            log.info("Received NormalBuyCancel Message messageId:{},orderCreateAndConfirmRequest:{}", messageId, orderCreateAndConfirmRequest);
-
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
             doCancel(orderCreateAndConfirmRequest);
         };
     }

@@ -7,8 +7,8 @@ import cn.hollis.nft.turbo.api.order.request.OrderFinishRequest;
 import cn.hollis.nft.turbo.api.order.response.OrderResponse;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.order.domain.service.OrderManageService;
+import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
-import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.util.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  */
 @Component
 @Slf4j
-public class HeldCollectionMsgListener {
+public class HeldCollectionMsgListener extends AbstractStreamConsumer {
 
     @Autowired
     private OrderManageService orderManageService;
@@ -32,10 +32,7 @@ public class HeldCollectionMsgListener {
     @Bean
     Consumer<Message<MessageBody>> heldCollection() {
         return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-            String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
-            HeldCollectionDTO heldCollectionDTO = JSON.parseObject(msg.getPayload().getBody(), HeldCollectionDTO.class);
-            log.info("Received HeldCollection Message messageId:{},heldCollectionDTO:{}，tag:{}", messageId, heldCollectionDTO, tag);
+            HeldCollectionDTO heldCollectionDTO = getMessage(msg, HeldCollectionDTO.class);
 
             if (heldCollectionDTO.getState().equals(HeldCollectionState.ACTIVED.name()) && !GoodsSaleBizType.AIR_DROP.name().equals(heldCollectionDTO.getBizType())) {
                 String orderId = heldCollectionDTO.getBizNo();

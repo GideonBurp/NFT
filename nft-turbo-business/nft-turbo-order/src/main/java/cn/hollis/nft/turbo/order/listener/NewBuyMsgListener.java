@@ -12,6 +12,7 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.order.OrderException;
 import cn.hollis.nft.turbo.order.domain.entity.TradeOrder;
 import cn.hollis.nft.turbo.order.domain.service.OrderReadService;
+import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE
 @Component
 @Slf4j
 @ConditionalOnProperty(value = "rocketmq.broker.check", havingValue = "false", matchIfMissing = true)
-public class NewBuyMsgListener {
+public class NewBuyMsgListener extends AbstractStreamConsumer {
 
     @Autowired
     private OrderFacadeService orderFacadeService;
@@ -51,10 +52,7 @@ public class NewBuyMsgListener {
     @Bean
     Consumer<Message<MessageBody>> newBuy() {
         return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-            String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
-            OrderCreateRequest orderCreateRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCreateRequest.class);
-            log.info("Received NewBuy Message messageId:{},orderCreateRequest:{}，tag:{}", messageId, orderCreateRequest, tag);
+            OrderCreateRequest orderCreateRequest = getMessage(msg, OrderCreateRequest.class);
             doNewBuyExecute(orderCreateRequest);
         };
     }

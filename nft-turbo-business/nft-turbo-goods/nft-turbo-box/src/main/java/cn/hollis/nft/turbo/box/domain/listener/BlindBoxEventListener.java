@@ -26,6 +26,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_ITEM_SAVE_FAILED;
 import static cn.hollis.nft.turbo.box.exception.BlindBoxErrorCode.BLIND_BOX_OPEN_FAILED;
 
@@ -78,7 +79,7 @@ public class BlindBoxEventListener {
         UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
         ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
         chainProcessRequest.setRecipient(userQueryResponse.getData().getBlockChainUrl());
-        chainProcessRequest.setClassId(GoodsSaleBizType.BLIND_BOX_TRADE + "_" + blindBoxItem.getBlindBoxId());
+        chainProcessRequest.setClassId(GoodsSaleBizType.BLIND_BOX_TRADE + SEPARATOR + blindBoxItem.getBlindBoxId());
         chainProcessRequest.setClassName(blindBoxItem.getName());
         chainProcessRequest.setSerialNo(heldCollection.getSerialNo());
         chainProcessRequest.setBizId(heldCollection.getId().toString());

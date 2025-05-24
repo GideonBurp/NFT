@@ -18,8 +18,8 @@ import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionActiveRequest
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
+import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
-import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +41,7 @@ import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_
  */
 @Slf4j
 @Component
-public class ChainOperateResultListener {
+public class ChainOperateResultListener extends AbstractStreamConsumer {
 
     @Autowired
     private CollectionService collectionService;
@@ -58,10 +58,7 @@ public class ChainOperateResultListener {
     @Bean
     Consumer<Message<MessageBody>> chain() {
         return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
-            String tag = msg.getHeaders().get("ROCKET_TAGS", String.class);
-            ChainOperateBody chainOperateBody = JSON.parseObject(msg.getPayload().getBody(), ChainOperateBody.class);
-            log.info("Received Chain Message messageId:{},chainOperateBody:{}，tag:{}", messageId, JSON.toJSONString(chainOperateBody), tag);
+            ChainOperateBody chainOperateBody = getMessage(msg, ChainOperateBody.class);
             //更新相关业务表
             ChainResultData chainResultData = chainOperateBody.getChainResultData();
             boolean result;

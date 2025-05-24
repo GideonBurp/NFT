@@ -34,7 +34,6 @@ public class InventoryDecreaseTransactionListener implements TransactionListener
             SingleResponse<Boolean> response = inventoryFacadeService.decrease(inventoryRequest);
 
             if (response.getSuccess() && response.getData()) {
-                //todo 旁路验证，解决MQ或者应用挂了，导致消息丢失的问题。
                 return LocalTransactionState.COMMIT_MESSAGE;
             } else {
                 return LocalTransactionState.ROLLBACK_MESSAGE;

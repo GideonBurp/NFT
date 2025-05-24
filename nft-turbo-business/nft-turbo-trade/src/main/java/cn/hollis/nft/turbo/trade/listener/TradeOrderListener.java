@@ -14,6 +14,7 @@ import cn.hollis.nft.turbo.api.order.request.OrderCancelRequest;
 import cn.hollis.nft.turbo.api.order.request.OrderTimeoutRequest;
 import cn.hollis.nft.turbo.base.response.SingleResponse;
 import cn.hollis.nft.turbo.trade.exception.TradeException;
+import cn.hollis.turbo.stream.consumer.AbstractStreamConsumer;
 import cn.hollis.turbo.stream.param.MessageBody;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ import static cn.hollis.nft.turbo.trade.exception.TradeErrorCode.INVENTORY_ROLLB
  */
 @Slf4j
 @Component
-public class TradeOrderListener {
+public class TradeOrderListener extends AbstractStreamConsumer {
 
     @Autowired
     private InventoryFacadeService inventoryFacadeService;
@@ -47,19 +48,15 @@ public class TradeOrderListener {
     @Bean
     Consumer<Message<MessageBody>> orderClose() {
         return msg -> {
-            String messageId = msg.getHeaders().get("ROCKET_MQ_MESSAGE_ID", String.class);
             String closeType = msg.getHeaders().get("CLOSE_TYPE", String.class);
-
             BaseOrderUpdateRequest orderUpdateRequest;
             if (TradeOrderEvent.CANCEL.name().equals(closeType)) {
-                orderUpdateRequest = JSON.parseObject(msg.getPayload().getBody(), OrderCancelRequest.class);
+                orderUpdateRequest = getMessage(msg, OrderCancelRequest.class);
             } else if (TradeOrderEvent.TIME_OUT.name().equals(closeType)) {
-                orderUpdateRequest = JSON.parseObject(msg.getPayload().getBody(), OrderTimeoutRequest.class);
+                orderUpdateRequest = getMessage(msg, OrderTimeoutRequest.class);
             } else {
                 throw new UnsupportedOperationException("unsupported closeType " + closeType);
             }
-
-            log.info("Received OrderClose Message  messageId:{},orderCloseRequest:{}，closeType:{}", messageId, JSON.toJSONString(orderUpdateRequest), closeType);
 
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderUpdateRequest.getOrderId());
             if (!response.getSuccess()) {
