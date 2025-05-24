@@ -25,6 +25,8 @@ import static cn.hollis.turbo.stream.producer.StreamProducer.DELAY_LEVEL_1_M;
 @Slf4j
 public class TradeApplicationService {
 
+    private static final int MAX_RETRY_TIMES = 2;
+
     @Autowired
     private OrderTransactionFacadeService orderTransactionFacadeService;
 
@@ -73,7 +75,7 @@ public class TradeApplicationService {
         int retryConfirmCount = 0;
 
         //最大努力执行，失败最多尝试2次.（Dubbo也会有重试机制，在服务突然不可用、超时等情况下会重试2次）
-        while (!isConfirmSuccess && retryConfirmCount < 2) {
+        while (!isConfirmSuccess && retryConfirmCount < MAX_RETRY_TIMES) {
             try {
                 GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(orderCreateRequest);
                 isConfirmSuccess = goodsTransactionFacadeService.confirmDecreaseInventory(goodsSaleRequest).getSuccess();

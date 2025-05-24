@@ -77,17 +77,24 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
 
     @Autowired
     private UserCacheDelayDeleteService userCacheDelayDeleteService;
-
-    //用户名布隆过滤器
+    /**
+     * 用户名布隆过滤器
+     */
     private RBloomFilter<String> nickNameBloomFilter;
 
-    //邀请码布隆过滤器
+    /**
+     * 邀请码布隆过滤器
+     */
     private RBloomFilter<String> inviteCodeBloomFilter;
 
-    //邀请排行榜
+    /**
+     * 邀请排行榜
+     */
     private RScoredSortedSet<String> inviteRank;
 
-    //通过用户ID对用户信息做的缓存
+    /**
+     * 通过用户ID对用户信息做的缓存
+     */
     private Cache<String, User> idUserCache;
 
     @PostConstruct
@@ -101,7 +108,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     }
 
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse register(String telephone, String inviteCode) {
         String defaultNickName;
         String randomString;
@@ -145,7 +152,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @DistributeLock(keyExpression = "#telephone", scene = "USER_REGISTER")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse registerAdmin(String telephone, String password) {
         User user = registerAdmin(telephone, telephone, password);
         Assert.notNull(user, UserErrorCode.USER_OPERATE_FAILED.getCode());
@@ -196,7 +203,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @CacheInvalidate(name = ":user:cache:id:", key = "#userAuthRequest.userId")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse auth(UserAuthRequest userAuthRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userAuthRequest.getUserId());
@@ -233,7 +240,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @CacheInvalidate(name = ":user:cache:id:", key = "#userActiveRequest.userId")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse active(UserActiveRequest userActiveRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userActiveRequest.getUserId());
@@ -386,7 +393,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
      * @return
      */
     @CacheInvalidate(name = ":user:cache:id:", key = "#userModifyRequest.userId")
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserOperatorResponse modify(UserModifyRequest userModifyRequest) {
         UserOperatorResponse userOperatorResponse = new UserOperatorResponse();
         User user = userMapper.findById(userModifyRequest.getUserId());

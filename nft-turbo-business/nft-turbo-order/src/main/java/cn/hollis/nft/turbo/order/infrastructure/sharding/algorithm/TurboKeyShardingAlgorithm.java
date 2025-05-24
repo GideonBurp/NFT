@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
+
 /**
  * @author Hollis
  */
@@ -95,7 +97,7 @@ public class TurboKeyShardingAlgorithm implements ComplexKeysShardingAlgorithm<S
 
         Collection<String> matchedTables = new HashSet<>();
         for (String shardingTarget : shardingTargets) {
-            matchedTables.add(logicTableName + "_" + shardingTarget);
+            matchedTables.add(logicTableName + SEPARATOR + shardingTarget);
         }
 
         logger.info("matchedTables : " + matchedTables);

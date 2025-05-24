@@ -3,6 +3,7 @@ package cn.hollis.nft.turbo.goods.entity.convertor;
 import cn.hollis.nft.turbo.api.goods.model.GoodsStreamVO;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBoxInventoryStream;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
+import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;

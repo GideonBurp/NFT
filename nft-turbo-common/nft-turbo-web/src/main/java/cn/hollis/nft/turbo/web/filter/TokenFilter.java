@@ -20,9 +20,14 @@ public class TokenFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 
-    public static final ThreadLocal<String> tokenThreadLocal = new ThreadLocal<>();
+    public static final ThreadLocal<String> TOKEN_THREAD_LOCAL = new ThreadLocal<>();
 
-    public static final ThreadLocal<Boolean> stressThreadLocal = new ThreadLocal<>();
+    public static final ThreadLocal<Boolean> STRESS_THREAD_LOCAL = new ThreadLocal<>();
+
+    private static final String HEADER_VALUE_NULL = "null";
+
+    private static final String HEADER_VALUE_UNDEFINED = "undefined";
+
 
     private RedissonClient redissonClient;
 
@@ -45,7 +50,7 @@ public class TokenFilter implements Filter {
             String token = httpRequest.getHeader("Authorization");
             Boolean isStress = BooleanUtils.toBoolean(httpRequest.getHeader("isStress"));
 
-            if (token == null || "null".equals(token) || "undefined".equals(token)) {
+            if (token == null || HEADER_VALUE_NULL.equals(token) || HEADER_VALUE_UNDEFINED.equals(token)) {
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 httpResponse.getWriter().write("No Token Found ...");
                 logger.error("no token found in header , pls check!");
@@ -65,8 +70,8 @@ public class TokenFilter implements Filter {
             // Token有效，继续执行其他过滤器链
             chain.doFilter(request, response);
         } finally {
-            tokenThreadLocal.remove();
-            stressThreadLocal.remove();
+            TOKEN_THREAD_LOCAL.remove();
+            STRESS_THREAD_LOCAL.remove();
         }
     }
 
@@ -76,8 +81,8 @@ public class TokenFilter implements Filter {
                 redis.call('DEL', KEYS[1])
                 return value""";
 
-        // 6.2.3以上可以直接使用GETDEL命令
-        // String value = (String) redisTemplate.opsForValue().getAndDelete(token);
+        /// 6.2.3以上可以直接使用GETDEL命令
+        /// String value = (String) redisTemplate.opsForValue().getAndDelete(token);
 
         String result = (String) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
                 luaScript,
@@ -87,9 +92,9 @@ public class TokenFilter implements Filter {
         if (isStress) {
             //如果是压测，则生成一个随机数，模拟 token
             result = UUID.randomUUID().toString();
-            stressThreadLocal.set(isStress);
+            STRESS_THREAD_LOCAL.set(isStress);
         }
-        tokenThreadLocal.set(result);
+        TOKEN_THREAD_LOCAL.set(result);
         return result != null;
     }
 

@@ -5,6 +5,7 @@ import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 import cn.hollis.nft.turbo.api.goods.constant.GoodsType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
+@ToString
 public class GoodsStreamVO implements Serializable {
     /**
      * 流水类型

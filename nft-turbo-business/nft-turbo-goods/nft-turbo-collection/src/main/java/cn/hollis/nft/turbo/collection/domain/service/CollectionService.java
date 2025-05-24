@@ -112,8 +112,8 @@ public interface CollectionService extends IService<Collection> {
 
     /**
      * 空投
-     *
      * @param request
+     * @param collection
      * @return
      */
     public CollectionAirdropResponse airDrop(CollectionAirDropRequest request,Collection collection);

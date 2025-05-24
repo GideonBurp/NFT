@@ -38,8 +38,12 @@ public class HotGoods implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         HotGoods hotGoods = (HotGoods) o;
         return Objects.equals(goodsId, hotGoods.goodsId) && Objects.equals(goodsType, hotGoods.goodsType);
     }

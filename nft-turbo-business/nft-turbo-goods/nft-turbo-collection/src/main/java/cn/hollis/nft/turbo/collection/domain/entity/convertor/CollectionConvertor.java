@@ -32,10 +32,22 @@ public interface CollectionConvertor {
     @Mapping(target = "state", expression = "java(setState(request.getState(), request.getSaleTime(), request.getSaleableInventory()))")
     public CollectionVO mapToVo(Collection request);
 
+    /**
+     * 转换为实体
+     * @param request
+     * @return
+     */
     @Mapping(target = "saleableInventory", source = "request.inventory")
     @Mapping(target = "state", ignore = true)
     public Collection mapToEntity(CollectionVO request);
 
+    /**
+     * 设置状态
+     * @param state
+     * @param saleTime
+     * @param saleableInventory
+     * @return
+     */
     public default GoodsState setState(CollectionStateEnum state, Date saleTime, Long saleableInventory) {
         return CollectionVO.getState(state, saleTime, saleableInventory);
     }

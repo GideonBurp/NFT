@@ -5,9 +5,18 @@ package cn.hollis.nft.turbo.tcc.entity;
  */
 public enum TransActionLogState {
 
+    /**
+     * Try
+     */
     TRY,
 
+    /**
+     * Confirm
+     */
     CONFIRM,
 
+    /**
+     * Cancel
+     */
     CANCEL
 }

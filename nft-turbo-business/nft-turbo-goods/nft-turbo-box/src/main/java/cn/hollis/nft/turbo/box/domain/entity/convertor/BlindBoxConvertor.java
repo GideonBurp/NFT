@@ -33,6 +33,13 @@ public interface BlindBoxConvertor {
     @Mapping(target = "state", expression = "java(setState(request.getState(), request.getSaleTime(), request.getSaleableInventory()))")
     public BlindBoxVO mapToVo(BlindBox request);
 
+    /**
+     * 设置状态
+     * @param state
+     * @param saleTime
+     * @param saleableInventory
+     * @return
+     */
     public default GoodsState setState(BlindBoxStateEnum state, Date saleTime, Long saleableInventory) {
         return BlindBoxVO.getState(state, saleTime, saleableInventory);
     }
@@ -54,6 +61,11 @@ public interface BlindBoxConvertor {
      */
     public List<BlindBoxVO> mapToVo(List<BlindBox> request);
 
+    /**
+     * boolean 转为 Integer
+     * @param value
+     * @return
+     */
     @Named("mapBooleanToInteger")
     default Integer mapBooleanToInteger(Boolean value) {
         return BooleanUtils.toInteger(value);

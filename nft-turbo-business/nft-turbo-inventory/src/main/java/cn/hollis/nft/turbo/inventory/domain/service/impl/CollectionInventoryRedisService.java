@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
  * @author Hollis
  */
 @Service
-public class CollectionInventoryRedisService extends AbstraceInventoryRedisService {
+public class CollectionInventoryRedisService extends AbstractInventoryRedisService {
 
     private static final String INVENTORY_KEY = "clc:inventory:";
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
  * @author Hollis
  */
 @Service
-public class BlindBoxInventoryRedisService extends AbstraceInventoryRedisService {
+public class BlindBoxInventoryRedisService extends AbstractInventoryRedisService {
 
     private static final String INVENTORY_KEY = "blb:inventory:";
 

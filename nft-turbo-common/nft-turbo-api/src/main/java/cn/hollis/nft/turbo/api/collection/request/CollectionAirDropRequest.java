@@ -6,6 +6,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+/**
+ * 藏品空投请求
+ *
+ * @author Hollis
+ */
 @Getter
 @Setter
 @ToString

@@ -8,11 +8,12 @@ import cn.hollis.nft.turbo.api.chain.request.ChainProcessRequest;
 import cn.hollis.nft.turbo.api.chain.service.ChainFacadeService;
 import cn.hollis.nft.turbo.api.collection.constant.GoodsSaleBizType;
 import cn.hollis.nft.turbo.box.domain.entity.BlindBox;
-import cn.hollis.nft.turbo.box.domain.service.BlindBoxItemService;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 
 /**
  * 盲盒管理服务
@@ -24,8 +25,7 @@ public class BlindBoxManageFacadeServiceImpl implements BlindBoxManageFacadeServ
 
     @Autowired
     private BlindBoxService blindBoxService;
-    @Autowired
-    private BlindBoxItemService blindBoxItemService;
+
     @Autowired
     private ChainFacadeService chainFacadeService;
 
@@ -38,8 +38,8 @@ public class BlindBoxManageFacadeServiceImpl implements BlindBoxManageFacadeServ
 
         //上链藏品
         ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
-        chainProcessRequest.setIdentifier(request.getIdentifier() + "_" + GoodsSaleBizType.BLIND_BOX_TRADE);
-        chainProcessRequest.setClassId(GoodsSaleBizType.BLIND_BOX_TRADE + "_" + blindBox.getId());
+        chainProcessRequest.setIdentifier(request.getIdentifier() + SEPARATOR + GoodsSaleBizType.BLIND_BOX_TRADE);
+        chainProcessRequest.setClassId(GoodsSaleBizType.BLIND_BOX_TRADE + SEPARATOR + blindBox.getId());
         chainProcessRequest.setClassName(request.getName());
         chainProcessRequest.setBizType(ChainOperateBizTypeEnum.BLIND_BOX.name());
         chainProcessRequest.setBizId(blindBox.getId().toString());

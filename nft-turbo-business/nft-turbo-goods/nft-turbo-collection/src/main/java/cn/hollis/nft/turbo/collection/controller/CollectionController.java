@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.*;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_OWNER_CHECK_ERROR;
 import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.HELD_COLLECTION_SAVE_FAILED;
@@ -159,7 +160,7 @@ public class CollectionController {
             ChainProcessRequest chainProcessRequest = new ChainProcessRequest();
             chainProcessRequest.setBizId(String.valueOf(param.getHeldCollectionId()));
             chainProcessRequest.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
-            chainProcessRequest.setIdentifier(param.getHeldCollectionId() + "_" + ChainOperateTypeEnum.COLLECTION_DESTROY.name());
+            chainProcessRequest.setIdentifier(param.getHeldCollectionId() + SEPARATOR + ChainOperateTypeEnum.COLLECTION_DESTROY.name());
             UserInfo owner = (UserInfo) StpUtil.getSession().get(userId);
             chainProcessRequest.setOwner(owner.getBlockChainUrl());
             chainProcessRequest.setClassId(String.valueOf(heldCollection.getCollectionId()));
@@ -202,12 +203,12 @@ public class CollectionController {
             transferRequest.setOperatorId(userId);
             transferRequest.setIdentifier(param.getHeldCollectionId() + "_TRANSFER");
             HeldCollection transferHeldCollection = heldCollectionService.transfer(transferRequest);
-            Assert.isTrue(transferHeldCollection != null, () -> new CollectionException(HELD_COLLECTION_SAVE_FAILED));
+            Assert.notNull(transferHeldCollection, () -> new CollectionException(HELD_COLLECTION_SAVE_FAILED));
 
             ChainProcessRequest request = new ChainProcessRequest();
             request.setBizId(String.valueOf(transferHeldCollection.getId()));
             request.setBizType(ChainOperateBizTypeEnum.HELD_COLLECTION.name());
-            request.setIdentifier(param.getHeldCollectionId() + "_" + param.getRecipientUserId() + "_" + ChainOperateTypeEnum.COLLECTION_TRANSFER.name());
+            request.setIdentifier(param.getHeldCollectionId() + SEPARATOR + param.getRecipientUserId() + SEPARATOR + ChainOperateTypeEnum.COLLECTION_TRANSFER.name());
             UserInfo owner = (UserInfo) StpUtil.getSession().get(userId);
             request.setOwner(owner.getBlockChainUrl());
             request.setClassId(String.valueOf(heldCollection.getCollectionId()));

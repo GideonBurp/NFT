@@ -85,7 +85,7 @@ public class BlindBoxInventoryStream extends BaseEntity {
      */
     private String extendInfo;
 
-    @SuppressWarnings("AliDeprecation")
+    @SuppressWarnings("deprecation")
     public BlindBoxInventoryStream(BlindBox blindBox, String identifier, GoodsEvent streamType, Integer quantity) {
         this.blindBoxId = blindBox.getId();
         this.price = blindBox.getPrice();

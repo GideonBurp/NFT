@@ -287,6 +287,7 @@ public abstract class BaseCollectionService extends ServiceImpl<CollectionMapper
         return response;
     }
 
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = Exception.class)
     @Override
     @Deprecated

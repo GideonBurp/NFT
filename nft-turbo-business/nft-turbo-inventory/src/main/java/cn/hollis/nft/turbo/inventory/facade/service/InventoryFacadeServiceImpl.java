@@ -14,11 +14,14 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventoryRedisService.ERROR_CODE_INVENTORY_IS_ZERO;
-import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventoryRedisService.ERROR_CODE_INVENTORY_NOT_ENOUGH;
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
+import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstractInventoryRedisService.ERROR_CODE_INVENTORY_IS_ZERO;
+import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstractInventoryRedisService.ERROR_CODE_INVENTORY_NOT_ENOUGH;
 
 /**
  * 库存门面服务
@@ -27,6 +30,8 @@ import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstraceInventor
  */
 @DubboService(version = "1.0.0")
 public class InventoryFacadeServiceImpl implements InventoryFacadeService {
+
+    private static final String ERROR_CODE_UNSUPPORTED_GOODS_TYPE = "UNSUPPORTED_GOODS_TYPE";
 
     @Autowired
     private CollectionInventoryRedisService collectionInventoryRedisService;
@@ -53,7 +58,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.init(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         if (inventoryResponse.getSuccess()) {
@@ -67,7 +72,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     public SingleResponse<Boolean> decrease(InventoryRequest inventoryRequest) {
         GoodsType goodsType = inventoryRequest.getGoodsType();
 
-        if (soldOutGoodsLocalCache.getIfPresent(goodsType + "_" + inventoryRequest.getGoodsId()) != null) {
+        if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
             return SingleResponse.fail(ERROR_CODE_INVENTORY_NOT_ENOUGH, "库存不足");
         }
 
@@ -76,21 +81,25 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.decrease(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         //1、如果库存为0，则在本地缓存记录，用于对售罄商品快速决策
         //2、当前库存已经是0了，本次扣减失败的情况
-        if (inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0
-                || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_IS_ZERO)) {
-            soldOutGoodsLocalCache.put(goodsType + "_" + inventoryRequest.getGoodsId(), true);
+        if (isSoldOut(inventoryResponse)) {
+            soldOutGoodsLocalCache.put(goodsType + SEPARATOR + inventoryRequest.getGoodsId(), true);
         }
 
         if (!inventoryResponse.getSuccess()) {
             return SingleResponse.fail(inventoryResponse.getResponseCode(), inventoryResponse.getResponseMessage());
         }
-        
+
         return SingleResponse.of(true);
+    }
+
+    private static boolean isSoldOut(InventoryResponse inventoryResponse) {
+        return inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0
+                || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_IS_ZERO);
     }
 
     @Override
@@ -101,7 +110,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.increase(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         if (inventoryResponse.getSuccess()) {
@@ -109,7 +118,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
             //如果库存大于0，则清除本地缓存中的商品售罄标记
             //但是因为是本地缓存，所以无法保证一致性，极端情况下，会存在一分钟的数据不一致的延迟。但是在高并发秒杀场景下，一般是不允许修改库存，所以这种不一致业务上可接受
             if (inventoryResponse.getInventory() > 0) {
-                soldOutGoodsLocalCache.invalidate(goodsType + "_" + inventoryRequest.getGoodsId());
+                soldOutGoodsLocalCache.invalidate(goodsType + SEPARATOR + inventoryRequest.getGoodsId());
             }
 
             return SingleResponse.of(true);
@@ -126,10 +135,10 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.invalid(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         }
 
-        soldOutGoodsLocalCache.invalidate(goodsType + "_" + inventoryRequest.getGoodsId());
+        soldOutGoodsLocalCache.invalidate(goodsType + SEPARATOR + inventoryRequest.getGoodsId());
 
         return SingleResponse.of(null);
     }
@@ -142,7 +151,7 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.getInventoryDecreaseLog(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         return SingleResponse.of(inventoryResponse);
@@ -156,10 +165,10 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.getInventoryDecreaseLogs(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
-        return MultiResponse.of(inventoryResponse);
+        return MultiResponse.of(Objects.requireNonNullElse(inventoryResponse, Collections.emptyList()));
     }
 
 
@@ -171,25 +180,25 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
             case BLIND_BOX -> blindBoxInventoryRedisService.removeInventoryDecreaseLog(inventoryRequest);
 
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         return SingleResponse.of(inventoryResponse);
     }
 
     @Override
-    public SingleResponse<Integer> queryInventory(InventoryRequest InventoryRequest) {
+    public SingleResponse<Integer> queryInventory(InventoryRequest inventoryRequest) {
 
-        GoodsType goodsType = InventoryRequest.getGoodsType();
+        GoodsType goodsType = inventoryRequest.getGoodsType();
 
-        if (soldOutGoodsLocalCache.getIfPresent(goodsType + "_" + InventoryRequest.getGoodsId()) != null) {
+        if (soldOutGoodsLocalCache.getIfPresent(goodsType + SEPARATOR + inventoryRequest.getGoodsId()) != null) {
             return SingleResponse.of(0);
         }
 
         Integer inventory = switch (goodsType) {
-            case COLLECTION -> collectionInventoryRedisService.getInventory(InventoryRequest);
-            case BLIND_BOX -> blindBoxInventoryRedisService.getInventory(InventoryRequest);
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            case COLLECTION -> collectionInventoryRedisService.getInventory(inventoryRequest);
+            case BLIND_BOX -> blindBoxInventoryRedisService.getInventory(inventoryRequest);
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         return SingleResponse.of(inventory);

@@ -11,6 +11,7 @@ import java.util.Date;
 /**
  * 用户持有的盲盒
  * 相比BlindBoxVO增加了盲盒条目的 id 信息，相比BlindBoxItemVO减少了不该被用户看到的信息
+ * @author Hollis
  */
 @Getter
 @Setter

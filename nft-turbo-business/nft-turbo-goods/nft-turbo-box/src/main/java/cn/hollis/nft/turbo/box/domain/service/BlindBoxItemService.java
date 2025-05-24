@@ -25,6 +25,7 @@ public interface BlindBoxItemService extends IService<BlindBoxItem> {
     /**
      * 打开盲盒
      *
+     * @param blindBoxItem
      * @return
      */
     BlindBoxItem open(BlindBoxItem blindBoxItem);
@@ -64,8 +65,9 @@ public interface BlindBoxItemService extends IService<BlindBoxItem> {
     List<BlindBoxItem> queryListByBoxIdAndState(Long blindBoxId, String state);
 
     /**
-     * 分页查询
+     * 分页查询盲盒条目
      *
+     * @param request
      * @return
      */
     public PageResponse<BlindBoxItem> pageQueryBlindBoxItem(BlindBoxItemPageQueryRequest request);

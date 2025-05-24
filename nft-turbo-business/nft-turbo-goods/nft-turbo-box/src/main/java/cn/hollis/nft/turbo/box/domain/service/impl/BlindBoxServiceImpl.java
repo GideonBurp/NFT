@@ -145,7 +145,7 @@ public class BlindBoxServiceImpl extends ServiceImpl<BlindBoxMapper, BlindBox> i
         return true;
     }
 
-    @SuppressWarnings("AliDeprecation")
+    @SuppressWarnings("deprecation")
     @Transactional(rollbackFor = Exception.class)
     @Override
     @Deprecated

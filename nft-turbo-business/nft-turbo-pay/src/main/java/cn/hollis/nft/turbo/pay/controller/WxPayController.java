@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.HTTP_SERVER_ERROR_CODE;
 import static cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.impl.MockPayChannelServiceImpl.context;
 
 /**
@@ -67,7 +68,7 @@ public class WxPayController {
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
         boolean result = wxPayChannelService.notify(request, response);
         if (!result) {
-            response.setStatus(500);
+            response.setStatus(HTTP_SERVER_ERROR_CODE);
         }
     }
 
@@ -92,7 +93,7 @@ public class WxPayController {
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
         boolean result = wxPayChannelService.refundNotify(request, response);
         if (!result) {
-            response.setStatus(500);
+            response.setStatus(HTTP_SERVER_ERROR_CODE);
         }
     }
 }

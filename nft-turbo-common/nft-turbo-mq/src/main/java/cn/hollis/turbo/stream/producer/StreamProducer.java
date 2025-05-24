@@ -20,6 +20,12 @@ public class StreamProducer {
 
     public static final int DELAY_LEVEL_1_M = 5;
 
+    public static final String ROCKET_MQ_MESSAGE_ID = "ROCKET_MQ_MESSAGE_ID";
+
+    public static final String ROCKET_TAGS = "ROCKET_TAGS";
+
+    public static final String ROCKET_MQ_TOPIC = "ROCKET_MQ_TOPIC";
+
     @Autowired
     private StreamBridge streamBridge;
 

@@ -18,11 +18,13 @@ import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxInventoryStreamMapper;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
+import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionInventoryStreamMapper;
+import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionStreamMapper;
 import cn.hollis.nft.turbo.goods.entity.convertor.GoodsStreamConvertor;
 import cn.hollis.nft.turbo.goods.service.GoodsBookService;
 import cn.hollis.nft.turbo.goods.service.HotGoodsService;
@@ -40,6 +42,8 @@ import java.util.List;
  */
 @DubboService(version = "1.0.0")
 public class GoodsFacadeServiceImpl implements GoodsFacadeService {
+
+    private static final String ERROR_CODE_UNSUPPORTED_GOODS_TYPE = "UNSUPPORTED_GOODS_TYPE";
 
     @Autowired
     private CollectionService collectionService;
@@ -86,7 +90,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                 }
                 yield null;
             }
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
     }
 
@@ -103,7 +107,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                 BlindBoxInventoryStream blindBoxInventoryStream = blindBoxInventoryStreamMapper.selectByIdentifier(identifier, goodsEvent.name(), Long.valueOf(goodsId));
                 yield GoodsStreamConvertor.INSTANCE.mapToVo(blindBoxInventoryStream);
             }
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
     }
 
@@ -115,7 +119,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         Boolean trySaleResult = switch (goodsType) {
             case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
             case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         GoodsSaleResponse response = new GoodsSaleResponse();
@@ -132,7 +136,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         Boolean trySaleResult = switch (goodsType) {
             case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
             case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         GoodsSaleResponse response = new GoodsSaleResponse();
@@ -143,6 +147,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     @Override
     @Deprecated
+    @SuppressWarnings("deprecation")
     public GoodsSaleResponse confirmSale(GoodsSaleRequest request) {
         GoodsConfirmSaleRequest confirmSaleRequest = new GoodsConfirmSaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity(), request.getBizNo(), request.getBizType(), request.getUserId(), request.getName(), request.getCover(), request.getPurchasePrice());
 
@@ -151,7 +156,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         return switch (goodsType) {
             case BLIND_BOX -> blindBoxService.confirmSale(confirmSaleRequest);
             case COLLECTION -> collectionService.confirmSale(confirmSaleRequest);
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
     }
 
@@ -181,7 +186,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
                 response.setHeldCollectionId(heldCollection.getId());
                 yield response;
             }
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
     }
 
@@ -194,7 +199,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
         Boolean result = switch (goodsType) {
             case BLIND_BOX -> blindBoxService.cancel(goodsCancelSaleRequest);
             case COLLECTION -> collectionService.cancel(goodsCancelSaleRequest);
-            default -> throw new UnsupportedOperationException("unsupport goods type");
+            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
         };
 
         GoodsSaleResponse response = new GoodsSaleResponse();

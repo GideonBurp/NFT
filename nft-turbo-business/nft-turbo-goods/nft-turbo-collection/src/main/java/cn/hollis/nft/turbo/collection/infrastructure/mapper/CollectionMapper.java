@@ -61,6 +61,7 @@ public interface CollectionMapper extends BaseMapper<Collection> {
     int cancel(Long id, Integer quantity);
 
     /**
+     * 冻结库存
      * @param id
      * @param quantity
      * @return

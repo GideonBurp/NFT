@@ -25,9 +25,9 @@ import static cn.hollis.nft.turbo.base.response.ResponseCode.DUPLICATED;
  *
  * @author Hollis
  */
-public abstract class AbstraceInventoryRedisService implements InventoryService {
+public abstract class AbstractInventoryRedisService implements InventoryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstraceInventoryRedisService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractInventoryRedisService.class);
 
     @Autowired
     private RedissonClient redissonClient;
@@ -267,7 +267,17 @@ public abstract class AbstraceInventoryRedisService implements InventoryService 
         }
     }
 
+    /**
+     * 获取库存缓存的key
+     * @param request
+     * @return
+     */
     protected abstract String getCacheKey(InventoryRequest request);
 
+    /**
+     * 获取库存流水缓存的key
+     * @param request
+     * @return
+     */
     protected abstract String getCacheStreamKey(InventoryRequest request);
 }

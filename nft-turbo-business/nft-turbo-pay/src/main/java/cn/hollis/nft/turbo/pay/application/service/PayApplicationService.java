@@ -175,9 +175,9 @@ public class PayApplicationService {
             return false;
         }
 
-        //confirmSale 被废弃，详Service.confirmSale
-        //GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
-        //GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.confirmSale(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
+        ///confirmSale 被废弃，详Service.confirmSale
+        ///GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
+        ///GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.confirmSale(req), goodsSaleRequest, "goodsFacadeService.confirmSale");
 
         GoodsSaleRequest goodsSaleRequest = getGoodsSaleRequest(tradeOrderVO);
         GoodsSaleResponse goodsSaleResponse = RemoteCallWrapper.call(req -> goodsFacadeService.paySuccess(req), goodsSaleRequest, "goodsFacadeService.confirmSale");

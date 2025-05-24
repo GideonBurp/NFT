@@ -48,6 +48,8 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.HTTP_SERVER_ERROR_CODE;
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.HTTP_SUCCESS_CODE;
 import static cn.hollis.nft.turbo.base.response.ResponseCode.SUCCESS;
 import static cn.hollis.nft.turbo.pay.infrastructure.channel.wechat.constant.WxTradeState.PAYERROR;
 
@@ -133,7 +135,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
 
             log.info("支付通知明文 {}", plainText);
             if (StrUtil.isEmpty(plainText)) {
-                response.setStatus(500);
+                response.setStatus(HTTP_SERVER_ERROR_CODE);
                 map.put("code", "ERROR");
                 map.put("message", "签名错误");
             } else {
@@ -149,11 +151,11 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                     boolean paySuccessResult = payApplicationService.paySuccess(paySuccessEvent);
 
                     if (paySuccessResult) {
-                        response.setStatus(200);
+                        response.setStatus(HTTP_SUCCESS_CODE);
                         map.put("code", SUCCESS.name());
                         map.put("message", SUCCESS.name());
                     } else {
-                        response.setStatus(500);
+                        response.setStatus(HTTP_SERVER_ERROR_CODE);
                         map.put("code", "ERROR");
                         map.put("message", "内部处理失败");
                     }
@@ -162,11 +164,11 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                     boolean payFailedResult = payApplicationService.payFailed(wxPayNotifyEntity.getOutTradeNo());
 
                     if (payFailedResult) {
-                        response.setStatus(200);
+                        response.setStatus(HTTP_SUCCESS_CODE);
                         map.put("code", SUCCESS.name());
                         map.put("message", SUCCESS.name());
                     } else {
-                        response.setStatus(500);
+                        response.setStatus(HTTP_SERVER_ERROR_CODE);
                         map.put("code", "ERROR");
                         map.put("message", "内部处理失败");
                     }
@@ -214,7 +216,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
 
             if (verifySignature) {
                 log.info("refund body {}", JSON.toJSONString(response.getBody()));
-                if (response.getStatus() != 200) {
+                if (response.getStatus() != HTTP_SUCCESS_CODE) {
                     resp.setSuccess(false);
                     Map<String, String> bodyMap = JSON.parseObject(response.getBody(), Map.class);
                     resp.setResponseCode(bodyMap.get("code"));
@@ -251,7 +253,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                 log.info("退款通知解密后的数据=" + decryptData);
 
                 if (StrUtil.isEmpty(decryptData)) {
-                    response.setStatus(500);
+                    response.setStatus(HTTP_SERVER_ERROR_CODE);
                     map.put("code", "ERROR");
                     map.put("message", "签名错误");
                 } else {
@@ -268,7 +270,7 @@ public class WxPayChannelServiceImpl implements PayChannelService {
                     boolean refundSuccessResult = payApplicationService.refundSuccess(refundSuccessEvent);
 
                     if (refundSuccessResult) {
-                        response.setStatus(200);
+                        response.setStatus(HTTP_SUCCESS_CODE);
                         map.put("code", SUCCESS.name());
                         map.put("message", SUCCESS.name());
                     } else {

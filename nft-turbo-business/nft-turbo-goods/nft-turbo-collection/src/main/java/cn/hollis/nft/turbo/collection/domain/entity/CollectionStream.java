@@ -103,7 +103,7 @@ public class CollectionStream extends BaseEntity {
      */
     private String identifier;
 
-    @SuppressWarnings("AliDeprecation")
+    @SuppressWarnings("deprecation")
     public CollectionStream(Collection collection, String identifier, GoodsEvent streamType) {
         this.collectionId = collection.getId();
         this.name = collection.getName();

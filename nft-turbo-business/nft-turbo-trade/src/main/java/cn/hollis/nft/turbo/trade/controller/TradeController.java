@@ -62,9 +62,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_PRE_VALID_FAILED;
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
-import static cn.hollis.nft.turbo.web.filter.TokenFilter.tokenThreadLocal;
+import static cn.hollis.nft.turbo.web.filter.TokenFilter.TOKEN_THREAD_LOCAL;
 
 /**
  * @author Hollis
@@ -118,7 +119,7 @@ public class TradeController {
         goodsBookRequest.setGoodsId(bookParam.getGoodsId());
         goodsBookRequest.setGoodsType(GoodsType.valueOf(bookParam.getGoodsType()));
         //数藏比较特殊，一个商品只能预定一次，所以这里直接用userId+goodsType+goodsId作为标识了，如果支持多次预定的话，需要在再有个活动的概念，基于活动做预约
-        goodsBookRequest.setIdentifier(userId + "_" + bookParam.getGoodsType() + "_" + bookParam.getGoodsId());
+        goodsBookRequest.setIdentifier(userId + SEPARATOR + bookParam.getGoodsType() + SEPARATOR + bookParam.getGoodsId());
         goodsBookRequest.setBuyerId(userId);
         GoodsBookResponse goodsBookResponse = RemoteCallWrapper.call(req -> goodsFacadeService.book(req), goodsBookRequest, "bookGoods");
         if (goodsBookResponse.getSuccess()) {
@@ -248,7 +249,7 @@ public class TradeController {
         //创建订单
         OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
         orderCreateRequest.setOrderId(orderId);
-        orderCreateRequest.setIdentifier(tokenThreadLocal.get());
+        orderCreateRequest.setIdentifier(TOKEN_THREAD_LOCAL.get());
         orderCreateRequest.setBuyerId(userId);
         orderCreateRequest.setGoodsId(buyParam.getGoodsId());
         orderCreateRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));
@@ -274,7 +275,7 @@ public class TradeController {
         //创建订单
         OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = new OrderCreateAndConfirmRequest();
         orderCreateAndConfirmRequest.setOrderId(orderId);
-        orderCreateAndConfirmRequest.setIdentifier(tokenThreadLocal.get());
+        orderCreateAndConfirmRequest.setIdentifier(TOKEN_THREAD_LOCAL.get());
         orderCreateAndConfirmRequest.setBuyerId(userId);
         orderCreateAndConfirmRequest.setGoodsId(buyParam.getGoodsId());
         orderCreateAndConfirmRequest.setGoodsType(GoodsType.valueOf(buyParam.getGoodsType()));

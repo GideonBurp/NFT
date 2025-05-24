@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 
+import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
+
 /**
  * @author Hollis
  */
@@ -25,7 +27,7 @@ public class TurboHintShardingAlgorithm implements HintShardingAlgorithm<String>
 
         Collection<String> matchedTables = new HashSet<>();
         for (String shardingTarget : shardingTargets) {
-            matchedTables.add(logicTableName + "_" + shardingTarget);
+            matchedTables.add(logicTableName + SEPARATOR + shardingTarget);
         }
 
         LOG.info("matchedTables : " + matchedTables);

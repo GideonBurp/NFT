@@ -51,7 +51,7 @@ public class HotGoodsService {
         }
     }
 
-    public boolean isHotGoods(String goodsId, String goodsType) {
+    public Boolean isHotGoods(String goodsId, String goodsType) {
         String hotGoodsKey = HOT_GOODS_KEY + goodsType + CacheConstant.CACHE_KEY_SEPARATOR + goodsId;
         Boolean isHot = hotGoodsLocalCache.getIfPresent(hotGoodsKey);
         if (isHot == null) {

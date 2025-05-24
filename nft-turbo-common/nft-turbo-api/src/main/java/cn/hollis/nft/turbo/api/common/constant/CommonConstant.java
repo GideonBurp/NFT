@@ -26,4 +26,14 @@ public class CommonConstant {
      * 标准时间格式
      */
     public static final String COMMON_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    /**
+     * HTTP成功状态码
+     */
+    public static final int HTTP_SUCCESS_CODE = 200;
+
+    /**
+     * HTTP失败状态码
+     */
+    public static final int HTTP_SERVER_ERROR_CODE = 500;
 }

@@ -2,6 +2,14 @@ package cn.hollis.nft.turbo.api.goods.request;
 
 import cn.hollis.nft.turbo.api.goods.constant.GoodsEvent;
 
+/**
+ * 冻结库存
+ * @param identifier
+ * @param goodsId
+ * @param quantity
+ *
+ * @author Hollis
+ */
 public record GoodsFreezeInventoryRequest(String identifier, Long goodsId, Integer quantity) {
 
     public GoodsEvent eventType() {
