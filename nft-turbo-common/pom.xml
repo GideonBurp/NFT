@@ -41,6 +41,7 @@
         <module>nft-turbo-prometheus</module>
         <module>nft-turbo-order-client</module>
         <module>nft-turbo-tcc</module>
+        <module>nft-turbo-skywalking</module>
     </modules>
 
 

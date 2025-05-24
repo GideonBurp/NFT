@@ -54,6 +54,11 @@
             <artifactId>nft-turbo-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-skywalking</artifactId>
+        </dependency>
+
         <!-- Sa-Token 权限认证 -->
         <dependency>
             <groupId>cn.dev33</groupId>

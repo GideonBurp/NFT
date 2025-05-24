@@ -65,6 +65,11 @@
 
         <dependency>
             <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-skywalking</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-web</artifactId>
         </dependency>
 

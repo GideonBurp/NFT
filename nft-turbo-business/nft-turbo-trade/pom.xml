@@ -68,6 +68,11 @@
             <artifactId>nft-turbo-order-client</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-skywalking</artifactId>
+        </dependency>
+
         <!--  TEST  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

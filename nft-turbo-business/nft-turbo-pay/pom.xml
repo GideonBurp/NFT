@@ -71,6 +71,11 @@
             <artifactId>nft-turbo-lock</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-skywalking</artifactId>
+        </dependency>
+
         <!--    TTL    -->
         <dependency>
             <groupId>com.alibaba</groupId>
