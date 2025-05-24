@@ -1,3 +1,26 @@
+# 2025-05-20 藏品相关流水表更新为唯一性索引
+
+ALTER TABLE `collection_airdrop_stream`
+    ADD Unique KEY `uk_cid_iden_type`(`collection_id`,`stream_type`,`identifier`) USING BTREE
+;
+
+
+ALTER TABLE `collection_stream`
+    ADD Unique KEY `uk_cid_iden_type`(`collection_id`,`stream_type`,`identifier`) USING BTREE
+;
+
+
+ALTER TABLE `collection_inventory_stream`
+DROP KEY `idx_cid_ident_type`,
+	ADD Unique KEY `uk_cid_ident_type`(`collection_id`,`identifier`,`stream_type`) USING BTREE
+;
+
+
+ALTER TABLE `blind_box_inventory_stream`
+DROP KEY `idx_cid_ident_type`,
+	ADD Unique KEY `uk_cid_ident_type`(`identifier`,`stream_type`) USING BTREE
+;
+
 # 2025-05-10 transaction_log表更新为唯一性索引
 
 ALTER TABLE `transaction_log`

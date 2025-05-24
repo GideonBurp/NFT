@@ -81,7 +81,8 @@ CREATE TABLE `collection_stream` (
   `identifier` varchar(128) DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  Unique KEY `uk_cid_type_iden`(`collection_id`,`stream_type`,`identifier`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表流水'
 ;
 
@@ -632,7 +633,7 @@ CREATE TABLE `collection_inventory_stream` (
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
    `extend_info` varchar(512) DEFAULT NULL COMMENT '扩展信息',
   PRIMARY KEY (`id`),
-  KEY `idx_cid_ident_type` (`collection_id`,`identifier`,`stream_type`) USING BTREE
+  Unique KEY `uk_cid_ident_type` (`collection_id`,`identifier`,`stream_type`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品表库存流水'
 ;
 
@@ -691,7 +692,7 @@ CREATE TABLE `refund_order` (
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
   KEY `idx_pay_order` (`pay_order_id`) USING BTREE,
-  KEY `uk_identifier` (`identifier`,`pay_order_id`,`refund_channel`),
+  Unique KEY `uk_identifier` (`identifier`,`pay_order_id`,`refund_channel`),
   KEY `idx_refund_order` (`refund_order_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 
 ;
@@ -752,7 +753,7 @@ CREATE TABLE `blind_box_inventory_stream` (
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
   `extend_info` varchar(512) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '扩展信息',
   PRIMARY KEY (`id`),
-  KEY `idx_cid_ident_type` (`identifier`,`stream_type`) USING BTREE
+  Unique KEY `uk_cid_ident_type`(`identifier`,`stream_type`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=561 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='盲盒表库存流水'
 ;
 
@@ -824,7 +825,8 @@ CREATE TABLE `collection_airdrop_stream` (
   `identifier` varchar(128) CHARACTER SET utf8mb4  DEFAULT NULL COMMENT '幂等号',
   `deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
   `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  Unique KEY `uk_cid_iden_type`(`collection_id`,`stream_type`,`identifier`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4  AVG_ROW_LENGTH=16384 ROW_FORMAT=DYNAMIC COMMENT='藏品空投流水表'
 ;
 
