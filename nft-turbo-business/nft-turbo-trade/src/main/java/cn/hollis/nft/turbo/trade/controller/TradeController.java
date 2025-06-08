@@ -223,20 +223,20 @@ public class TradeController {
      */
     @PostMapping("/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
-        OrderCreateAndConfirmRequest orderCreateRequest = getOrderCreateAndConfirmRequest(buyParam);
+        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
 
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateRequest, "createOrder");
+        OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
 
         if (orderResponse.getSuccess()) {
             //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
             try {
-                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
                 inventoryFacadeService.decrease(inventoryRequest);
             } catch (Exception e) {
                 log.error("decrease inventory from redis failed", e);
             }
 
-            return Result.success(orderCreateRequest.getOrderId());
+            return Result.success(orderCreateAndConfirmRequest.getOrderId());
         }
 
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);

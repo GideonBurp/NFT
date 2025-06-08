@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Aspect
 @Component
-@Order(Integer.MIN_VALUE)
+@Order(Integer.MIN_VALUE + 1)
 public class DistributeLockAspect {
 
     private RedissonClient redissonClient;

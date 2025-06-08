@@ -15,6 +15,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +29,7 @@ import java.util.Arrays;
  */
 @Aspect
 @Component
+@Order(Integer.MIN_VALUE)
 public class FacadeAspect {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FacadeAspect.class);
