@@ -228,7 +228,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         } else {
             userOperatorResponse.setSuccess(false);
             userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getCode());
-            userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getMessage());
+            userOperatorResponse.setResponseMessage(UserErrorCode.USER_OPERATE_FAILED.getMessage());
         }
         return userOperatorResponse;
     }
@@ -256,7 +256,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         } else {
             userOperatorResponse.setSuccess(false);
             userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getCode());
-            userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getMessage());
+            userOperatorResponse.setResponseMessage(UserErrorCode.USER_OPERATE_FAILED.getMessage());
         }
         return userOperatorResponse;
     }
@@ -419,7 +419,7 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
         }
         userOperatorResponse.setSuccess(false);
         userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getCode());
-        userOperatorResponse.setResponseCode(UserErrorCode.USER_OPERATE_FAILED.getMessage());
+        userOperatorResponse.setResponseMessage(UserErrorCode.USER_OPERATE_FAILED.getMessage());
 
         return userOperatorResponse;
     }
