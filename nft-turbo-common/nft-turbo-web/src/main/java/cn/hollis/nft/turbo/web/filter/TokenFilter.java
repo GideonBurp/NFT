@@ -1,11 +1,13 @@
 package cn.hollis.nft.turbo.web.filter;
 
+import cn.hollis.nft.turbo.web.util.TokenUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.BooleanUtils;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,6 @@ public class TokenFilter implements Filter {
     private static final String HEADER_VALUE_NULL = "null";
 
     private static final String HEADER_VALUE_UNDEFINED = "undefined";
-
 
     private RedissonClient redissonClient;
 
@@ -75,19 +76,43 @@ public class TokenFilter implements Filter {
         }
     }
 
+    /**
+     * <p>
+     * 1、把加密后的token解密
+     * 2、把加密后的token的value转成key
+     * 3、去redis按照key查询并且判断value是否一致
+     * 4、如果不一致，抛异常
+     * 5、如果一致，则删除这个key
+     * </p>
+     *
+     * @param token
+     * @param isStress
+     * @return
+     */
     private boolean checkTokenValidity(String token, Boolean isStress) {
+        String tokenKey = TokenUtil.getTokenKeyByValue(token);
+
         String luaScript = """
                 local value = redis.call('GET', KEYS[1])
+                
+                if value ~= ARGV[1] then
+                    return redis.error_reply('token not valid')
+                end
+                
                 redis.call('DEL', KEYS[1])
                 return value""";
-
-        /// 6.2.3以上可以直接使用GETDEL命令
-        /// String value = (String) redisTemplate.opsForValue().getAndDelete(token);
-
-        String result = (String) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
-                luaScript,
-                RScript.ReturnType.STATUS,
-                Arrays.asList(token));
+        String result;
+        try {
+            /// 6.2.3以上可以直接使用GETDEL命令
+            /// String value = (String) redisTemplate.opsForValue().getAndDelete(token);
+            result = (String) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
+                    luaScript,
+                    RScript.ReturnType.STATUS,
+                    Arrays.asList(tokenKey), token);
+        } catch (RedisException e) {
+            logger.error("check token failed", e);
+            return false;
+        }
 
         if (isStress) {
             //如果是压测，则生成一个随机数，模拟 token
