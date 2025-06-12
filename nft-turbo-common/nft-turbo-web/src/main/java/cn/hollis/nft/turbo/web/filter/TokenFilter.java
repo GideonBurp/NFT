@@ -90,9 +90,15 @@ public class TokenFilter implements Filter {
      * @return
      */
     private boolean checkTokenValidity(String token, Boolean isStress) {
-        String tokenKey = TokenUtil.getTokenKeyByValue(token);
+        String result;
+        if (isStress) {
+            //如果是压测，则生成一个随机数，模拟 token
+            result = UUID.randomUUID().toString();
+            STRESS_THREAD_LOCAL.set(isStress);
+        }else{
+            String tokenKey = TokenUtil.getTokenKeyByValue(token);
 
-        String luaScript = """
+            String luaScript = """
                 local value = redis.call('GET', KEYS[1])
                 
                 if value ~= ARGV[1] then
@@ -101,24 +107,20 @@ public class TokenFilter implements Filter {
                 
                 redis.call('DEL', KEYS[1])
                 return value""";
-        String result;
-        try {
-            /// 6.2.3以上可以直接使用GETDEL命令
-            /// String value = (String) redisTemplate.opsForValue().getAndDelete(token);
-            result = (String) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
-                    luaScript,
-                    RScript.ReturnType.STATUS,
-                    Arrays.asList(tokenKey), token);
-        } catch (RedisException e) {
-            logger.error("check token failed", e);
-            return false;
+
+            try {
+                /// 6.2.3以上可以直接使用GETDEL命令
+                /// String value = (String) redisTemplate.opsForValue().getAndDelete(token);
+                result = (String) redissonClient.getScript().eval(RScript.Mode.READ_WRITE,
+                        luaScript,
+                        RScript.ReturnType.STATUS,
+                        Arrays.asList(tokenKey), token);
+            } catch (RedisException e) {
+                logger.error("check token failed", e);
+                return false;
+            }
         }
 
-        if (isStress) {
-            //如果是压测，则生成一个随机数，模拟 token
-            result = UUID.randomUUID().toString();
-            STRESS_THREAD_LOCAL.set(isStress);
-        }
         TOKEN_THREAD_LOCAL.set(result);
         return result != null;
     }
