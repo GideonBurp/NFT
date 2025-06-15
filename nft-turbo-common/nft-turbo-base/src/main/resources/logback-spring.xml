@@ -40,8 +40,9 @@
 
     <!-- 添加异步 appender，提高性能 -->
     <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
-        <discardingThreshold>0</discardingThreshold>
-        <queueSize>512</queueSize>
+        <discardingThreshold>20</discardingThreshold>
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
         <includeCallerData>true</includeCallerData>
         <appender-ref ref="APPLICATION"/>
     </appender>
