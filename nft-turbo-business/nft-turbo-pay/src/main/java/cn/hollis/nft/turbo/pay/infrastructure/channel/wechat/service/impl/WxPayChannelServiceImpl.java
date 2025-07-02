@@ -6,8 +6,9 @@ import cn.hollis.nft.turbo.pay.application.service.PayApplicationService;
 import cn.hollis.nft.turbo.pay.domain.event.PaySuccessEvent;
 import cn.hollis.nft.turbo.pay.domain.event.RefundSuccessEvent;
 import cn.hollis.nft.turbo.pay.domain.service.PayOrderService;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.PayChannelRequest;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.RefundChannelRequest;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.*;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillDownloadChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelService;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.utils.HttpKit;
@@ -40,9 +41,11 @@ import com.ijpay.wxpay.model.v3.UnifiedOrderModel;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -290,6 +293,116 @@ public class WxPayChannelServiceImpl implements PayChannelService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public BillChannelResponse tradeBill(TradeBillChannelRequest billChannelRequest) {
+        BillChannelResponse resp = new BillChannelResponse();
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("bill_date", billChannelRequest.getBillDate());
+            params.put("bill_type", StringUtils.isBlank(billChannelRequest.getBillType()) ? "ALL" : billChannelRequest.getBillType());
+            params.put("tar_type", StringUtils.isBlank(billChannelRequest.getTarType()) ? "GZIP" : billChannelRequest.getTarType());
+
+            log.info("request {}", JSONUtil.toJsonStr(params));
+
+            IJPayHttpResponse response = WxPayApi.v3(
+                    RequestMethodEnum.GET,
+                    WxDomainEnum.CHINA.toString(),
+                    BasePayApiEnum.TRADE_BILL.toString(),
+                    wxPayBean.getMchId(),
+                    getSerialNumber(),
+                    null,
+                    wxPayBean.getKeyPath(),
+                    params
+            );
+
+            log.info("response {}", response);
+            // 根据证书序列号查询对应的证书来验证签名结果
+            boolean verifySignature = WxPayKit.verifySignature(response, wxPayBean.getPlatformCertPath());
+            log.info("verifySignature: {}", verifySignature);
+            String body = response.getBody();
+            Map bodyMap = JSON.parseObject(body, Map.class);
+            resp.setDownloadUrl(bodyMap.get("download_url").toString());
+            resp.setHashType(bodyMap.get("hash_type").toString());
+            resp.setHashValue(bodyMap.get("hash_value").toString());
+            resp.setSuccess(true);
+            return resp;
+        } catch (Exception e) {
+            log.error("bill error ", e);
+            resp.setSuccess(false);
+            return resp;
+        }
+    }
+
+    @Override
+    public BillChannelResponse fundBill(FundBillChannelRequest billChannelRequest) {
+        BillChannelResponse resp = new BillChannelResponse();
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("bill_date", billChannelRequest.getBillDate());
+            params.put("account_type", StringUtils.isBlank(billChannelRequest.getAccountType()) ? "BASIC" : billChannelRequest.getAccountType());
+
+            log.info("request {}", JSONUtil.toJsonStr(params));
+
+            IJPayHttpResponse response = WxPayApi.v3(
+                    RequestMethodEnum.GET,
+                    WxDomainEnum.CHINA.toString(),
+                    BasePayApiEnum.FUND_FLOW_BILL.toString(),
+                    wxPayBean.getMchId(),
+                    getSerialNumber(),
+                    null,
+                    wxPayBean.getKeyPath(),
+                    params
+            );
+
+            log.info("response {}", response);
+            // 根据证书序列号查询对应的证书来验证签名结果
+            boolean verifySignature = WxPayKit.verifySignature(response, wxPayBean.getPlatformCertPath());
+            log.info("verifySignature: {}", verifySignature);
+            String body = response.getBody();
+            Map bodyMap = JSON.parseObject(body, Map.class);
+            resp.setDownloadUrl(bodyMap.get("download_url").toString());
+            resp.setHashType(bodyMap.get("hash_type").toString());
+            resp.setHashValue(bodyMap.get("hash_value").toString());
+            resp.setSuccess(true);
+            return resp;
+        } catch (Exception e) {
+            log.error("bill error ", e);
+            resp.setSuccess(false);
+            return resp;
+        }
+    }
+
+    @Override
+    public BillDownloadChannelResponse downloadBill(DownloadBillChannelRequest request) {
+        BillDownloadChannelResponse resp = new BillDownloadChannelResponse();
+        try {
+            Map<String, String> params = new HashMap<>();
+            params.put("token", request.getToken());
+
+            log.info("request {}", JSONUtil.toJsonStr(params));
+
+            IJPayHttpResponse response = WxPayApi.v3(
+                    RequestMethodEnum.GET,
+                    WxDomainEnum.CHINA.toString(),
+                    BasePayApiEnum.BILL_DOWNLOAD.toString(),
+                    wxPayBean.getMchId(),
+                    getSerialNumber(),
+                    null,
+                    wxPayBean.getKeyPath(),
+                    params
+            );
+            log.info("response {}", response);
+            String body = response.getBody();
+            resp.setFile(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)));
+            resp.setSuccess(true);
+            return resp;
+        } catch (Exception e) {
+            log.error("bill download error ", e);
+            resp.setSuccess(false);
+            return resp;
+        }
     }
 
     private String getSerialNumber() {
