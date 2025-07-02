@@ -82,15 +82,4 @@ public class CollectionInventoryCheckJob {
 
         return ReturnT.SUCCESS;
     }
-
-    public static void main(String[] args) {
-
-        String identifier = "\"DECREASE_1019222537308167987200003\"";
-        System.out.println(identifier.substring(identifier.indexOf(SEPARATOR) + 1, identifier.lastIndexOf("\"")));
-        System.out.println(identifier.lastIndexOf("\""));
-
-        String identifier1 = "DECREASE_1019222537308167987200003";
-        System.out.println(identifier1.lastIndexOf("\""));
-        System.out.println(identifier1.substring(identifier1.indexOf(SEPARATOR) + 1));
-    }
 }

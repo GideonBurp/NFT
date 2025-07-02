@@ -69,7 +69,7 @@
     <update id="unfreezeInventory">
         UPDATE blind_box
         SET frozen_inventory = frozen_inventory - #{quantity}, lock_version = lock_version + 1,gmt_modified = now()
-        WHERE id = #{id} and <![CDATA[saleable_inventory - frozen_inventory >= #{quantity}]]>
+        WHERE id = #{id} and <![CDATA[frozen_inventory >= #{quantity}]]>
     </update>
 
 
