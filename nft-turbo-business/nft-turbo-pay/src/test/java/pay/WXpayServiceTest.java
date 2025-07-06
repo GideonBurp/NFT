@@ -6,8 +6,9 @@ import cn.hollis.nft.turbo.api.pay.request.PayCreateRequest;
 import cn.hollis.nft.turbo.api.user.constant.UserType;
 import cn.hollis.nft.turbo.pay.domain.entity.PayOrder;
 import cn.hollis.nft.turbo.pay.domain.service.PayOrderService;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.PayChannelRequest;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.RefundChannelRequest;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.*;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillDownloadChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.wechat.response.WxPayChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelService;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelServiceFactory;
@@ -76,4 +77,33 @@ public class WXpayServiceTest extends PayBaseTest {
     }
 
 
+    @Test
+    public void wxPayTradeBillTest(){
+        PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        TradeBillChannelRequest billChannelRequest =new TradeBillChannelRequest();
+        billChannelRequest.setBillType("ALL");
+        billChannelRequest.setBillDate("2025-06-04");
+        BillChannelResponse response= wxPayChannelService.tradeBill(billChannelRequest);
+        System.out.println(response.getDownloadUrl());
+        Assert.assertTrue(response.getSuccess());
+    }
+
+    @Test
+    public void wxPayFundBillTest(){
+        PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        FundBillChannelRequest billChannelRequest =new FundBillChannelRequest();
+        billChannelRequest.setBillDate("2025-06-04");
+        BillChannelResponse response= wxPayChannelService.fundBill(billChannelRequest);
+        System.out.println(response.getDownloadUrl());
+        Assert.assertTrue(response.getSuccess());
+    }
+
+    @Test
+    public void wxPayBillDownloadTest(){
+        PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        DownloadBillChannelRequest request =new DownloadBillChannelRequest();
+        request.setToken("wPznN9DVtbd9MSjJNXJkhcZEMwkgyEQ3CNQBtPxafTTHTKWK8NsZx9F6nuXTckj_");
+        BillDownloadChannelResponse response= wxPayChannelService.downloadBill(request);
+        Assert.assertTrue(response.getSuccess());
+    }
 }

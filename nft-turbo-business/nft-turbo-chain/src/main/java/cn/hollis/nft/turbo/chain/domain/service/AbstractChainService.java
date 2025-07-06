@@ -62,7 +62,6 @@ public abstract class AbstractChainService implements ChainService {
     protected ChainProcessResponse doPostExecute(ChainProcessRequest chainProcessRequest, ChainOperateTypeEnum chainOperateTypeEnum,
                                                  Consumer<ChainRequest> consumer) {
         return handle(chainProcessRequest, request -> {
-
             Boolean rateLimitResult = slidingWindowRateLimiter.tryAcquire(
                     "limit#" + chainProcessRequest.getBizType() + chainProcessRequest.getIdentifier(), 1, 60);
             if (!rateLimitResult) {
@@ -72,7 +71,7 @@ public abstract class AbstractChainService implements ChainService {
             ChainOperateInfo chainOperateInfo = chainOperateInfoService.queryByOutBizId(chainProcessRequest.getBizId(), chainProcessRequest.getBizType(),
                     chainProcessRequest.getIdentifier());
             if (null != chainOperateInfo) {
-                return duplicateResponse(chainProcessRequest, chainOperateInfo);
+                return duplicateResponse(chainProcessRequest, chainOperateTypeEnum, chainOperateInfo);
             }
 
             ChainRequest chainRequest = new ChainRequest();
@@ -120,8 +119,8 @@ public abstract class AbstractChainService implements ChainService {
         });
     }
 
-    private ChainProcessResponse duplicateResponse(ChainProcessRequest chainProcessRequest, ChainOperateInfo chainOperateInfo) {
-        if (StringUtils.equals(chainProcessRequest.getBizType(), ChainOperateTypeEnum.USER_CREATE.name())) {
+    private ChainProcessResponse duplicateResponse(ChainProcessRequest chainProcessRequest, ChainOperateTypeEnum chainOperateTypeEnum, ChainOperateInfo chainOperateInfo) {
+        if (chainOperateTypeEnum == ChainOperateTypeEnum.USER_CREATE) {
             JSONObject jsonObject = JSON.parseObject(chainOperateInfo.getResult(), JSONObject.class);
             String blockChainAddr = (String) jsonObject.get("native_address");
             String blockChainName = chainProcessRequest.getUserId();
@@ -169,9 +168,9 @@ public abstract class AbstractChainService implements ChainService {
                 throw new SystemException(RepoErrorCode.UPDATE_FAILED);
             }
 
-            ChainProcessResponse response =  buildResult(result, chainProcessRequest, COLLECTION_DESTROY);
+            ChainProcessResponse response = buildResult(result, chainProcessRequest, COLLECTION_DESTROY);
 
-            if (response.getSuccess() ) {
+            if (response.getSuccess()) {
                 //延迟5秒钟之后查询状态并发送 MQ 消息通知上游
                 scheduler.schedule(() -> {
                     try {
@@ -245,6 +244,7 @@ public abstract class AbstractChainService implements ChainService {
 
     /**
      * 执行post方法
+     *
      * @param chainRequest
      * @return
      */
@@ -252,6 +252,7 @@ public abstract class AbstractChainService implements ChainService {
 
     /**
      * 执行delete方法
+     *
      * @param chainRequest
      * @return
      */
@@ -259,6 +260,7 @@ public abstract class AbstractChainService implements ChainService {
 
     /**
      * 执行get方法
+     *
      * @param chainRequest
      * @return
      */
@@ -272,6 +274,7 @@ public abstract class AbstractChainService implements ChainService {
 
     /**
      * 返回chainType
+     *
      * @return
      */
     protected abstract String chainType();

@@ -59,9 +59,14 @@ public class BlindBoxInventoryCheckJob {
                     inventoryCheckRequest.setGoodsType(GoodsType.BLIND_BOX);
                     inventoryCheckRequest.setGoodsEvent(GoodsEvent.TRY_SALE);
                     inventoryCheckRequest.setChangedQuantity(Integer.valueOf(jsonObject.getString("change")));
-                    //内容为 <"DECREASE_1019222537308167987200003">，需要从中解析出具体的订单号
+                    //因为项目过程中修改过Redisson的序列化的协议，历史代码写入的流水为 <"DECREASE_1019222537308167987200003">，优化后的新代码写入的流水为<DECREASE_1019222537308167987200003>
                     String identifier = jsonObject.getString("by");
-                    inventoryCheckRequest.setIdentifier(identifier.substring(identifier.indexOf(SEPARATOR) + 1, identifier.lastIndexOf("\"")));
+                    //这是一坨兼容逻辑，因为项目过程中修改过Redisson的序列化的协议，所以出现两种情况
+                    if (identifier.lastIndexOf("\"") != -1) {
+                        inventoryCheckRequest.setIdentifier(identifier.substring(identifier.indexOf(SEPARATOR) + 1, identifier.lastIndexOf("\"")));
+                    } else {
+                        inventoryCheckRequest.setIdentifier(identifier.substring(identifier.indexOf(SEPARATOR) + 1));
+                    }
                     InventoryCheckResponse response = inventoryCheckFacadeService.check(inventoryCheckRequest);
                     //核对一致后清除redis中的流水
                     if (response.getSuccess() && response.getCheckResult()) {

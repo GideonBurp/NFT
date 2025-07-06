@@ -5,8 +5,9 @@ import cn.hollis.nft.turbo.base.utils.MoneyUtils;
 import cn.hollis.nft.turbo.pay.application.service.PayApplicationService;
 import cn.hollis.nft.turbo.pay.domain.event.PaySuccessEvent;
 import cn.hollis.nft.turbo.pay.domain.event.RefundSuccessEvent;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.PayChannelRequest;
-import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.RefundChannelRequest;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.request.*;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillChannelResponse;
+import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.BillDownloadChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.PayChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.response.RefundChannelResponse;
 import cn.hollis.nft.turbo.pay.infrastructure.channel.common.service.PayChannelService;
@@ -120,5 +121,20 @@ public class MockPayChannelServiceImpl implements PayChannelService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public BillChannelResponse tradeBill(TradeBillChannelRequest billChannelRequest) {
+        return null;
+    }
+
+    @Override
+    public BillChannelResponse fundBill(FundBillChannelRequest billChannelRequest) {
+        return null;
+    }
+
+    @Override
+    public BillDownloadChannelResponse downloadBill(DownloadBillChannelRequest request) {
+        return null;
     }
 }
