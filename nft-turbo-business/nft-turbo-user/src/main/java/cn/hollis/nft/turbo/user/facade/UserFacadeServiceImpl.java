@@ -25,7 +25,6 @@ public class UserFacadeServiceImpl implements UserFacadeService {
     @Autowired
     private UserService userService;
 
-    @Facade
     @Override
     public UserQueryResponse<UserInfo> query(UserQueryRequest userQueryRequest) {
         //使用switch表达式精简代码，如果这里编译不过，参考我的文档调整IDEA的JDK版本
@@ -48,7 +47,6 @@ public class UserFacadeServiceImpl implements UserFacadeService {
         return response;
     }
 
-    @Facade
     @Override
     public PageResponse<UserInfo> pageQuery(UserPageQueryRequest userPageQueryRequest) {
         var queryResult = userService.pageQueryByState(userPageQueryRequest.getKeyWord(), userPageQueryRequest.getState(), userPageQueryRequest.getCurrentPage(), userPageQueryRequest.getPageSize());
