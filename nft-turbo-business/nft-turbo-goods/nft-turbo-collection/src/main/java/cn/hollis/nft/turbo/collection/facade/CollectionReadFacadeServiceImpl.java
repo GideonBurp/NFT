@@ -56,7 +56,6 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
     private CollectionAirdropStreamMapper collectionAirdropStreamMapper;
 
     @Override
-    @Facade
     public SingleResponse<CollectionVO> queryById(Long collectionId) {
         Collection collection = collectionService.queryById(collectionId);
 

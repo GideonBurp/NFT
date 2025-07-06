@@ -41,13 +41,13 @@
     <!-- 添加异步 appender，提高性能 -->
     <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <discardingThreshold>20</discardingThreshold>
-        <queueSize>1024</queueSize>
+        <queueSize>2048</queueSize>
         <neverBlock>true</neverBlock>
-        <includeCallerData>true</includeCallerData>
+        <includeCallerData>false</includeCallerData>
         <appender-ref ref="APPLICATION"/>
     </appender>
 
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="ASYNC"/>
         <appender-ref ref="CONSOLE"/>
     </root>

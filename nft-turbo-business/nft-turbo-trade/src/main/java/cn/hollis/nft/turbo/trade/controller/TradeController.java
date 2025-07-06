@@ -63,7 +63,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static cn.hollis.nft.turbo.api.common.constant.CommonConstant.SEPARATOR;
-import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_PRE_VALID_FAILED;
 import static cn.hollis.nft.turbo.api.user.constant.UserType.PLATFORM;
 import static cn.hollis.nft.turbo.web.filter.TokenFilter.TOKEN_THREAD_LOCAL;
 
@@ -158,32 +157,35 @@ public class TradeController {
      */
     @PostMapping("/newBuy")
     public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
-        OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
+        OrderCreateRequest orderCreateRequest = null;
 
         try {
+            orderCreateRequest = getOrderCreateRequest(buyParam);
             orderPreValidatorChain.validate(orderCreateRequest);
-        } catch (OrderException e) {
-            throw new TradeException(e.getErrorCode().getMessage(), ORDER_CREATE_PRE_VALID_FAILED);
+
+            //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
+            boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
+
+            if (!result) {
+                throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+            }
+
+            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
+            //因为上面是用了MQ的事务消息，Redis的库存扣减是在事务消息的本地事务中同步执行的（InventoryDecreaseTransactionListener#executeLocalTransaction），所以只要成功了，这里一定能查到
+            InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+            SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
+
+            if (response.getSuccess() && response.getData() != null) {
+                inventoryBypassVerify(inventoryRequest);
+                return Result.success(orderCreateRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
-        //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
-        boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
-
-        if (!result) {
-            throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
-        }
-
-        //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
-        //因为上面是用了MQ的事务消息，Redis的库存扣减是在事务消息的本地事务中同步执行的（InventoryDecreaseTransactionListener#executeLocalTransaction），所以只要成功了，这里一定能查到
-        InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
-        SingleResponse<String> response = inventoryFacadeService.getInventoryDecreaseLog(inventoryRequest);
-
-        if (response.getSuccess() && response.getData() != null) {
-            inventoryBypassVerify(inventoryRequest);
-            return Result.success(orderCreateRequest.getOrderId());
-        }
-
-        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+        return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
     }
 
     /**

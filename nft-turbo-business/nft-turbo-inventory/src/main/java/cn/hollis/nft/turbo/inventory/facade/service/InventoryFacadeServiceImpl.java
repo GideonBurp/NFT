@@ -10,6 +10,7 @@ import cn.hollis.nft.turbo.inventory.domain.service.impl.BlindBoxInventoryRedisS
 import cn.hollis.nft.turbo.inventory.domain.service.impl.CollectionInventoryRedisService;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,6 +30,7 @@ import static cn.hollis.nft.turbo.inventory.domain.service.impl.AbstractInventor
  * @author Hollis
  */
 @DubboService(version = "1.0.0")
+@Slf4j
 public class InventoryFacadeServiceImpl implements InventoryFacadeService {
 
     private static final String ERROR_CODE_UNSUPPORTED_GOODS_TYPE = "UNSUPPORTED_GOODS_TYPE";
@@ -98,6 +100,10 @@ public class InventoryFacadeServiceImpl implements InventoryFacadeService {
     }
 
     private static boolean isSoldOut(InventoryResponse inventoryResponse) {
+        if(inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0){
+            //这部分代码没有实际功能作用，仅用于日志埋点，方便压测时判断延时，详见压测相关视频
+            log.warn("debug:soldOut ...");
+        }
         return inventoryResponse.getSuccess() && inventoryResponse.getInventory() == 0
                 || !inventoryResponse.getSuccess() && inventoryResponse.getResponseCode().equals(ERROR_CODE_INVENTORY_IS_ZERO);
     }

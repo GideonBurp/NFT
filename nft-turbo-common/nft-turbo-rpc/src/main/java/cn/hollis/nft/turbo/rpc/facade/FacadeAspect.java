@@ -42,7 +42,6 @@ public class FacadeAspect {
 
         Method method = ((MethodSignature) pjp.getSignature()).getMethod();
         Object[] args = pjp.getArgs();
-        LOGGER.info("start to execute , method = " + method.getName() + " , args = " + JSON.toJSONString(args));
 
         Class returnType = ((MethodSignature) pjp.getSignature()).getMethod().getReturnType();
 
