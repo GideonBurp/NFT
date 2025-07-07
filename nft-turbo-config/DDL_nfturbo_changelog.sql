@@ -1,3 +1,43 @@
+# 2025-07-07 增加微信支付流水表,用于对账核对
+
+CREATE TABLE `wechat_transaction` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID（自增主键）',
+  `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT NULL COMMENT '最后更新时间',
+  `date` datetime NOT NULL COMMENT '交易时间',
+  `app_id` VARCHAR(64) DEFAULT NULL COMMENT '公众账号ID',
+  `mch_id` VARCHAR(64) DEFAULT NULL COMMENT '商户号',
+  `sub_mch_id` VARCHAR(64) DEFAULT NULL COMMENT '子商户号/特约商户号',
+  `device_info` VARCHAR(128) DEFAULT NULL COMMENT '设备号',
+  `wechat_order_no` VARCHAR(128) NOT NULL COMMENT '微信订单号',
+  `mch_order_no` VARCHAR(128) NOT NULL COMMENT '商户订单号',
+  `user_id` VARCHAR(128) NOT NULL COMMENT '用户标识',
+  `type` VARCHAR(64) NOT NULL COMMENT '交易类型',
+  `status` VARCHAR(64) NOT NULL COMMENT '交易状态',
+  `bank` VARCHAR(128) DEFAULT NULL COMMENT '付款银行',
+  `currency` VARCHAR(32) DEFAULT NULL COMMENT '货币种类',
+  `amount` DECIMAL(18, 6) NOT NULL COMMENT '总金额',
+  `envelope_amount` DECIMAL(18, 6) DEFAULT NULL COMMENT '企业红包金额/代金券金额',
+  `name` VARCHAR(255) DEFAULT NULL COMMENT '商品名称',
+  `packet` TEXT DEFAULT NULL COMMENT '商户数据包',
+  `poundage` DECIMAL(18, 6) DEFAULT NULL COMMENT '手续费',
+  `rate` VARCHAR(32) DEFAULT NULL COMMENT '费率',
+  `order_amount` DECIMAL(18, 6) DEFAULT NULL COMMENT '订单金额',
+  `refund_apply_time` DATETIME NULL DEFAULT NULL COMMENT '退款申请时间',
+  `refund_success_time` DATETIME NULL DEFAULT NULL COMMENT '退款成功时间',
+  `wx_refund_order_no` VARCHAR(255) NULL DEFAULT NULL COMMENT '微信退款单号',
+  `mch_refund_order_no` VARCHAR(255) NULL DEFAULT NULL COMMENT '商户退款单号',
+  `refund_amount` DECIMAL(18,6) NULL DEFAULT NULL COMMENT '退款金额',
+  `envelope_refund_amount` DECIMAL(18,6) NULL DEFAULT NULL COMMENT '充值券退款金额',
+  `refund_type` VARCHAR(255) NULL DEFAULT NULL COMMENT '退款类型',
+  `refund_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '退款状态',
+  `apply_refund_amount` DECIMAL(18,6) NULL DEFAULT NULL COMMENT '申请退款金额'
+`deleted` int DEFAULT NULL COMMENT '是否逻辑删除，0为未删除，非0为已删除',
+  `lock_version` int DEFAULT NULL COMMENT '乐观锁版本号',
+  UNIQUE KEY `uk_wechat_order_no` (`wechat_order_no`),
+  UNIQUE KEY `uk_mch_order_no` (`mch_order_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='微信支付交易流水表';
+
 # 2025-05-20 藏品相关流水表更新为唯一性索引
 
 ALTER TABLE `collection_airdrop_stream`

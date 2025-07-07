@@ -1,6 +1,5 @@
 package cn.hollis.nft.turbo.pay.infrastructure.mapper;
 
-import cn.hollis.nft.turbo.pay.domain.entity.PayOrder;
 import cn.hollis.nft.turbo.pay.domain.entity.RefundOrder;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +15,7 @@ public interface RefundOrderMapper extends BaseMapper<RefundOrder> {
 
     /**
      * 根据幂等条件查询退款单
+     *
      * @param payOrderId
      * @param identifier
      * @param refundChannel

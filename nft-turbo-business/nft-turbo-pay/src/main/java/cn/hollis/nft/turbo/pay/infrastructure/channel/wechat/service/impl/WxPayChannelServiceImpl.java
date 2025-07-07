@@ -323,11 +323,20 @@ public class WxPayChannelServiceImpl implements PayChannelService {
             log.info("verifySignature: {}", verifySignature);
             String body = response.getBody();
             Map bodyMap = JSON.parseObject(body, Map.class);
-            resp.setDownloadUrl(bodyMap.get("download_url").toString());
-            resp.setHashType(bodyMap.get("hash_type").toString());
-            resp.setHashValue(bodyMap.get("hash_value").toString());
-            resp.setSuccess(true);
-            return resp;
+
+
+            if(response.getStatus() == 200){
+                resp.setDownloadUrl(bodyMap.get("download_url").toString());
+                resp.setHashType(bodyMap.get("hash_type").toString());
+                resp.setHashValue(bodyMap.get("hash_value").toString());
+                resp.setSuccess(true);
+                return resp;
+            }else{
+                resp.setSuccess(false);
+                resp.setResponseCode(bodyMap.get("code").toString());
+                resp.setResponseMessage(bodyMap.get("message").toString());
+                return resp;
+            }
         } catch (Exception e) {
             log.error("bill error ", e);
             resp.setSuccess(false);

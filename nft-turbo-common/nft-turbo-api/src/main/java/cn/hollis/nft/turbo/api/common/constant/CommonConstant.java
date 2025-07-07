@@ -28,6 +28,11 @@ public class CommonConstant {
     public static final String COMMON_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
+     * 标准日期格式
+     */
+    public static final String COMMON_DATE_PATTERN = "yyyy-MM-dd";
+
+    /**
      * HTTP成功状态码
      */
     public static final int HTTP_SUCCESS_CODE = 200;
