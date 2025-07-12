@@ -1,3 +1,45 @@
+# 2025-07-07 增加微信支付流水表,用于对账核对
+
+CREATE TABLE `wechat_transaction` (
+      `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+      `date` datetime NOT NULL COMMENT '交易时间',
+      `app_id` varchar(64) NOT NULL COMMENT '公众账号ID',
+      `mch_id` varchar(64) NOT NULL COMMENT '商户号',
+      `sub_mch_id` varchar(64) DEFAULT NULL COMMENT '子商户号/特约商户号',
+      `device_info` varchar(128) DEFAULT NULL COMMENT '设备号',
+      `wechat_order_no` varchar(128) NOT NULL COMMENT '微信订单号',
+      `mch_order_no` varchar(128) NOT NULL COMMENT '商户订单号',
+      `user_id` varchar(128) NOT NULL COMMENT '用户标识',
+      `type` varchar(64) NOT NULL COMMENT '交易类型',
+      `status` varchar(64) NOT NULL COMMENT '交易状态',
+      `bank` varchar(128) DEFAULT NULL COMMENT '付款银行',
+      `currency` varchar(32) DEFAULT NULL COMMENT '货币种类',
+      `amount` decimal(18,6) NOT NULL COMMENT '总金额',
+      `envelope_amount` decimal(18,6) DEFAULT NULL COMMENT '企业红包金额/代金券金额',
+      `name` varchar(255) DEFAULT NULL COMMENT '商品名称',
+      `packet` text COMMENT '商户数据包',
+      `poundage` decimal(18,6) DEFAULT NULL COMMENT '手续费',
+      `rate` varchar(32) DEFAULT NULL COMMENT '费率',
+      `order_amount` decimal(18,6) DEFAULT NULL COMMENT '订单金额',
+      `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+      `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+      `deleted` tinyint DEFAULT '0' COMMENT 'l是否逻辑删除，0为未删除，非0为已删除''',
+      `lock_version` int NOT NULL COMMENT '乐观锁版本号',
+      `refund_apply_time` datetime DEFAULT NULL COMMENT '退款申请时间',
+      `refund_success_time` datetime DEFAULT NULL COMMENT '退款成功时间',
+      `wx_refund_order_no` varchar(255) DEFAULT NULL COMMENT '微信退款单号',
+      `mch_refund_order_no` varchar(255) DEFAULT NULL COMMENT '商户退款单号',
+      `refund_amount` decimal(18,6) DEFAULT NULL COMMENT '退款金额',
+      `envelope_refund_amount` decimal(18,6) DEFAULT NULL COMMENT '充值券退款金额',
+      `refund_type` varchar(64) DEFAULT NULL COMMENT '退款类型',
+      `refund_status` varchar(64) DEFAULT NULL COMMENT '退款状态',
+      `apply_refund_amount` decimal(18,6) DEFAULT NULL COMMENT '申请退款金额',
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `uk_wechat_order_no` (`wechat_order_no`),
+      UNIQUE KEY `uk_mch_order_no` (`mch_order_no`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='微信支付交易流水表';
+
+
 # 2025-05-20 藏品相关流水表更新为唯一性索引
 
 ALTER TABLE `collection_airdrop_stream`

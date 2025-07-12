@@ -91,6 +91,14 @@
             <version>2.9.9</version>
         </dependency>
 
+        <!--   commonCSV     -->
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.14.0</version>
+        </dependency>
+
         <!--  TEST  -->
 
         <dependency>
