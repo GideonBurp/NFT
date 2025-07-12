@@ -34,9 +34,7 @@ import java.util.concurrent.*;
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
 /**
- * @author
- *
- * 批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
+ * @author 批量消费MQ的newBuy消息，在rocketmq.broker.check=true （stream.yml） 的时候会生效
  * 这个Bean和NewBuyMsgListener只启动一个。本Bean对RocketMQ的Brocker部署强依赖，即不部署会导致应用无法启动，
  * 如果你不部署MQ，想要运行本应用，则需要把rocketmq.broker.check改为false
  */
@@ -55,7 +53,8 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
     @Autowired
     private InventoryFacadeService inventoryFacadeService;
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(16);
+    @Autowired
+    private ThreadPoolExecutor newBuyConsumePool;
 
     @Override
     public void onMessage(List<Object> strings) {
@@ -64,13 +63,13 @@ public class NewBuyBatchMsgListener implements RocketMQListener<List<Object>>, R
 
     @Override
     public void prepareStart(DefaultMQPushConsumer consumer) {
-        consumer.setPullInterval(1000);
-        consumer.setConsumeMessageBatchMaxSize(128);
+        consumer.setPullInterval(500);
+        consumer.setConsumeMessageBatchMaxSize(64);
         consumer.setPullBatchSize(64);
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
-            log.info("NewBuyBatchMsgListener receive message size: {}", msgs.size());
+            log.warn("NewBuyBatchMsgListener receive message size: {}", msgs.size());
 
-            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executor);
+            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(newBuyConsumePool);
             List<Future<Boolean>> futures = new ArrayList<>();
 
             // 1. 提交所有任务

@@ -13,6 +13,9 @@ import cn.hollis.nft.turbo.base.response.SingleResponse;
  */
 public interface OrderFacadeService {
 
+
+    public void setPool(int core,int max);
+
     /**
      * 创建订单
      *

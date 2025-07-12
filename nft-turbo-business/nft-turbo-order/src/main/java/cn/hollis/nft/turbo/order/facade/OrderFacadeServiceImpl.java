@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static cn.hollis.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
 
@@ -66,6 +67,14 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
 
     @Autowired
     private OrderCreateValidator orderConfirmValidatorChain;
+
+    @Autowired
+    private ThreadPoolExecutor newBuyConsumePool;
+
+    public void setPool(int core, int max) {
+        newBuyConsumePool.setMaximumPoolSize(max);
+        newBuyConsumePool.setCorePoolSize(core);
+    }
 
     @Override
     @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")

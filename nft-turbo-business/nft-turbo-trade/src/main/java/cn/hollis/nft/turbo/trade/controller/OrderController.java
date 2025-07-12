@@ -42,6 +42,22 @@ public class OrderController {
     private PayFacadeService payFacadeService;
 
     /**
+     * 本方法仅用于压测是动态修改线程池使用。
+     * @param core
+     * @param max
+     * @return
+     */
+    @GetMapping("/setPool")
+    public Result<String> setPool(int core, int max) {
+        String userId = (String) StpUtil.getLoginId();
+        //todo 查询用户，判断是管理员才可以执行。
+
+        orderFacadeService.setPool(core, max);
+
+        return Result.success("true");
+    }
+
+    /**
      * 订单列表
      *
      * @param
@@ -65,7 +81,7 @@ public class OrderController {
         SingleResponse<TradeOrderVO> singleResponse = orderFacadeService.getTradeOrder(orderId, userId);
         if (singleResponse.getSuccess()) {
             TradeOrderVO tradeOrderVO = singleResponse.getData();
-            if(tradeOrderVO == null){
+            if (tradeOrderVO == null) {
                 return Result.error("ORDER_NOT_EXIST", "订单不存在");
             }
             if (tradeOrderVO.getTimeout() && tradeOrderVO.getOrderState() == TradeOrderState.CONFIRM) {
