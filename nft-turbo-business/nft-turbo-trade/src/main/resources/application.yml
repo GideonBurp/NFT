@@ -5,7 +5,7 @@ spring:
     import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
   cloud:
     function:
-      definition: newBuy;normalBuyCancel;normalBuyPreCancel
+      definition: newBuy;newBuyPLus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
     stream:
       rocketmq:
         bindings:
@@ -13,11 +13,20 @@ spring:
             producer:
               producerType: Trans
               transactionListener: inventoryDecreaseTransactionListener
+          newBuyPlus-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: orderCreateTransactionListener
       bindings:
         newBuy-out-0:
           content-type: application/json
           destination: new-buy-topic
           group: trade-group
+          binder: rocketmq
+        newBuyPlus-out-0:
+          content-type: application/json
+          destination: new-buy-topic
+          group: new-buy-plus-group
           binder: rocketmq
         orderClose-in-0:
           content-type: application/json
@@ -34,6 +43,16 @@ spring:
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
           binder: rocketmq
+        newBuyPlusCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
+          binder: rocketmq
         normalBuyCancel-in-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
@@ -43,6 +62,16 @@ spring:
           content-type: application/json
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
+          binder: rocketmq
+        newBuyPlusCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
           binder: rocketmq
 
 server:

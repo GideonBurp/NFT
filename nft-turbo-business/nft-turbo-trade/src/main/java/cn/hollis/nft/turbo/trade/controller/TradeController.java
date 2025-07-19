@@ -150,7 +150,7 @@ public class TradeController {
     }
 
     /**
-     * 秒杀下单（不基于inventory hint的实现），热点商品
+     * 秒杀下单（不基于inventory hint的实现），热点商品，同步创建订单
      *
      * @param
      * @return 幂等号
@@ -163,7 +163,7 @@ public class TradeController {
             orderCreateRequest = getOrderCreateRequest(buyParam);
             orderPreValidatorChain.validate(orderCreateRequest);
 
-            //消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
+            //本地事务执行器：InventoryDecreaseTransactionListener  消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
             boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
 
             if (!result) {
@@ -178,6 +178,42 @@ public class TradeController {
             if (response.getSuccess() && response.getData() != null) {
                 inventoryBypassVerify(inventoryRequest);
                 return Result.success(orderCreateRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
+    }
+
+    /**
+     * 秒杀下单（不基于inventory hint的实现），热点商品，同步创建订单
+     *
+     * @param
+     * @return 幂等号
+     */
+    @PostMapping("/newBuyPlus")
+    public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
+        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+
+        try {
+            //本地事务执行器：OrderCreateTransactionListener  消息监听：NewBuyMsgListener or NewBuyBatchMsgListener ,
+            boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
+
+            if (!result) {
+                throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+            }
+
+            //因为不管本地事务是否成功，只要一阶段消息发成功都会返回 true，所以这里需要确认是否成功
+            //因为上面是用了MQ的事务消息，Redis的库存扣减是在事务消息的本地事务中同步执行的（InventoryDecreaseTransactionListener#executeLocalTransaction），所以只要成功了，这里一定能查到
+
+            SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
+
+            if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
+                inventoryBypassVerify(new InventoryRequest(orderCreateAndConfirmRequest));
+                return Result.success(orderCreateAndConfirmRequest.getOrderId());
             }
         } catch (OrderException | TradeException e) {
             return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());

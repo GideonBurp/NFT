@@ -50,7 +50,7 @@ public class FacadeAspect {
             try {
                 BeanValidator.validateObject(parameter);
             } catch (ValidationException e) {
-                printLog(stopWatch, method, args, "failed to validate", null, e);
+                printErrorLog(stopWatch, method, args, "failed to validate", null, e);
                 return getFailedResponse(returnType, e);
             }
         }
@@ -59,11 +59,11 @@ public class FacadeAspect {
             // 目标方法执行
             Object response = pjp.proceed();
             enrichObject(response);
-            printLog(stopWatch, method, args, "end to execute", response, null);
+            printInfoLog(stopWatch, method, args, "end to execute", response, null);
             return response;
         } catch (Throwable throwable) {
             // 如果执行异常，则返回一个失败的response
-            printLog(stopWatch, method, args, "failed to execute", null, throwable);
+            printErrorLog(stopWatch, method, args, "failed to execute", null, throwable);
             return getFailedResponse(returnType, throwable);
         }
     }
@@ -77,11 +77,31 @@ public class FacadeAspect {
      * @param action
      * @param response
      */
-    private void printLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
+    private void printInfoLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
                           Throwable throwable) {
         try {
             //因为此处有JSON.toJSONString，可能会有异常，需要进行捕获，避免影响主干流程
             LOGGER.info(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
+            // 如果校验失败，则返回一个失败的response
+        } catch (Exception e1) {
+            LOGGER.error("log failed", e1);
+        }
+    }
+
+    /**
+     * 日志打印
+     *
+     * @param stopWatch
+     * @param method
+     * @param args
+     * @param action
+     * @param response
+     */
+    private void printErrorLog(StopWatch stopWatch, Method method, Object[] args, String action, Object response,
+                          Throwable throwable) {
+        try {
+            //因为此处有JSON.toJSONString，可能会有异常，需要进行捕获，避免影响主干流程
+            LOGGER.error(getInfoMessage(action, stopWatch, method, args, response, throwable), throwable);
             // 如果校验失败，则返回一个失败的response
         } catch (Exception e1) {
             LOGGER.error("log failed", e1);

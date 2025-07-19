@@ -38,9 +38,9 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
-    @DistributeLock(keyExpression = "#orderCreateRequest.orderId",scene = "NORMAL_BUY_ORDER")
-    public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest) {
-        TransactionTryResponse transactionTryResponse = transactionLogService.tryTransaction(new TccRequest(orderCreateRequest.getOrderId(), "normalBuy", "ORDER"));
+    @DistributeLock(keyExpression = "#orderCreateRequest.orderId", scene = "NORMAL_BUY_ORDER")
+    public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest, String businessScene) {
+        TransactionTryResponse transactionTryResponse = transactionLogService.tryTransaction(new TccRequest(orderCreateRequest.getOrderId(), businessScene, "ORDER"));
         Assert.isTrue(transactionTryResponse.getSuccess(), "transaction try failed");
 
         if (transactionTryResponse.getTransTrySuccessType() == TransTrySuccessType.TRY_SUCCESS) {
@@ -55,12 +55,12 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
-    @DistributeLock(keyExpression = "#orderConfirmRequest.orderId",scene = "NORMAL_BUY_ORDER")
-    public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest) {
-        TransactionConfirmResponse transactionConfirmResponse = transactionLogService.confirmTransaction(new TccRequest(orderConfirmRequest.getOrderId(), "normalBuy", "ORDER"));
+    @DistributeLock(keyExpression = "#orderConfirmRequest.orderId", scene = "NORMAL_BUY_ORDER")
+    public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest, String businessScene) {
+        TransactionConfirmResponse transactionConfirmResponse = transactionLogService.confirmTransaction(new TccRequest(orderConfirmRequest.getOrderId(), businessScene, "ORDER"));
         Assert.isTrue(transactionConfirmResponse.getSuccess(), "transaction confirm failed");
 
-        if(transactionConfirmResponse.getTransConfirmSuccessType() == TransConfirmSuccessType.CONFIRM_SUCCESS){
+        if (transactionConfirmResponse.getTransConfirmSuccessType() == TransConfirmSuccessType.CONFIRM_SUCCESS) {
             OrderResponse orderResponse = orderManageService.confirm(orderConfirmRequest);
             Assert.isTrue(orderResponse.getSuccess(), () -> new BizException(OrderErrorCode.CREATE_ORDER_FAILED));
 
@@ -73,10 +73,10 @@ public class OrderTransactionFacadeServiceImpl implements OrderTransactionFacade
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Facade
-    @DistributeLock(keyExpression = "#orderDiscardRequest.orderId",scene = "NORMAL_BUY_ORDER")
-    public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest) {
+    @DistributeLock(keyExpression = "#orderDiscardRequest.orderId", scene = "NORMAL_BUY_ORDER")
+    public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest, String businessScene) {
 
-        TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(new TccRequest(orderDiscardRequest.getOrderId(), "normalBuy", "ORDER"));
+        TransactionCancelResponse transactionCancelResponse = transactionLogService.cancelTransaction(new TccRequest(orderDiscardRequest.getOrderId(), businessScene, "ORDER"));
         Assert.isTrue(transactionCancelResponse.getSuccess(), "transaction cancel failed");
 
         //如果发生空回滚，或者回滚幂等，则不进行废弃订单操作

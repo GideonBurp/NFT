@@ -10,7 +10,7 @@ spring:
   cloud:
     # spring.cloud.stream.function.definition 已废弃, 需要使用 spring.cloud.function.definition 代替
     function:
-      definition: chain;orderClose;heldCollection;newBuy;normalBuyCancel;normalBuyPreCancel
+      definition: chain;orderClose;heldCollection;newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
     stream:
       rocketmq:
         bindings:
@@ -30,6 +30,10 @@ spring:
             producer:
               producerType: Trans
               transactionListener: inventoryDecreaseTransactionListener
+          newBuyPlus-out-0:
+            producer:
+              producerType: Trans
+              transactionListener: orderCreateTransactionListener
       bindings:
         heldCollection-out-0:
           content-type: application/json
@@ -71,6 +75,16 @@ spring:
           destination: new-buy-topic
           group: trade-group
           binder: rocketmq
+        newBuyPlus-out-0:
+          content-type: application/json
+          destination: new-buy-plus-topic
+          group: new-buy-plus-group
+          binder: rocketmq
+        newBuyPlus-in-0:
+          content-type: application/json
+          destination: new-buy-plus-topic
+          group: new-buy-plus-group
+          binder: rocketmq
         normalBuyCancel-out-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
@@ -81,6 +95,16 @@ spring:
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
           binder: rocketmq
+        newBuyPlusCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-out-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
+          binder: rocketmq
         normalBuyCancel-in-0:
           content-type: application/json
           destination: normal-buy-cancel-topic
@@ -90,6 +114,16 @@ spring:
           content-type: application/json
           destination: normal-buy-pre-cancel-topic
           group: trade-pre-cancel-group
+          binder: rocketmq
+        newBuyPlusCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-cancel-topic
+          group: new-buy-plus-cancel-group
+          binder: rocketmq
+        newBuyPlusPreCancel-in-0:
+          content-type: application/json
+          destination: new-buy-plus-pre-cancel-topic
+          group: new-buy-plus-pre-cancel-group
           binder: rocketmq
   shardingsphere:
     rules:

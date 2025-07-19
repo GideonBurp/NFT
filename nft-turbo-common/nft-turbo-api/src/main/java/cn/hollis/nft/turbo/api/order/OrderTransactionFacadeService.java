@@ -19,7 +19,7 @@ public interface OrderTransactionFacadeService {
      * @param orderCreateRequest
      * @return
      */
-    public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest);
+    public OrderResponse tryOrder(OrderCreateRequest orderCreateRequest, String businessScene);
 
     /**
      * 确认订单
@@ -27,7 +27,7 @@ public interface OrderTransactionFacadeService {
      * @param orderConfirmRequest
      * @return
      */
-    public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest);
+    public OrderResponse confirmOrder(OrderConfirmRequest orderConfirmRequest, String businessScene);
 
     /**
      * 撤销订单
@@ -35,5 +35,5 @@ public interface OrderTransactionFacadeService {
      * @param orderDiscardRequest
      * @return
      */
-    public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest);
+    public OrderResponse cancelOrder(OrderDiscardRequest orderDiscardRequest, String businessScene);
 }
