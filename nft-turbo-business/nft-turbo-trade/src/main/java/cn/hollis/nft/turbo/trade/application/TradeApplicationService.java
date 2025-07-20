@@ -156,7 +156,6 @@ public class TradeApplicationService {
                 BeanUtils.copyProperties(orderCreateRequest, orderConfirmRequest);
                 isConfirmSuccess = orderTransactionFacadeService.confirmOrder(orderConfirmRequest,"newBuyPlus").getSuccess();
                 Assert.isTrue(isConfirmSuccess, "confirmOrder failed");
-                throw new RuntimeException("1111");
             } catch (Exception e) {
                 retryConfirmCount++;
                 isConfirmSuccess = false;

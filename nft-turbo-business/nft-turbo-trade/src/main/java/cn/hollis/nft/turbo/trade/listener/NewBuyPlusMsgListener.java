@@ -73,7 +73,7 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     Consumer<Message<MessageBody>> newBuyPlusCancel() {
         return msg -> {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getMessage(msg, OrderCreateAndConfirmRequest.class);
-            log.warn("NewBuyPlusBatchMsgListener receive newBuyPlusCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
+            log.warn("NewBuyPlusMsgListener receive newBuyPlusCancel message : {}", JSON.toJSONString(orderCreateAndConfirmRequest));
             doCancel(orderCreateAndConfirmRequest);
         };
     }
