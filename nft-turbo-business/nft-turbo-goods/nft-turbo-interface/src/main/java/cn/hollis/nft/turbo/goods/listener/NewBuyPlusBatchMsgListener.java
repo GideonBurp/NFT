@@ -40,7 +40,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
     private GoodsFacadeService goodsFacadeService;
 
     @Autowired
-    private ThreadPoolExecutor newBuyPLusConsumePool;
+    private ThreadPoolExecutor newBuyPlusConsumePool;
 
     @Override
     public void onMessage(List<Object> strings) {
@@ -55,7 +55,7 @@ public class NewBuyPlusBatchMsgListener implements RocketMQListener<List<Object>
         consumer.registerMessageListener((MessageListenerConcurrently) (msgs, context) -> {
             log.warn("NewBuyPlusBatchMsgListener receive message size: {}", msgs.size());
 
-            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(newBuyPLusConsumePool);
+            CompletionService<Boolean> completionService = new ExecutorCompletionService<>(newBuyPlusConsumePool);
             List<Future<Boolean>> futures = new ArrayList<>();
 
             // 1. 提交所有任务

@@ -5,7 +5,7 @@ spring:
     import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
   cloud:
     function:
-      definition: newBuy;newBuyPLus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
+      definition: newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel
     stream:
       rocketmq:
         bindings:
@@ -25,7 +25,7 @@ spring:
           binder: rocketmq
         newBuyPlus-out-0:
           content-type: application/json
-          destination: new-buy-topic
+          destination: new-buy-plus-topic
           group: new-buy-plus-group
           binder: rocketmq
         orderClose-in-0:

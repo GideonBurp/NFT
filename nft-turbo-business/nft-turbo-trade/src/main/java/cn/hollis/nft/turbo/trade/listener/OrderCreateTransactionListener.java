@@ -40,7 +40,6 @@ public class OrderCreateTransactionListener implements TransactionListener {
             //但是这里还是有可能出现因为网络延迟或者数据库异常而导致查询到的订单状态不是CONFIRM，但是后来又变成了CONFIRM的情况，所以需要做补偿，详见NewBuyPlusMsgListener.newBuyPlusPreCancel
             SingleResponse<TradeOrderVO> response = orderFacadeService.getTradeOrder(orderCreateAndConfirmRequest.getOrderId());
             //如果订单已经创建成功，则直接返回。不再需要做废单处理了。
-            response.getData().setOrderState(TradeOrderState.CREATE);
             if (response.getSuccess() && response.getData() != null && response.getData().getOrderState() == TradeOrderState.CONFIRM) {
                 return LocalTransactionState.COMMIT_MESSAGE;
             }

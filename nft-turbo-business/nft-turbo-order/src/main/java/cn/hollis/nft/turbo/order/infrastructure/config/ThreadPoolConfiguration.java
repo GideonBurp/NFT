@@ -25,7 +25,7 @@ public class ThreadPoolConfiguration {
     }
 
     @Bean
-    public ThreadPoolExecutor newBuyPLusConsumePool(MeterRegistry registry) {
+    public ThreadPoolExecutor newBuyPlusConsumePool(MeterRegistry registry) {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
                 16,
                 32,
