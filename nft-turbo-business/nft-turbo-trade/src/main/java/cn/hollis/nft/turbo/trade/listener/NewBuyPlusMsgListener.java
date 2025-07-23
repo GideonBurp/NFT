@@ -5,6 +5,7 @@ import cn.hollis.nft.turbo.api.goods.response.GoodsSaleResponse;
 import cn.hollis.nft.turbo.api.goods.service.GoodsFacadeService;
 import cn.hollis.nft.turbo.api.inventory.InventoryTransactionFacadeService;
 import cn.hollis.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.hollis.nft.turbo.api.inventory.service.InventoryFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderFacadeService;
 import cn.hollis.nft.turbo.api.order.OrderTransactionFacadeService;
 import cn.hollis.nft.turbo.api.order.constant.TradeOrderState;
@@ -47,6 +48,9 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
     @Autowired
     private GoodsFacadeService goodsFacadeService;
 
+    @Autowired
+    private InventoryFacadeService inventoryFacadeService;
+
     @Bean
     Consumer<Message<MessageBody>> newBuyPlusPreCancel() {
         return msg -> {
@@ -65,7 +69,9 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
                 return;
             }
 
-            doCancel(orderCreateAndConfirmRequest);
+            //doCancel(orderCreateAndConfirmRequest);
+            SingleResponse<Boolean> increaseResponse = inventoryFacadeService.increase(new InventoryRequest(orderCreateAndConfirmRequest));
+            Assert.isTrue(increaseResponse.getSuccess() && increaseResponse.getData(), "increase inventory failed");
         };
     }
 
@@ -78,6 +84,11 @@ public class NewBuyPlusMsgListener extends AbstractStreamConsumer {
         };
     }
 
+    /**
+     * @param orderCreateAndConfirmRequest
+     * @deprecated TCC场景下的cancel
+     */
+    @Deprecated
     private void doCancel(OrderCreateAndConfirmRequest orderCreateAndConfirmRequest) {
         InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
         boolean result = inventoryTransactionFacadeService.cancelDecrease(inventoryRequest);

@@ -134,13 +134,15 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         } catch (OrderException e) {
             return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
         }
-        GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
 
-        GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
-
-        if (!response.getSuccess()) {
-            return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+        if (request.isSyncDecreaseInventory()) {
+            GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
+            GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
+            if (!response.getSuccess()) {
+                return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+            }
         }
+
         return orderService.createAndConfirm(request);
     }
 
