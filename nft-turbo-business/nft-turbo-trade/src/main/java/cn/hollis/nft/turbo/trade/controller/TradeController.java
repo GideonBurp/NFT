@@ -99,7 +99,7 @@ public class TradeController {
     private InventoryFacadeService inventoryFacadeService;
 
     @Autowired
-    private OrderCreateValidator orderPreValidatorChain;
+    private OrderCreateValidator orderValidatorChain;
 
     @Autowired
     private InventoryCheckFacadeService inventoryCheckFacadeService;
@@ -161,7 +161,7 @@ public class TradeController {
 
         try {
             orderCreateRequest = getOrderCreateRequest(buyParam);
-            orderPreValidatorChain.validate(orderCreateRequest);
+            orderValidatorChain.validate(orderCreateRequest);
 
             //本地事务执行器：InventoryDecreaseTransactionListener  消息监听：NewBuyMsgListener or NewBuyBatchMsgListener
             boolean result = streamProducer.send("newBuy-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateRequest));
@@ -198,6 +198,7 @@ public class TradeController {
     public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            orderValidatorChain.validate(orderCreateAndConfirmRequest);
             //本地事务执行器：OrderCreateTransactionListener  消息监听：NewBuyMsgListener or NewBuyBatchMsgListener ,
             boolean result = streamProducer.send("newBuyPlus-out-0", buyParam.getGoodsType(), JSON.toJSONString(orderCreateAndConfirmRequest));
 
@@ -260,20 +261,26 @@ public class TradeController {
      */
     @PostMapping("/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
-        OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+        try {
+            OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
+            orderValidatorChain.validate(orderCreateAndConfirmRequest);
+            OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
 
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> tradeApplicationService.normalBuy(req), orderCreateAndConfirmRequest, "createOrder");
+            if (orderResponse.getSuccess()) {
+                //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
+                try {
+                    InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
+                    inventoryFacadeService.decrease(inventoryRequest);
+                } catch (Exception e) {
+                    log.error("decrease inventory from redis failed", e);
+                }
 
-        if (orderResponse.getSuccess()) {
-            //同步写redis，如果失败，不阻塞流程，靠binlog同步保障
-            try {
-                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateAndConfirmRequest);
-                inventoryFacadeService.decrease(inventoryRequest);
-            } catch (Exception e) {
-                log.error("decrease inventory from redis failed", e);
+                return Result.success(orderCreateAndConfirmRequest.getOrderId());
             }
-
-            return Result.success(orderCreateAndConfirmRequest.getOrderId());
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
         throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
