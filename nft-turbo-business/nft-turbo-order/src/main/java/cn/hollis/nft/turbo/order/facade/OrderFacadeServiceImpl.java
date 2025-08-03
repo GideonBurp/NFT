@@ -116,7 +116,7 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
         goodsSaleRequest.setGoodsType(request.getGoodsType().name());
         goodsSaleRequest.setIdentifier(request.getOrderId());
         goodsSaleRequest.setQuantity(request.getItemCount());
-        BaseResponse response = goodsFacadeService.trySale(goodsSaleRequest);
+        BaseResponse response = goodsFacadeService.sale(goodsSaleRequest);
 
         if (response.getSuccess()) {
             return orderService.confirm(request);

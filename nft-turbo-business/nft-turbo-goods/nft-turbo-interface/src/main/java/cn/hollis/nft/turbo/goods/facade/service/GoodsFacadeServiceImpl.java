@@ -112,7 +112,7 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
     }
 
     @Override
-    public GoodsSaleResponse trySale(GoodsSaleRequest request) {
+    public GoodsSaleResponse sale(GoodsSaleRequest request) {
         GoodsTrySaleRequest goodsTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
         GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
 

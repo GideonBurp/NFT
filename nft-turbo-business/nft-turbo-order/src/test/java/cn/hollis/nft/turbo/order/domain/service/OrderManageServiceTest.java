@@ -47,7 +47,7 @@ public class OrderManageServiceTest extends OrderBaseTest {
     public void init() {
         GoodsSaleResponse response = new GoodsSaleResponse();
         response.setSuccess(true);
-        when(goodsFacadeService.trySale(any())).thenReturn(response);
+        when(goodsFacadeService.sale(any())).thenReturn(response);
     }
 
     @Test

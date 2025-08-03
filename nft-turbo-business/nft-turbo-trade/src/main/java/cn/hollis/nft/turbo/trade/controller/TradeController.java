@@ -136,17 +136,23 @@ public class TradeController {
      */
     @PostMapping("/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
-        OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
+        try {
+            OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
 
-        OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
+            OrderResponse orderResponse = RemoteCallWrapper.call(req -> orderFacadeService.create(req), orderCreateRequest, "createOrder");
 
-        if (orderResponse.getSuccess()) {
-            InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
-            inventoryBypassVerify(inventoryRequest);
-            return Result.success(orderCreateRequest.getOrderId());
+            if (orderResponse.getSuccess()) {
+                InventoryRequest inventoryRequest = new InventoryRequest(orderCreateRequest);
+                inventoryBypassVerify(inventoryRequest);
+                return Result.success(orderCreateRequest.getOrderId());
+            }
+        } catch (OrderException | TradeException e) {
+            return Result.error(e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
-        throw new TradeException(TradeErrorCode.ORDER_CREATE_FAILED);
+        return Result.error(TradeErrorCode.ORDER_CREATE_FAILED.getCode(), TradeErrorCode.ORDER_CREATE_FAILED.getMessage());
     }
 
     /**

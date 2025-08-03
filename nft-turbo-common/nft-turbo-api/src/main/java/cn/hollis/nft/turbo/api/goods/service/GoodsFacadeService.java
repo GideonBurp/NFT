@@ -39,15 +39,15 @@ public interface GoodsFacadeService {
     public GoodsStreamVO getGoodsInventoryStream(String goodsId, GoodsType goodsType, GoodsEvent goodsEvent, String identifier);
 
     /**
-     * 藏品出售的try阶段，做库存预占用
+     * 藏品出售的try阶段，做库存占用
      *
      * @param request
      * @return
      */
-    public GoodsSaleResponse trySale(GoodsSaleRequest request);
+    public GoodsSaleResponse sale(GoodsSaleRequest request);
 
     /**
-     * 藏品出售的try阶段，做库存预占用-无hint
+     * 藏品出售的try阶段，做库存占用-无hint
      *
      * @param request
      * @return
