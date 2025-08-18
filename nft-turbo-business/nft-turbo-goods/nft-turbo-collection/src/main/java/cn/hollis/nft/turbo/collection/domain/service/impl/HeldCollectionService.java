@@ -17,6 +17,7 @@ import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionTransferReque
 import cn.hollis.nft.turbo.collection.exception.CollectionErrorCode;
 import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.HeldCollectionMapper;
+import cn.hollis.nft.turbo.lock.DistributeLock;
 import cn.hollis.turbo.stream.producer.StreamProducer;
 import cn.hutool.core.lang.Assert;
 import com.alibaba.fastjson.JSON;
@@ -27,6 +28,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.redisson.api.RedissonClient;
+import org.redisson.api.TransactionOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +92,7 @@ public class HeldCollectionService extends ServiceImpl<HeldCollectionMapper, Hel
     }
 
     @Transactional(rollbackFor = Exception.class)
+    @DistributeLock(keyExpression = "#request.serialNoBaseId", scene = "HELD_COLLECTION_CREATE")
     public HeldCollection create(HeldCollectionCreateRequest request) {
         HeldCollection existHeldCollection = queryByCollectionIdAndBizNo(request.getGoodsId(), request.getBizNo());
         if (existHeldCollection != null) {
