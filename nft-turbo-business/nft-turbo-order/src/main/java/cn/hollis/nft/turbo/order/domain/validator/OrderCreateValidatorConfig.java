@@ -13,7 +13,8 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author hollis
  */
-@Configuration
+//@Configuration 挪到cn.hollis.nft.turbo.order.configuration.OrderClientConfiguration 中，方便和trade模块复用
+@Deprecated
 public class OrderCreateValidatorConfig {
 
     @Autowired
