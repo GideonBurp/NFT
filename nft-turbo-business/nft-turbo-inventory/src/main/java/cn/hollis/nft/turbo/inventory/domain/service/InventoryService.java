@@ -63,6 +63,14 @@ public interface InventoryService {
     public String getInventoryDecreaseLog(InventoryRequest request);
 
     /**
+     * 获取藏品库存增加日志
+     *
+     * @param request
+     * @return
+     */
+    public String getInventoryIncreaseLog(InventoryRequest request);
+
+    /**
      * 获取藏品全部日志
      * @param request
      * @return

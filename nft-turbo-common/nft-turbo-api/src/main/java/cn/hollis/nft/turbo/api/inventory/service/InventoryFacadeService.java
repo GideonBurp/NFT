@@ -45,12 +45,20 @@ public interface InventoryFacadeService {
 
 
     /**
-     * 查询库存操作流水
+     * 查询库存扣减流水
      *
      * @param inventoryRequest
      * @return
      */
     public SingleResponse<String> getInventoryDecreaseLog(InventoryRequest inventoryRequest);
+
+    /**
+     * 查询库存增加流水
+     *
+     * @param inventoryRequest
+     * @return
+     */
+    public SingleResponse<String> getInventoryIncreaseLog(InventoryRequest inventoryRequest);
 
     /**
      * 批量查询库存流水
