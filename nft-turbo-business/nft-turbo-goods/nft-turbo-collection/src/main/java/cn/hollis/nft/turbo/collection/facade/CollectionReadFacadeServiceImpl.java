@@ -21,14 +21,19 @@ import cn.hollis.nft.turbo.collection.domain.entity.convertor.CollectionConverto
 import cn.hollis.nft.turbo.collection.domain.entity.convertor.HeldCollectionConvertor;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
+import cn.hollis.nft.turbo.collection.exception.CollectionException;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionAirdropStreamMapper;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
+import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_NOT_EXIST;
+import static cn.hollis.nft.turbo.collection.exception.CollectionErrorCode.COLLECTION_QUERY_FAIL;
 
 /**
  * 藏品服务
@@ -58,6 +63,9 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
     @Override
     public SingleResponse<CollectionVO> queryById(Long collectionId) {
         Collection collection = collectionService.queryById(collectionId);
+        if (collection == null) {
+            return SingleResponse.fail(COLLECTION_NOT_EXIST.getCode(), COLLECTION_NOT_EXIST.getMessage());
+        }
 
         InventoryRequest request = new InventoryRequest();
         request.setGoodsId(collectionId.toString());
@@ -73,7 +81,7 @@ public class CollectionReadFacadeServiceImpl implements CollectionReadFacadeServ
         CollectionVO collectionVO = CollectionConvertor.INSTANCE.mapToVo(collection);
         collectionVO.setInventory(inventory.longValue());
         collectionVO.setState(collection.getState(), collection.getSaleTime(), inventory.longValue());
-     
+
         return SingleResponse.of(collectionVO);
     }
 

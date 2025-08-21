@@ -47,6 +47,11 @@ public enum BlindBoxErrorCode implements ErrorCode {
     BLIND_BOX_ITEM_NOT_EXIST("BLIND_BOX_ITEM_NOT_EXIST", "盲盒条目不存在"),
 
     /**
+     * 盲盒不存在
+     */
+    BLIND_BOX_NOT_EXIST("BLIND_BOX_NOT_EXIST", "盲盒不存在"),
+
+    /**
      * 库存解冻失败
      */
     INVENTORY_UNFREEZE_FAILED("INVENTORY_UNFREEZE_FAILED", "库存解冻失败"),

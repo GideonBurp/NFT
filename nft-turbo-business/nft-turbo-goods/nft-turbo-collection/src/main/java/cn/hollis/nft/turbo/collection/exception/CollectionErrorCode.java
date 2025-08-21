@@ -37,6 +37,11 @@ public enum CollectionErrorCode implements ErrorCode {
      * 藏品相关错误
      */
     COLLECTION_QUERY_FAIL("COLLECTION_QUERY_FAIL", "查询藏品信息失败"),
+
+    /**
+     * 藏品不存在
+     */
+    COLLECTION_NOT_EXIST("COLLECTION_NOT_EXIST", "藏品不存在"),
     /**
      * 藏品持有相关错误
      */
