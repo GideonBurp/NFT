@@ -11,12 +11,12 @@ public enum TokenSceneEnum {
     /**
      * 下单-藏品
      */
-    BUY_COLLECTION("token:buy:clc"),
+    BUY_COLLECTION("buy"),
 
     /**
      * 下单-盲盒
      */
-    BUY_BLIND_BOX("token:buy:blb");
+    BUY_BLIND_BOX("buyBb");
 
     /**
      * 场景的值
