@@ -15,6 +15,16 @@ public enum AuthErrorCode implements ErrorCode {
     USER_STATUS_IS_NOT_ACTIVE("USER_STATUS_IS_NOT_ACTIVE", "用户状态不可用"),
 
     /**
+     * scene不合法
+     */
+    TOKEN_SCENE_NOT_EXIST("TOKEN_SCENE_NOT_EXIST", "scene不合法"),
+
+    /**
+     * token key不合法
+     */
+    TOKEN_KEY_IS_ILLEGAL("TOKEN_KEY_IS_ILLEGAL", "key不合法"),
+
+    /**
      * 验证码错误
      */
     VERIFICATION_CODE_WRONG("VERIFICATION_CODE_WRONG", "验证码错误"),

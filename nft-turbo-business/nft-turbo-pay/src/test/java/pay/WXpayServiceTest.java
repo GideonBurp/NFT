@@ -64,6 +64,13 @@ public class WXpayServiceTest extends PayBaseTest {
     }
 
     @Test
+    public void wxPayQueryTest() {
+        PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
+        wxPayChannelService.payResultQuery("1a6d94ddc7c74bc9aef82c22ce61d53c");
+        //不做assert，如果要测试，需要把微信支付相关参数修改成自己的
+    }
+
+    @Test
     public void wxRefundTest() {
         PayChannelService wxPayChannelService = payChannelServiceFactory.get(PayChannel.WECHAT);
         RefundChannelRequest refundChannelRequest = new RefundChannelRequest();
