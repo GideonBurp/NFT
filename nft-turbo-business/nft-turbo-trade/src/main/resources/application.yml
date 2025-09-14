@@ -2,7 +2,7 @@ spring:
   application:
     name: @application.name@
   config:
-    import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml
+    import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:stream.yml,classpath:limiter.yml
   cloud:
     function:
       definition: newBuy;newBuyPlus;normalBuyCancel;normalBuyPreCancel;newBuyPlusCancel;newBuyPlusPreCancel

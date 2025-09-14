@@ -93,6 +93,11 @@
             <artifactId>nft-turbo-skywalking</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-limiter</artifactId>
+        </dependency>
+
         <!--    shardingsphere和2.2不兼容，需要使用1.33，但是1.33和springboot 3.2.2 不兼容，所以自定义了 TagInspector和 UnTrustedTagInspector  -->
         <dependency>
             <groupId>org.yaml</groupId>

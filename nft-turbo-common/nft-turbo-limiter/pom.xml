@@ -33,18 +33,11 @@
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
 
-        <!-- Sentinel Spring Cloud Gateway 适配器 -->
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
-            <version>1.8.8</version> <!-- 请使用与你的 Sentinel 核心库匹配的版本 -->
-        </dependency>
-
         <!-- Sentinel Transport (用于连接 Dashboard) -->
         <dependency>
             <groupId>com.alibaba.csp</groupId>
             <artifactId>sentinel-transport-simple-http</artifactId>
-            <version>1.8.8</version>
+            <version>1.8.6</version>
         </dependency>
 
         <!-- Sentinel Datasource (使用 Nacos 存储规则) -->

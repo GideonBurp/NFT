@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${nft.turbo.sentinel.url}
+      datasource:
+        flow:
+          nacos:
+            server-addr: ${nft.turbo.nacos.server.url}
+            data-id: business-flow-rules
+            group-id: SENTINEL_GROUP
+            rule-type: FLOW
