@@ -105,16 +105,6 @@ public class TradeController {
     @Autowired
     private InventoryCheckFacadeService inventoryCheckFacadeService;
 
-    @GetMapping("/test")
-    @SentinelResource(value = "/trade/test",fallback = "fallback")
-    public String test() {
-        return "test";
-    }
-
-    public void fallback(BlockException ex) {
-        log.error("error",ex);
-    }
-
     /**
      * 预定
      *
@@ -146,6 +136,7 @@ public class TradeController {
      * @return 订单号
      */
     @PostMapping("/buy")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
@@ -173,6 +164,7 @@ public class TradeController {
      * @return 幂等号
      */
     @PostMapping("/newBuy")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateRequest orderCreateRequest = null;
 
@@ -216,6 +208,7 @@ public class TradeController {
      * @return 幂等号
      */
     @PostMapping("/newBuyPlus")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
@@ -281,6 +274,7 @@ public class TradeController {
      * @return 订单号
      */
     @PostMapping("/normalBuy")
+    @SentinelResource(value = "/trade/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);

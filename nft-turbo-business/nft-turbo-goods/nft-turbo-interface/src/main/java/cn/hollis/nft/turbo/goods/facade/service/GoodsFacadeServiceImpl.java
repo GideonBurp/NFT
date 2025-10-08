@@ -18,17 +18,18 @@ import cn.hollis.nft.turbo.box.domain.request.BlindBoxAssignRequest;
 import cn.hollis.nft.turbo.box.domain.service.BlindBoxService;
 import cn.hollis.nft.turbo.box.infrastructure.mapper.BlindBoxInventoryStreamMapper;
 import cn.hollis.nft.turbo.collection.domain.entity.CollectionInventoryStream;
-import cn.hollis.nft.turbo.collection.domain.entity.CollectionStream;
 import cn.hollis.nft.turbo.collection.domain.entity.HeldCollection;
 import cn.hollis.nft.turbo.collection.domain.request.HeldCollectionCreateRequest;
 import cn.hollis.nft.turbo.collection.domain.service.CollectionService;
 import cn.hollis.nft.turbo.collection.domain.service.impl.HeldCollectionService;
 import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionInventoryStreamMapper;
-import cn.hollis.nft.turbo.collection.infrastructure.mapper.CollectionStreamMapper;
 import cn.hollis.nft.turbo.goods.entity.convertor.GoodsStreamConvertor;
 import cn.hollis.nft.turbo.goods.service.GoodsBookService;
 import cn.hollis.nft.turbo.goods.service.HotGoodsService;
 import cn.hollis.nft.turbo.rpc.facade.Facade;
+import com.alibaba.csp.sentinel.EntryType;
+import com.alibaba.csp.sentinel.SphO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import java.util.List;
  * @author Hollis
  */
 @DubboService(version = "1.0.0")
+@Slf4j
 public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     private static final String ERROR_CODE_UNSUPPORTED_GOODS_TYPE = "UNSUPPORTED_GOODS_TYPE";
@@ -113,35 +115,53 @@ public class GoodsFacadeServiceImpl implements GoodsFacadeService {
 
     @Override
     public GoodsSaleResponse sale(GoodsSaleRequest request) {
-        GoodsTrySaleRequest goodsTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
-        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
-
-        Boolean trySaleResult = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
-            case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
-            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
-        };
-
         GoodsSaleResponse response = new GoodsSaleResponse();
-        response.setSuccess(trySaleResult);
-        return response;
+        if (SphO.entry("GOODS_SALE", EntryType.IN, 1, request.getGoodsId() + "_" + request.getGoodsType())) {
+            try {
+                GoodsTrySaleRequest goodsTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
+                GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+                Boolean trySaleResult = switch (goodsType) {
+                    case BLIND_BOX -> blindBoxService.sale(goodsTrySaleRequest);
+                    case COLLECTION -> collectionService.sale(goodsTrySaleRequest);
+                    default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
+                };
+                response.setSuccess(trySaleResult);
+                return response;
+            } finally {
+                SphO.exit();
+            }
+        } else {
+            log.warn("GOODS_SALE 触发限流...");
+            response.setSuccess(false);
+            return response;
+        }
     }
 
     @Override
     public GoodsSaleResponse saleWithoutHint(GoodsSaleRequest request) {
-        GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
-
-        GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
-
-        Boolean trySaleResult = switch (goodsType) {
-            case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
-            case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
-            default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
-        };
-
         GoodsSaleResponse response = new GoodsSaleResponse();
-        response.setSuccess(trySaleResult);
-        return response;
+        if (SphO.entry("GOODS_SALE", EntryType.IN, 1, request.getGoodsId() + "_" + request.getGoodsType())) {
+            try {
+                GoodsTrySaleRequest collectionTrySaleRequest = new GoodsTrySaleRequest(request.getIdentifier(), request.getGoodsId(), request.getQuantity());
+
+                GoodsType goodsType = GoodsType.valueOf(request.getGoodsType());
+
+                Boolean trySaleResult = switch (goodsType) {
+                    case BLIND_BOX -> blindBoxService.saleWithoutHint(collectionTrySaleRequest);
+                    case COLLECTION -> collectionService.saleWithoutHint(collectionTrySaleRequest);
+                    default -> throw new UnsupportedOperationException(ERROR_CODE_UNSUPPORTED_GOODS_TYPE);
+                };
+                response.setSuccess(trySaleResult);
+                return response;
+            } finally {
+                SphO.exit();
+            }
+        } else {
+            log.warn("GOODS_SALE 触发限流...");
+            response.setSuccess(false);
+            return response;
+        }
     }
 
 
