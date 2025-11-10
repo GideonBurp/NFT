@@ -42,6 +42,10 @@ import cn.hollis.nft.turbo.trade.param.CancelParam;
 import cn.hollis.nft.turbo.trade.param.PayParam;
 import cn.hollis.nft.turbo.web.vo.Result;
 import cn.hollis.turbo.stream.producer.StreamProducer;
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.validation.Valid;
@@ -49,10 +53,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -135,6 +136,7 @@ public class TradeController {
      * @return 订单号
      */
     @PostMapping("/buy")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> buy(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateRequest orderCreateRequest = getOrderCreateRequest(buyParam);
@@ -162,6 +164,7 @@ public class TradeController {
      * @return 幂等号
      */
     @PostMapping("/newBuy")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> newBuy(@Valid @RequestBody BuyParam buyParam) {
         OrderCreateRequest orderCreateRequest = null;
 
@@ -205,6 +208,7 @@ public class TradeController {
      * @return 幂等号
      */
     @PostMapping("/newBuyPlus")
+    @SentinelResource(value = "/trade/buy")
     public Result<String> newBuyPlus(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);
@@ -270,6 +274,7 @@ public class TradeController {
      * @return 订单号
      */
     @PostMapping("/normalBuy")
+    @SentinelResource(value = "/trade/normalBuy")
     public Result<String> normalBuy(@Valid @RequestBody BuyParam buyParam) {
         try {
             OrderCreateAndConfirmRequest orderCreateAndConfirmRequest = getOrderCreateAndConfirmRequest(buyParam);

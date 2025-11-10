@@ -28,12 +28,9 @@
         </dependency>
 
         <!--    Sentinel    -->
-
-        <!-- Sentinel Spring Cloud Gateway 适配器 -->
         <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
-            <version>1.8.6</version> <!-- 请使用与你的 Sentinel 核心库匹配的版本 -->
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
         </dependency>
 
         <!-- Sentinel Transport (用于连接 Dashboard) -->
@@ -60,6 +57,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
         </dependency>
 
     </dependencies>

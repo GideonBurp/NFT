@@ -23,6 +23,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -31,6 +32,11 @@
         <dependency>
             <groupId>cn.hollis</groupId>
             <artifactId>nft-turbo-base</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hollis</groupId>
+            <artifactId>nft-turbo-limiter</artifactId>
         </dependency>
 
         <dependency>
