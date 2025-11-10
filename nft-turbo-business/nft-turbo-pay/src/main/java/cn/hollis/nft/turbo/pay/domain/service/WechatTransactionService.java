@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WechatTransactionService extends ServiceImpl<WechatTransactionMapper, WechatTransaction> {
-    private static final Logger logger = LoggerFactory.getLogger(PayOrderService.class);
+    private static final Logger logger = LoggerFactory.getLogger(WechatTransactionService.class);
 
     @Autowired
     private WechatTransactionMapper wechatTransactionMapper;
