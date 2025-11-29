@@ -133,6 +133,7 @@ public class PayDetailCheckJob {
         if (payCheckMismatchDetail != null) {
             boolean result = false;
             try {
+                //幂等，这里用的是一个简单的幂等方案，基于数据库的唯一性索引来做的。
                 result = payCheckMismatchDetailService.save(payCheckMismatchDetail);
             } catch (DuplicateKeyException e) {
                 PayCheckMismatchDetail existPayCheckMismatchDetail = payCheckMismatchDetailService.getOne(new QueryWrapper<PayCheckMismatchDetail>().eq("pay_order_id", payOrder.getPayOrderId()));
@@ -172,8 +173,9 @@ public class PayDetailCheckJob {
 
 
         QueryWrapper<WechatTransaction> wrapper = new QueryWrapper<>();
-        wrapper.ge("date", org.apache.commons.lang3.time.DateUtils.truncate(billDate, Calendar.DATE));
-        wrapper.lt("date", org.apache.commons.lang3.time.DateUtils.truncate(org.apache.commons.lang3.time.DateUtils.addDays(billDate, 1), Calendar.DATE));
+        wrapper.ge("date", DateUtils.truncate(billDate, Calendar.DATE));
+        wrapper.lt("date", DateUtils.truncate(DateUtils.addDays(billDate, 1), Calendar.DATE));
+        wrapper.eq("type", "SUCCESS");
         wrapper.orderBy(true, true, "gmt_create");
 
         Page<WechatTransaction> wechatTransactionPage = wechatTransactionService.page(new Page<>(currentPage, PAGE_SIZE), wrapper);
@@ -197,12 +199,13 @@ public class PayDetailCheckJob {
 
         PayCheckMismatchDetail payCheckMismatchDetail = null;
 
-        //我们有，渠道侧没有
+        //渠道侧有，我们没有
         if (payOrder == null) {
             payCheckMismatchDetail = PayCheckMismatchDetail.build(wechatTransaction);
         }
-        //渠道成功了，但是我们的状态未成功
-        else if (payOrder.getOrderState() != PayOrderState.PAID) {
+
+        //渠道成功了，但是我们的状态处于支付中
+        else if (payOrder.getOrderState() == PayOrderState.PAYING) {
             //以渠道侧为准，把我们自己的单据状态做推进
             //失败也没关系，我们还有个PayDetailCheckJob也在不断做这个事儿。
             Thread.ofVirtual().start(() -> {
@@ -214,6 +217,8 @@ public class PayDetailCheckJob {
                 paySuccessEvent.setPayChannel(payOrder.getPayChannel());
                 payApplicationService.paySuccess(paySuccessEvent);
             });
+        } else if (payOrder.getOrderState() != PayOrderState.PAID) {
+            payCheckMismatchDetail = PayCheckMismatchDetail.build(payOrder, wechatTransaction, PayCheckMismatchType.PAY_ORDER_STATUS_NOT_SUCCESS);
         }
 
         //我们的金额和渠道侧不一致
