@@ -30,4 +30,4 @@ spring:
           group: new-buy-plus-group
           binder: rocketmq
 server:
-  port: 8099
+  port: 8499

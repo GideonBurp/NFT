@@ -1,6 +1,6 @@
 spring:
   application:
-    name: @application.name@
+    name: nft-turbo-gateway
   config:
     import: classpath:base.yml,classpath:cache.yml,classpath:config.yml
   cloud:
@@ -24,12 +24,12 @@ spring:
             allowedMethods: '*'
             allowedOrigins: '*'
       routes:
-        - id: nfturbo-auth
-          uri: lb://nfturbo-auth
+        - id: nft-turbo-auth
+          uri: lb://nft-turbo-auth
           predicates:
             - Path=/auth/**,/token/**
-        - id: nfturbo-business
-          uri: lb://nfturbo-business
+        - id: nft-turbo-business
+          uri: lb://nft-turbo-business
           predicates:
             - Path=/trade/**,/order/**,/user/**,/collection/**,/wxPay/**,/box/**
 #        - id: nfturbo-collection
@@ -53,4 +53,4 @@ spring:
 #          predicates:
 #            - Path=/wxPay/**
 server:
-  port: 8081
+  port: 8481

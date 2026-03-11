@@ -1,11 +1,11 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   application:
     name: @application.name@
   config:
     import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml,classpath:limiter.yml  #这里爆红可以直接忽略，没有任何影响
 
 server:
-  port: 8087
+  port: 8487
 

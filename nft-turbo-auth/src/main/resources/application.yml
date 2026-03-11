@@ -1,6 +1,6 @@
 spring:
   application:
-    name: @application.name@
+    name: nft-turbo-auth
   config:
     import: classpath:base.yml,classpath:rpc.yml,classpath:cache.yml   #这里爆红可以直接忽略，没有任何影响
 
@@ -21,7 +21,7 @@ sa-token:
   is-log: true
 
 server:
-  port: 8082
+  port: 8479
 
 dubbo:
   application:

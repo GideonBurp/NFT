@@ -75,7 +75,7 @@ spring:
           binder: rocketmq
 
 server:
-  port: 8084
+  port: 8484
 
 #dubbo:
 #  # 关闭启动时检查

@@ -77,7 +77,7 @@ spring:
             type: DML_SHARDING_CONDITIONS
 
 server:
-  port: 9000
+  port: 9400
 
 
 seata:

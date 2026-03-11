@@ -1,5 +1,5 @@
 spring:
   application:
-    name: @application.name@
+    name: nft-turbo-gateway
   config:
     import: classpath:base.yml,classpath:config.yml

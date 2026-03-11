@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   application:
     name: @application.name@
   config:
@@ -17,5 +17,5 @@ spring:
           binder: rocketmq
 
 server:
-  port: 8090
+  port: 8490
 

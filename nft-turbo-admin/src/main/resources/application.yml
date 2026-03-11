@@ -21,7 +21,7 @@ sa-token:
   is-log: true
 
 server:
-  port: 9001
+  port: 9401
 
 dubbo:
   application:
