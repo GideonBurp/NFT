@@ -112,7 +112,7 @@ public class UserAdminController {
         return Result.success(true);
     }
 
-    @PostMapping("/freeze")
+    @GetMapping("/freeze")
     public Result<UserOperatorResponse> freeze(@Valid Long userId) {
         String adminUserId = (String) StpUtil.getLoginId();
         //查询用户信息
@@ -131,7 +131,7 @@ public class UserAdminController {
         return Result.success(res);
     }
 
-    @PostMapping("/unfreeze")
+    @GetMapping("/unfreeze")
     public Result<UserOperatorResponse> unfreeze(@Valid Long userId) {
         String adminUserId = (String) StpUtil.getLoginId();
         //查询用户信息
