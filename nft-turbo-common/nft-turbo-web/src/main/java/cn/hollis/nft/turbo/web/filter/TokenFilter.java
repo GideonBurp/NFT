@@ -78,6 +78,8 @@ public class TokenFilter implements Filter {
 
     /**
      * <p>
+     *
+     *     因为是lua脚本操作, 所以是原子性的, 攻击者使用相同token, 也只会有一个请求落到对应服务
      * 1、把加密后的token解密
      * 2、把加密后的token的value转成key
      * 3、去redis按照key查询并且判断value是否一致
