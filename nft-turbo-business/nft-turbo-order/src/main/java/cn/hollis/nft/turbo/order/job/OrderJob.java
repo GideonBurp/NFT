@@ -64,6 +64,56 @@ public class OrderJob {
 
     private static final TradeOrder POISON = new TradeOrder();
 
+    /**
+     * 少数用户下单特别多，会不会出现数据倾斜？
+     * 是的，风险非常高（这也是当前方案的最大隐患）。
+     * 原因：
+     *
+     * 分片键本质上是 user_id % 100（尾号）。
+     * 同一个用户的所有订单永远落在同一个分片。
+     * 如果有 1~2 个“热点用户”（大客户、活动用户、机构账号）下单量极大（例如一个用户有几十万笔待关单），则负责该尾号的分片机器会承担远超平均的负载。
+     * 结果：集群中个别机器 CPU/数据库压力极高，其他机器基本空闲，整个关单任务被“最慢的那台机器”拖累。
+     *
+     * 这属于典型的热点分片问题，与您之前担心的“个别几台机器的数据倾斜”完全一致。
+     */
+    /**
+     * 解决方案
+     * 方案 A（最推荐）：改用哈希取模（支持 UUID + 防倾斜）
+     *
+     * 对 user_id 做高质量哈希后再取模。
+     * 即使是 UUID 也完全适用，且热点用户会被均匀打散。
+     * 倾斜概率大幅降低。
+     *
+     * 方案 B：按时间范围分片（最适合“关单”场景）
+     *
+     * 不按 user_id 分片，而是按 expire_time 分段（例如每 5 分钟一个分片）。
+     * 这符合“超时关单”的时间驱动本质，避免用户维度的倾斜。
+     *
+     * 方案 C：复合分片（终极方案）
+     *
+     * 同时用 user_id 哈希 + 时间范围 双维度分片
+     *
+     * 我们把分片键设计为 二维组合：
+     *      伪尾号 = (CRC32(buyer_id) % 10) * 10 + (UNIX_TIMESTAMP(expire_time) DIV 60 % 10)
+     *      第一维：CRC32(buyer_id) % 10 → 把用户均匀打散到 0~9（解决“少数用户下单特别多”的热点）
+     *      第二维：(UNIX_TIMESTAMP(expire_time) DIV 60 % 10) → 按分钟取模，把同一分钟的订单打散到 0~9（解决“同一时间大量订单到期”的时间热点）
+     *      最终伪尾号：0~99（与您当前 MAX_TAIL_NUMBER = 99 完全兼容）
+     *
+     *  <select id="pageQueryTimeoutOrdersByComposite" resultType="Order">
+     *     SELECT * FROM pay_order
+     *     WHERE status = 'PENDING'
+     *       AND expire_time < NOW()
+     *       AND lock_version = 0
+     *
+     *       -- 复合分片条件（核心）
+     *       AND (CRC32(buyer_id) % 10 * 10 +
+     *            (UNIX_TIMESTAMP(expire_time) DIV 60 % 10))
+     *           = #{tailNumber}
+     *
+     *     ORDER BY expire_time ASC
+     *     LIMIT #{offset}, #{pageSize}
+     * </select>
+     */
     private static int MAX_TAIL_NUMBER = 99;
 
     @XxlJob("orderTimeOutExecute")
