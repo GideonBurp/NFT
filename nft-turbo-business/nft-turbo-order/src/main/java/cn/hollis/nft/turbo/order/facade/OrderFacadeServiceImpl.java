@@ -176,6 +176,8 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
     private OrderResponse sendTransactionMsgForClose(BaseOrderUpdateRequest request) {
         //因为RocketMQ 的事务消息中，如果本地事务发生了异常，这里返回也会是个 true，所以就需要做一下反查进行二次判断，才能知道关单操作是否成功
         //消息监听：TradeOrderListener
+        //此处事务是同步的, 先把消息投进队列, 执行事务逻辑 -> 同步执行本地的事务消息逻辑OrderCloseTransactionListener.executeLocalTransaction
+        //在把消息投进队列中，再执行异步逻辑 -> cn.hollis.nft.turbo.trade.listener.TradeOrderListener.orderClose()
         streamProducer.send("orderClose-out-0", null, JSON.toJSONString(request), "CLOSE_TYPE", request.getOrderEvent().name());
         TradeOrder tradeOrder = orderReadService.getOrder(request.getOrderId());
         OrderResponse orderResponse = new OrderResponse();
