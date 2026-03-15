@@ -150,7 +150,7 @@ public class TradeOrder extends BaseEntity {
      */
     private Integer snapshotVersion;
 
-    @JSONField(serialize = false)
+    @JSONField(serialize = false) // 不序列化,因为fastjson会扫包, isxxx,setxxx,getxxx等符合javabean规范的会被序列化
     public Boolean isPaid() {
         return orderState == TradeOrderState.FINISH || orderState == TradeOrderState.PAID;
     }
