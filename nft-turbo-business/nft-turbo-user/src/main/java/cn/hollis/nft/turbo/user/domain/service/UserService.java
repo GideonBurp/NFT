@@ -377,6 +377,9 @@ public class UserService extends ServiceImpl<UserMapper, User> implements Initia
     /**
      * 通过用户ID查询用户信息
      *
+     * 因为用户是基础服务, 很多上游服务都会来调用这里, 所以使用缓存.
+     * 但是不用其实关系也不大, 因为本身并发不高, 而且用户数量不多
+     *
      * @param userId
      * @return
      */
