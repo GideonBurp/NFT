@@ -195,6 +195,9 @@ public class TradeOrder extends BaseEntity {
     }
 
     public TradeOrder paySuccess(OrderPayRequest request) {
+        //为什么订单也要记录支付渠道和流水号
+        //因为在极端情况下, 一个订单可能被多个支付渠道支付
+        //所以也算一个幂等判断
         this.setPayStreamId(request.getPayStreamId());
         this.setPaySucceedTime(request.getOperateTime());
         this.setPayChannel(request.getPayChannel());

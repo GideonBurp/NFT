@@ -257,7 +257,7 @@ public abstract class AbstractInventoryRedisService implements InventoryService 
             inventoryResponse.setIdentifier(request.getIdentifier());
             if (e.getMessage().startsWith(ERROR_CODE_KEY_NOT_FOUND)) {
                 inventoryResponse.setResponseCode(ERROR_CODE_KEY_NOT_FOUND);
-            } else if (e.getMessage().startsWith(ERROR_CODE_OPERATION_ALREADY_EXECUTED)) {
+            } else if (e.getMessage().startsWith(ERROR_CODE_OPERATION_ALREADY_EXECUTED) || e.getMessage().startsWith("ERR " + ERROR_CODE_INVENTORY_NOT_ENOUGH)) {
                 inventoryResponse.setResponseCode(ERROR_CODE_OPERATION_ALREADY_EXECUTED);
                 inventoryResponse.setSuccess(true);
             } else {
