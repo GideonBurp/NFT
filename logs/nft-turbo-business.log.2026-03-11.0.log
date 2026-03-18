@@ -1,0 +1,79 @@
+2026-03-11 00:37:00.721 [TID: N/A] ERROR [xxl-job, executor ExecutorRegistryThread] c.x.job.core.util.XxlJobRemotingUtil - Read timed out
+java.net.SocketTimeoutException: Read timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedRead(NioSocketImpl.java:278)
+	at java.base/sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:304)
+	at java.base/sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:346)
+	at java.base/sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:796)
+	at java.base/java.net.Socket$SocketInputStream.read(Socket.java:1099)
+	at java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:291)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:347)
+	at java.base/java.io.BufferedInputStream.implRead(BufferedInputStream.java:420)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:399)
+	at java.base/sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:827)
+	at java.base/sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:759)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1720)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1629)
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:531)
+	at com.xxl.job.core.util.XxlJobRemotingUtil.postBody(XxlJobRemotingUtil.java:119)
+	at com.xxl.job.core.biz.client.AdminBizClient.registry(AdminBizClient.java:42)
+	at com.xxl.job.core.thread.ExecutorRegistryThread$1.run(ExecutorRegistryThread.java:48)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-03-11 00:37:24.681 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Retrograde clock change detected (housekeeper delta=29s856ms), soft-evicting connections from pool.
+2026-03-11 03:15:54.515 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=58s368ms).
+2026-03-11 03:31:54.486 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m29s932ms).
+2026-03-11 04:21:57.065 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m2s115ms).
+2026-03-11 04:38:41.619 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m14s528ms).
+2026-03-11 04:58:49.197 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m37s489ms).
+2026-03-11 05:16:18.819 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=14m59s576ms).
+2026-03-11 06:38:57.356 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m7s298ms).
+2026-03-11 06:58:21.980 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m54s583ms).
+2026-03-11 07:15:51.509 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m29s510ms).
+2026-03-11 07:32:48.304 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m26s797ms).
+2026-03-11 08:40:17.187 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m58s53ms).
+2026-03-11 08:40:24.290 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5955] c.a.n.c.r.client.grpc.GrpcClient - [1773152268437_172.22.0.1_55828]Request stream onCompleted, switch server
+2026-03-11 08:40:24.376 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5969] c.a.n.c.r.client.grpc.GrpcClient - [1773152272554_172.22.0.1_38674]Request stream onCompleted, switch server
+2026-03-11 08:40:24.385 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5971] c.a.n.c.r.client.grpc.GrpcClient - [1773152286132_172.22.0.1_54850]Request stream onCompleted, switch server
+2026-03-11 08:40:24.409 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5952] c.a.n.c.r.client.grpc.GrpcClient - [1773152272293_172.22.0.1_38666]Request stream onCompleted, switch server
+2026-03-11 08:40:24.493 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5928] c.a.n.c.r.client.grpc.GrpcClient - [1773152285986_172.22.0.1_54840]Request stream onCompleted, switch server
+2026-03-11 08:56:48.344 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m1s158ms).
+2026-03-11 09:16:07.618 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m19s227ms).
+2026-03-11 09:32:55.047 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m17s411ms).
+2026-03-11 09:51:25.481 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m394ms).
+2026-03-11 10:07:53.092 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m57s607ms).
+2026-03-11 10:17:37.656 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=8m14s530ms).
+2026-03-11 10:36:16.687 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m8s990ms).
+2026-03-11 10:36:23.875 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6112] c.a.n.c.r.client.grpc.GrpcClient - [1773152263780_172.22.0.1_55820]Request stream onCompleted, switch server
+2026-03-11 10:36:23.892 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6131] c.a.n.c.r.client.grpc.GrpcClient - [1773189624492_172.22.0.1_56800]Request stream onCompleted, switch server
+2026-03-11 10:36:23.917 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6138] c.a.n.c.r.client.grpc.GrpcClient - [1773189624390_172.22.0.1_56782]Request stream onCompleted, switch server
+2026-03-11 10:36:23.928 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5950] c.a.n.c.r.client.grpc.GrpcClient - [1773152288162_172.22.0.1_54880]Request stream onCompleted, switch server
+2026-03-11 10:36:23.940 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6023] c.a.n.c.r.client.grpc.GrpcClient - [1773152288266_172.22.0.1_54890]Request stream onCompleted, switch server
+2026-03-11 10:36:23.949 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6153] c.a.n.c.r.client.grpc.GrpcClient - [1773189624460_172.22.0.1_56790]Request stream onCompleted, switch server
+2026-03-11 10:36:23.985 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - Grpc connection disconnect, mark to redo
+2026-03-11 10:36:23.988 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - mark to redo completed
+2026-03-11 10:36:24.020 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-5984] c.a.n.c.r.client.grpc.GrpcClient - [1773152286336_172.22.0.1_54864]Request stream onCompleted, switch server
+2026-03-11 10:36:24.077 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - Grpc connection disconnect, mark to redo
+2026-03-11 10:36:24.077 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - mark to redo completed
+2026-03-11 10:36:24.179 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - Grpc connection disconnect, mark to redo
+2026-03-11 10:36:24.179 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - mark to redo completed
+2026-03-11 10:36:24.202 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - Grpc connection disconnect, mark to redo
+2026-03-11 10:36:24.202 [TID: N/A] WARN  [com.alibaba.nacos.client.remote.worker.0] com.alibaba.nacos.client.naming - mark to redo completed
+2026-03-11 10:36:24.205 [TID: N/A] WARN  [nacos-grpc-client-executor-192.168.8.5-5970] c.a.n.c.r.client.grpc.GrpcClient - [1773196584159_172.22.0.1_38976]Ignore error event,isRunning:true,isAbandon=true
+2026-03-11 10:56:30.660 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m13s913ms).
+2026-03-11 10:56:37.299 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6150] c.a.n.c.r.client.grpc.GrpcClient - [1773189624522_172.22.0.1_56814]Request stream onCompleted, switch server
+2026-03-11 11:14:49.928 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m49s234ms).
+2026-03-11 11:18:36.205 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m16s256ms).
+2026-03-11 11:38:39.934 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m33s691ms).
+2026-03-11 11:54:47.127 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m37s184ms).
+2026-03-11 12:14:14.550 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m27s340ms).
+2026-03-11 12:19:37.260 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m22s666ms).
+2026-03-11 12:36:18.312 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m41s31ms).
+2026-03-11 12:55:33.026 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m44s675ms).
+2026-03-11 13:15:01.894 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m28s814ms).
+2026-03-11 13:20:36.624 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=5m4s697ms).
+2026-03-11 13:25:22.447 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m45s802ms).
+2026-03-11 13:44:18.188 [TID: N/A] WARN  [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m55s687ms).
+2026-03-11 13:44:25.697 [TID: N/A] ERROR [nacos-grpc-client-executor-192.168.8.5-6558] c.a.n.c.r.client.grpc.GrpcClient - [1773196583935_172.22.0.1_38934]Request stream onCompleted, switch server
+2026-03-11 14:29:43.295 [TID: N/A] WARN  [Thread-5] c.a.n.c.http.HttpClientBeanHolder - [HttpClientBeanHolder] Start destroying common HttpClient
+2026-03-11 14:29:43.295 [TID: N/A] WARN  [Thread-7] c.a.nacos.common.notify.NotifyCenter - [NotifyCenter] Start destroying Publisher
+2026-03-11 14:29:43.296 [TID: N/A] WARN  [Thread-7] c.a.nacos.common.notify.NotifyCenter - [NotifyCenter] Destruction of the end
+2026-03-11 14:29:43.314 [TID: N/A] WARN  [Thread-5] c.a.n.c.http.HttpClientBeanHolder - [HttpClientBeanHolder] Destruction of the end

@@ -1,0 +1,83 @@
+services:
+  nft-turbo-gateway:
+    image: nft-turbo-gateway
+    # 容器名称
+    container_name: nft-turbo-gateway
+    # 端口映射：宿主机8080 → 容器8080
+    ports:
+      - "8481:8481"
+    # 环境变量（覆盖Dockerfile中的JAVA_OPTS，可选）
+    environment:
+      - TZ=Asia/Shanghai
+      # - NFT_TURBO_SENTINEL_URL=192.168.8.5:8099
+      # - NFT_TURBO_NACOS_SERVER_URL=192.168.8.5:8848
+      - HOST_IP=192.168.8.5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'        # 限制1个CPU核心
+          memory: 500m       # 限制1G内存
+    # 重启策略（生产级：容器崩溃/Docker重启都自动重启）
+    restart: always
+  nft-turbo-auth:
+    image: nft-turbo-auth
+    # 容器名称
+    container_name: nft-turbo-auth
+    # 端口映射：宿主机8080 → 容器8080
+    ports:
+      - "8479:8479"
+    # 环境变量（覆盖Dockerfile中的JAVA_OPTS，可选）
+    environment:
+      - TZ=Asia/Shanghai
+      # - NFT_TURBO_SENTINEL_URL=192.168.8.5:8099
+      # - NFT_TURBO_NACOS_SERVER_URL=192.168.8.5:8848
+      - HOST_IP=192.168.8.5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'        # 限制1个CPU核心
+          memory: 500m       # 限制1G内存
+    # 重启策略（生产级：容器崩溃/Docker重启都自动重启）
+    restart: always
+  nft-turbo-notice:
+    image: nft-turbo-notice
+    # 容器名称
+    container_name: nft-turbo-notice
+    # 端口映射：宿主机8080 → 容器8080
+    ports:
+      - "8089:8089"
+    # 环境变量（覆盖Dockerfile中的JAVA_OPTS，可选）
+    environment:
+      - TZ=Asia/Shanghai
+      # - NFT_TURBO_SENTINEL_URL=192.168.8.5:8099
+      # - NFT_TURBO_NACOS_SERVER_URL=192.168.8.5:8848
+      - HOST_IP=192.168.8.5
+      - DUBBO_IP_TO_REGISTRY=192.168.8.5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'        # 限制1个CPU核心
+          memory: 500m       # 限制1G内存
+    # 重启策略（生产级：容器崩溃/Docker重启都自动重启）
+    restart: always
+  nft-turbo-user:
+    image: nft-turbo-user
+    # 容器名称
+    container_name: nft-turbo-user
+    # 端口映射：宿主机8080 → 容器8080
+    ports:
+      - "8083:8083"
+    # 环境变量（覆盖Dockerfile中的JAVA_OPTS，可选）
+    environment:
+      - TZ=Asia/Shanghai
+      # - NFT_TURBO_SENTINEL_URL=192.168.8.5:8099
+      # - NFT_TURBO_NACOS_SERVER_URL=192.168.8.5:8848
+      - HOST_IP=192.168.8.5
+      - DUBBO_IP_TO_REGISTRY=192.168.8.5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'        # 限制1个CPU核心
+          memory: 500m       # 限制1G内存
+    # 重启策略（生产级：容器崩溃/Docker重启都自动重启）
+    restart: always

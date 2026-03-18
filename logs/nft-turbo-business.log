@@ -1,0 +1,18 @@
+2026-03-18 00:32:48.004 [TID: N/A] WARN  [Thread-7] c.a.nacos.common.notify.NotifyCenter - [NotifyCenter] Start destroying Publisher
+2026-03-18 00:32:48.007 [TID: N/A] WARN  [Thread-7] c.a.nacos.common.notify.NotifyCenter - [NotifyCenter] Destruction of the end
+2026-03-18 00:32:48.016 [TID: N/A] WARN  [Thread-5] c.a.n.c.http.HttpClientBeanHolder - [HttpClientBeanHolder] Start destroying common HttpClient
+2026-03-18 00:32:48.061 [TID: N/A] WARN  [Thread-5] c.a.n.c.http.HttpClientBeanHolder - [HttpClientBeanHolder] Destruction of the end
+2026-03-18 00:32:49.949 [TID: N/A] WARN  [Dubbo-framework-registry-notification-0-thread-1] o.a.d.registry.nacos.NacosRegistry -  [DUBBO] Received empty url address list and empty protection is disabled, will clear current available addresses, dubbo version: 3.2.10, current host: 192.168.8.5, error code: 1-37. This may be caused by , go to https://dubbo.apache.org/faq/1/37 to find instructions. 
+2026-03-18 00:32:50.099 [TID: N/A] WARN  [NettyServerWorker-12-1] o.a.d.r.transport.AbstractServer -  [DUBBO] All clients has disconnected from /192.168.8.5:20880. You can graceful shutdown now., dubbo version: 3.2.10, current host: 192.168.8.5, error code: 99-0. This may be caused by unknown error in remoting module, go to https://dubbo.apache.org/faq/99/0 to find instructions. 
+2026-03-18 00:32:52.191 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Start destroying NacosRestTemplate
+2026-03-18 00:32:52.191 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Destruction of the end
+2026-03-18 00:32:52.191 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Start destroying NacosRestTemplate
+2026-03-18 00:32:52.191 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Destruction of the end
+2026-03-18 00:32:52.201 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Start destroying NacosRestTemplate
+2026-03-18 00:32:52.201 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Destruction of the end
+2026-03-18 00:32:52.201 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Start destroying NacosRestTemplate
+2026-03-18 00:32:52.201 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Destruction of the end
+2026-03-18 00:32:56.109 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Start destroying NacosRestTemplate
+2026-03-18 00:32:56.109 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Destruction of the end
+2026-03-18 00:32:56.109 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Start destroying NacosRestTemplate
+2026-03-18 00:32:56.110 [TID: N/A] WARN  [SpringContextShutdownHook] com.alibaba.nacos.client.naming - [NamingHttpClientManager] Destruction of the end

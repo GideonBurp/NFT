@@ -1,0 +1,245 @@
+package cn.gideon.nft.turbo.order.facade;
+
+import cn.gideon.nft.turbo.api.goods.request.GoodsSaleRequest;
+import cn.gideon.nft.turbo.api.goods.response.GoodsSaleResponse;
+import cn.gideon.nft.turbo.api.goods.service.GoodsFacadeService;
+import cn.gideon.nft.turbo.api.inventory.request.InventoryRequest;
+import cn.gideon.nft.turbo.api.inventory.service.InventoryFacadeService;
+import cn.gideon.nft.turbo.api.order.OrderFacadeService;
+import cn.gideon.nft.turbo.api.order.constant.OrderErrorCode;
+import cn.gideon.nft.turbo.api.order.model.TradeOrderVO;
+import cn.gideon.nft.turbo.api.order.request.*;
+import cn.gideon.nft.turbo.api.order.response.OrderResponse;
+import cn.gideon.nft.turbo.api.user.constant.UserType;
+import cn.gideon.nft.turbo.api.user.request.UserQueryRequest;
+import cn.gideon.nft.turbo.api.user.response.UserQueryResponse;
+import cn.gideon.nft.turbo.api.user.response.data.UserInfo;
+import cn.gideon.nft.turbo.api.user.service.UserFacadeService;
+import cn.gideon.nft.turbo.base.exception.SystemException;
+import cn.gideon.nft.turbo.base.response.BaseResponse;
+import cn.gideon.nft.turbo.base.response.PageResponse;
+import cn.gideon.nft.turbo.base.response.SingleResponse;
+import cn.gideon.nft.turbo.lock.DistributeLock;
+import cn.gideon.nft.turbo.order.OrderException;
+import cn.gideon.nft.turbo.order.domain.entity.TradeOrder;
+import cn.gideon.nft.turbo.order.domain.entity.convertor.TradeOrderConvertor;
+import cn.gideon.nft.turbo.order.domain.service.OrderManageService;
+import cn.gideon.nft.turbo.order.domain.service.OrderReadService;
+import cn.gideon.nft.turbo.order.validator.OrderCreateValidator;
+import cn.gideon.nft.turbo.rpc.facade.Facade;
+import cn.gideon.turbo.stream.producer.StreamProducer;
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.dubbo.config.annotation.DubboService;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import static cn.gideon.nft.turbo.api.order.constant.OrderErrorCode.ORDER_CREATE_VALID_FAILED;
+import static cn.gideon.nft.turbo.base.exception.BlockErrorCode.REQUEST_IS_BLOCKED;
+
+/**
+ * @author Gideon
+ */
+@DubboService(version = "1.0.0")
+public class OrderFacadeServiceImpl implements OrderFacadeService {
+
+    @Autowired
+    private OrderManageService orderService;
+
+    @Autowired
+    private OrderReadService orderReadService;
+
+    @Autowired
+    private InventoryFacadeService inventoryFacadeService;
+
+    @Autowired
+    private StreamProducer streamProducer;
+
+    @Autowired
+    private UserFacadeService userFacadeService;
+
+    @Autowired
+    private GoodsFacadeService goodsFacadeService;
+
+    @Autowired
+    private OrderCreateValidator orderValidatorChain;
+
+    @Autowired
+    private OrderCreateValidator orderConfirmValidatorChain;
+
+    @Autowired
+    private ThreadPoolExecutor newBuyConsumePool;
+
+    public void setPool(int core, int max) {
+        try (Entry entry = SphU.entry("testSphU")) {
+            // 被保护的业务逻辑
+            // do something here...
+            newBuyConsumePool.setMaximumPoolSize(max);
+            newBuyConsumePool.setCorePoolSize(core);
+        } catch (BlockException ex) {
+            // 资源访问阻止，被限流或被降级
+            // 在此处进行相应的处理操作
+
+        }
+    }
+
+    @Override
+    @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
+    @Facade
+    public OrderResponse create(OrderCreateRequest request) {
+
+        try (Entry entry = SphU.entry("ORDER_CREATE")) {
+            try {
+                orderValidatorChain.validate(request);
+            } catch (OrderException e) {
+                return new OrderResponse.OrderResponseBuilder().buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
+            }
+
+            InventoryRequest inventoryRequest = new InventoryRequest(request);
+            SingleResponse<Boolean> decreaseResult = inventoryFacadeService.decrease(inventoryRequest);
+
+            if (decreaseResult.getSuccess()) {
+                return orderService.createAndAsyncConfirm(request);
+            }
+            throw new OrderException(OrderErrorCode.INVENTORY_DECREASE_FAILED);
+
+        } catch (BlockException e) {
+            // 限流、熔断、降级的处理逻辑
+            throw new SystemException(REQUEST_IS_BLOCKED);
+        }
+
+    }
+
+    @Override
+    @Facade
+    public OrderResponse cancel(OrderCancelRequest request) {
+        return sendTransactionMsgForClose(request);
+    }
+
+    @Override
+    @Facade
+    public OrderResponse timeout(OrderTimeoutRequest request) {
+        return sendTransactionMsgForClose(request);
+    }
+
+    @Override
+    @Facade
+    public OrderResponse confirm(OrderConfirmRequest request) {
+        GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest();
+        goodsSaleRequest.setUserId(request.getBuyerId());
+        goodsSaleRequest.setGoodsId(Long.valueOf(request.getGoodsId()));
+        goodsSaleRequest.setGoodsType(request.getGoodsType().name());
+        goodsSaleRequest.setIdentifier(request.getOrderId());
+        goodsSaleRequest.setQuantity(request.getItemCount());
+        BaseResponse response = goodsFacadeService.sale(goodsSaleRequest);
+
+        if (response.getSuccess()) {
+            return orderService.confirm(request);
+        }
+
+        return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(response.getResponseCode(), response.getResponseMessage());
+    }
+
+    @Override
+    @DistributeLock(keyExpression = "#request.identifier", scene = "ORDER_CREATE")
+    @Facade
+    public OrderResponse createAndConfirm(OrderCreateAndConfirmRequest request) {
+        try (Entry entry = SphU.entry("ORDER_CREATE")) {
+            try {
+                orderConfirmValidatorChain.validate(request);
+            } catch (OrderException e) {
+                return new OrderResponse.OrderResponseBuilder().orderId(request.getOrderId()).buildFail(ORDER_CREATE_VALID_FAILED.getCode(), e.getErrorCode().getMessage());
+            }
+
+            if (request.isSyncDecreaseInventory()) {
+                GoodsSaleRequest goodsSaleRequest = new GoodsSaleRequest(request);
+                GoodsSaleResponse response = goodsFacadeService.saleWithoutHint(goodsSaleRequest);
+                if (!response.getSuccess()) {
+                    return new OrderResponse.OrderResponseBuilder().buildFail(response.getResponseMessage(), response.getResponseCode());
+                }
+            }
+
+            return orderService.createAndConfirm(request);
+        }catch (BlockException e) {
+            // 限流、熔断、降级的处理逻辑
+            throw new SystemException(REQUEST_IS_BLOCKED);
+        }
+    }
+
+    @NotNull
+    private OrderResponse sendTransactionMsgForClose(BaseOrderUpdateRequest request) {
+        //因为RocketMQ 的事务消息中，如果本地事务发生了异常，这里返回也会是个 true，所以就需要做一下反查进行二次判断，才能知道关单操作是否成功
+        //消息监听：TradeOrderListener
+        //此处事务是同步的, 先把消息投进队列, 执行事务逻辑 -> 同步执行本地的事务消息逻辑OrderCloseTransactionListener.executeLocalTransaction
+        //在把消息投进队列中，再执行异步逻辑 -> cn.gideon.nft.turbo.trade.listener.TradeOrderListener.orderClose()
+        streamProducer.send("orderClose-out-0", null, JSON.toJSONString(request), "CLOSE_TYPE", request.getOrderEvent().name());
+        TradeOrder tradeOrder = orderReadService.getOrder(request.getOrderId());
+        OrderResponse orderResponse = new OrderResponse();
+        if (tradeOrder.isClosed()) {
+            orderResponse.setSuccess(true);
+        } else {
+            orderResponse.setSuccess(false);
+        }
+        return orderResponse;
+    }
+
+    @Override
+    @Facade
+    public OrderResponse paySuccess(OrderPayRequest request) {
+        OrderResponse response = orderService.paySuccess(request);
+        if (!response.getSuccess()) {
+            TradeOrder existOrder = orderReadService.getOrder(request.getOrderId());
+            if (existOrder != null && existOrder.isClosed()) {
+                return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(OrderErrorCode.ORDER_ALREADY_CLOSED.getCode(), OrderErrorCode.ORDER_ALREADY_CLOSED.getMessage());
+            }
+            if (existOrder != null && existOrder.isPaid()) {
+                if (existOrder.getPayStreamId().equals(request.getPayStreamId()) && existOrder.getPayChannel() == request.getPayChannel()) {
+                    return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildSuccess();
+                } else {
+                    return new OrderResponse.OrderResponseBuilder().orderId(existOrder.getOrderId()).buildFail(OrderErrorCode.ORDER_ALREADY_PAID.getCode(), OrderErrorCode.ORDER_ALREADY_PAID.getMessage());
+                }
+            }
+        }
+        return response;
+    }
+
+    @Override
+    public SingleResponse<TradeOrderVO> getTradeOrder(String orderId) {
+        return SingleResponse.of(TradeOrderConvertor.INSTANCE.mapToVo(orderReadService.getOrder(orderId)));
+    }
+
+    @Override
+    @Facade
+    public SingleResponse<TradeOrderVO> getTradeOrder(String orderId, String userId) {
+        return SingleResponse.of(TradeOrderConvertor.INSTANCE.mapToVo(orderReadService.getOrder(orderId, userId)));
+    }
+
+    @Override
+    @Facade
+    public PageResponse<TradeOrderVO> pageQuery(OrderPageQueryRequest request) {
+        Page<TradeOrder> tradeOrderPage = orderReadService.pageQueryByState(request.getBuyerId(), request.getState(), request.getCurrentPage(), request.getPageSize());
+        List<TradeOrderVO> tradeOrderVos = TradeOrderConvertor.INSTANCE.mapToVo(tradeOrderPage.getRecords());
+        tradeOrderVos.forEach(tradeOrderVO -> tradeOrderVO.setSellerName(getSellerName(tradeOrderVO)));
+        return PageResponse.of(tradeOrderVos, (int) tradeOrderPage.getTotal(), request.getPageSize(), request.getCurrentPage());
+    }
+
+    private String getSellerName(TradeOrderVO tradeOrderVO) {
+        if (tradeOrderVO.getSellerType() == UserType.PLATFORM) {
+            return "平台";
+        }
+        UserQueryRequest userQueryRequest = new UserQueryRequest(Long.valueOf(tradeOrderVO.getSellerId()));
+
+        UserQueryResponse<UserInfo> userQueryResponse = userFacadeService.query(userQueryRequest);
+        if (userQueryResponse.getSuccess()) {
+            return userQueryResponse.getData().getNickName();
+        }
+
+        return "-";
+    }
+}

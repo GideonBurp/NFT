@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: nft-turbo-gateway
+  config:
+    import: classpath:base.yml,classpath:config.yml

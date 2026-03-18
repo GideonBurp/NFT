@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: nft-turbo-gateway
+  config:
+    import: classpath:base.yml,classpath:cache.yml,classpath:config.yml,classpath:prometheus.yml
+  cloud:
+    sentinel:
+      transport:
+        dashboard: ${nft.turbo.sentinel.url}
+      datasource:
+        flow:
+          nacos:
+            server-addr: ${nft.turbo.nacos.server.url}
+            data-id: gateway-flow-rules
+            group-id: SENTINEL_GROUP
+            rule-type: GW_FLOW
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_UNIQUE
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedHeaders: '*'
+            allowedMethods: '*'
+            allowedOrigins: '*'
+      routes:
+        - id: nft-turbo-auth
+          uri: lb://nft-turbo-auth
+          predicates:
+            - Path=/auth/**,/token/**
+        - id: nft-turbo-business
+          uri: lb://nft-turbo-business
+          predicates:
+            - Path=/trade/**,/order/**,/user/**,/collection/**,/wxPay/**,/box/**
+#        - id: nfturbo-collection
+#          uri: lb://nfturbo-collection
+#          predicates:
+#            - Path=/collection/**
+#        - id: nfturbo-order
+#          uri: lb://nfturbo-order
+#          predicates:
+#            - Path=/order/**
+#        - id: nfturbo-trade
+#          uri: lb://nfturbo-trade
+#          predicates:
+#            - Path=/trade/**
+#        - id: nfturbo-user
+#          uri: lb://nfturbo-user
+#          predicates:
+#            - Path=/user/**
+#        - id: nfturbo-pay
+#          uri: lb://nfturbo-pay
+#          predicates:
+#            - Path=/wxPay/**
+server:
+  port: 8481

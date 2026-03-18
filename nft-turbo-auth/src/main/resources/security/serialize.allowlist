@@ -1,0 +1,3 @@
+cn.gideon.nft.turbo.api.collection.model.CollectionVO
+cn.gideon.nft.turbo.api.box.model.BlindBoxVO
+cn.gideon.nft.turbo.api.collection.model.HeldCollectionVO
